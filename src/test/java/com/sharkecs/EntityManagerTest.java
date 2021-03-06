@@ -96,7 +96,7 @@ class EntityManagerTest {
 		Assertions.assertNotNull(mapperB.get(0));
 		Assertions.assertNull(mapperC.get(0));
 
-		manager.update();
+		manager.process();
 
 		Assertions.assertEquals(archetype1, manager.archetypeOf(0));
 		Assertions.assertEquals(archetype1, manager.archetypeOf(1));
@@ -132,7 +132,7 @@ class EntityManagerTest {
 		manager.create(archetype2);
 		manager.create(archetype2);
 
-		manager.update();
+		manager.process();
 
 		listenerA.assertAddLog();
 		listenerA.assertRemoveLog(1, 0);
@@ -149,7 +149,7 @@ class EntityManagerTest {
 		Assertions.assertEquals(1, manager.create(archetype1));
 		Assertions.assertEquals(5, manager.create(archetype1));
 
-		manager.update();
+		manager.process();
 
 		listenerA.assertAddLog(0, 1, 5);
 
@@ -160,7 +160,7 @@ class EntityManagerTest {
 	void transmuteTest() {
 		int id = manager.create(archetype1);
 
-		manager.update();
+		manager.process();
 
 		clearListeners();
 
@@ -182,7 +182,7 @@ class EntityManagerTest {
 
 		manager.transmute(id, archetype3);
 
-		manager.update();
+		manager.process();
 
 		listenerA.assertAddLog();
 		listenerA.assertChangeLog();
@@ -207,7 +207,7 @@ class EntityManagerTest {
 	private void checkEmptyRun() {
 		clearListeners();
 
-		manager.update();
+		manager.process();
 
 		listenerA.assertAddLog();
 		listenerA.assertChangeLog();

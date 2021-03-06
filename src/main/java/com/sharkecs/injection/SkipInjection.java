@@ -1,5 +1,6 @@
-package com.sharkecs.annotation;
+package com.sharkecs.injection;
 
+import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -7,7 +8,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 @Retention(RUNTIME)
-@Target(TYPE)
-public @interface WithAny {
-    Class<?>[] value();
+@Target({ TYPE, FIELD })
+public @interface SkipInjection {
+
 }

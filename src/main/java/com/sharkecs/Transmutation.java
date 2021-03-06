@@ -2,94 +2,110 @@ package com.sharkecs;
 
 import java.util.Objects;
 
+import com.sharkecs.injection.SkipInjection;
+
+/**
+ * <p>
+ * Represents a transmutation operation, changing an entity of a given archetype
+ * to another.
+ * 
+ * <p>
+ * Stores the {@link Subscription}s and {@link ComponentMapper}s associated with
+ * this transmutation, these arrays must not be manually modified, or unexpected
+ * behaviors may occurs.
+ * 
+ * @author Joannick Gardize
+ *
+ */
+@SkipInjection
 public class Transmutation {
 
-    private Archetype from;
-    private Archetype to;
+	private Archetype from;
+	private Archetype to;
 
-    private Subscription[] addSubscriptions;
-    private Subscription[] changeSubscriptions;
-    private Subscription[] removeSubscriptions;
+	private Subscription[] addSubscriptions;
+	private Subscription[] changeSubscriptions;
+	private Subscription[] removeSubscriptions;
 
-    private ComponentMapper<Object>[] addMappers;
-    private ComponentMapper<Object>[] removeMappers;
+	private ComponentMapper<Object>[] addMappers;
+	private ComponentMapper<Object>[] removeMappers;
 
-    public Transmutation(Archetype from, Archetype to) {
-        this.from = from;
-        this.to = to;
-    }
+	public Transmutation(Archetype from, Archetype to) {
+		this.from = from;
+		this.to = to;
+	}
 
-    public Archetype getFrom() {
-        return from;
-    }
+	public Archetype getFrom() {
+		return from;
+	}
 
-    public Archetype getTo() {
-        return to;
-    }
+	public Archetype getTo() {
+		return to;
+	}
 
-    Subscription[] getAddSubscriptions() {
-        return addSubscriptions;
-    }
+	public Subscription[] getAddSubscriptions() {
+		return addSubscriptions;
+	}
 
-    void setAddSubscriptions(Subscription[] addSubscriptions) {
-        this.addSubscriptions = addSubscriptions;
-    }
+	public void setAddSubscriptions(Subscription[] addSubscriptions) {
+		this.addSubscriptions = addSubscriptions;
+	}
 
-    Subscription[] getChangeSubscriptions() {
-        return changeSubscriptions;
-    }
+	public Subscription[] getChangeSubscriptions() {
+		return changeSubscriptions;
+	}
 
-    void setChangeSubscriptions(Subscription[] changeSubscriptions) {
-        this.changeSubscriptions = changeSubscriptions;
-    }
+	public void setChangeSubscriptions(Subscription[] changeSubscriptions) {
+		this.changeSubscriptions = changeSubscriptions;
+	}
 
-    Subscription[] getRemoveSubscriptions() {
-        return removeSubscriptions;
-    }
+	public Subscription[] getRemoveSubscriptions() {
+		return removeSubscriptions;
+	}
 
-    void setRemoveSubscriptions(Subscription[] removeSubscriptions) {
-        this.removeSubscriptions = removeSubscriptions;
-    }
+	public void setRemoveSubscriptions(Subscription[] removeSubscriptions) {
+		this.removeSubscriptions = removeSubscriptions;
+	}
 
-    ComponentMapper<Object>[] getAddMappers() {
-        return addMappers;
-    }
+	public ComponentMapper<Object>[] getAddMappers() {
+		return addMappers;
+	}
 
-    void setAddMappers(ComponentMapper<Object>[] addMappers) {
-        this.addMappers = addMappers;
-    }
+	public void setAddMappers(ComponentMapper<Object>[] addMappers) {
+		this.addMappers = addMappers;
+	}
 
-    ComponentMapper<Object>[] getRemoveMappers() {
-        return removeMappers;
-    }
+	public ComponentMapper<Object>[] getRemoveMappers() {
+		return removeMappers;
+	}
 
-    void setRemoveMappers(ComponentMapper<Object>[] removeMappers) {
-        this.removeMappers = removeMappers;
-    }
+	public void setRemoveMappers(ComponentMapper<Object>[] removeMappers) {
+		this.removeMappers = removeMappers;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((from == null) ? 0 : from.hashCode());
-        result = prime * result + ((to == null) ? 0 : to.hashCode());
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((from == null) ? 0 : from.hashCode());
+		result = prime * result + ((to == null) ? 0 : to.hashCode());
+		return result;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        } else if (!(obj instanceof Transmutation)) {
-            return false;
-        } else {
-            Transmutation other = (Transmutation) obj;
-            return Objects.equals(from, other.from) && Objects.equals(to, other.to);
-        }
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		} else if (!(obj instanceof Transmutation)) {
+			return false;
+		} else {
+			Transmutation other = (Transmutation) obj;
+			return Objects.equals(from, other.from) && Objects.equals(to, other.to);
+		}
+	}
 
-    @Override
-    public String toString() {
-        return "Transmutation (" + from.getName() + " -> " + to.getName() + ")";
-    }
+	@Override
+	public String toString() {
+		return "Transmutation (" + from.getName() + " -> " + to.getName() + ")";
+	}
 }

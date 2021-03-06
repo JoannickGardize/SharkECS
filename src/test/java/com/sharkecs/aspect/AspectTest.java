@@ -1,4 +1,4 @@
-package com.sharkecs;
+package com.sharkecs.aspect;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -7,9 +7,10 @@ import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.sharkecs.annotation.WithAll;
-import com.sharkecs.annotation.WithAny;
-import com.sharkecs.annotation.Without;
+import com.sharkecs.aspect.Aspect;
+import com.sharkecs.aspect.WithAll;
+import com.sharkecs.aspect.WithAny;
+import com.sharkecs.aspect.Without;
 
 class AspectTest {
 

@@ -1,9 +1,11 @@
 package com.sharkecs;
 
+import com.sharkecs.injection.SkipInjection;
 import com.sharkecs.util.Bag;
 import com.sharkecs.util.IntBag;
 
-public class EntityManager {
+@SkipInjection
+public class EntityManager implements Processor {
 
 	private static class InsertionEntry {
 		int id;
@@ -79,7 +81,8 @@ public class EntityManager {
 		entry.transmutation = transmutation;
 	}
 
-	public void update() {
+	@Override
+	public void process() {
 		insertPending();
 		transmutePending();
 		removePending();
@@ -87,7 +90,6 @@ public class EntityManager {
 	}
 
 	public Archetype archetypeOf(int entityId) {
-		// TODO to test
 		return entities.get(entityId);
 	}
 
