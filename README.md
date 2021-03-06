@@ -5,7 +5,7 @@ The specificity of SharkECS is that all possible entity composition and mutation
 
 ## Getting started
 
-[EngineBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/EngineBuilder.java) is used to configure the Engine, here's a simple fictitious exemple of an engine made of player(s) and bullets that could damage them:
+[EngineBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/EngineBuilder.java) is used to configure the Engine, here's a simple fictitious example of an engine made of player(s) and bullets that could damage them:
 ```java
 public class GettingStarted {
 
