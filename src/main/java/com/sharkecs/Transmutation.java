@@ -2,7 +2,7 @@ package com.sharkecs;
 
 import java.util.Objects;
 
-import com.sharkecs.injection.SkipInjection;
+import com.sharkecs.annotation.SkipInjection;
 
 /**
  * <p>

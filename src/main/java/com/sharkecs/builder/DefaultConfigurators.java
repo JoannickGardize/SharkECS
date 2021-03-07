@@ -10,13 +10,13 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import com.sharkecs.Archetype;
+import com.sharkecs.Aspect;
 import com.sharkecs.ComponentMapper;
 import com.sharkecs.Engine;
 import com.sharkecs.Processor;
 import com.sharkecs.Subscriber;
 import com.sharkecs.Subscription;
 import com.sharkecs.Transmutation;
-import com.sharkecs.aspect.Aspect;
 
 /**
  * Container class of all default {@link Configurator}s used by
@@ -60,6 +60,9 @@ public class DefaultConfigurators {
 		        .toArray(Subscription[]::new));
 		archetype.setComponentMappers(archetype.getComponentTypes().stream()
 		        .map(t -> registrations.getOrFail(ComponentMapper.class, t)).toArray(ComponentMapper[]::new));
+		archetype.setAutoCreateComponentMappers(archetype.getComponentTypes().stream()
+		        .filter(t -> archetype.isAutoCreation(t, engineBuilder.defaultComponentAutoCreation()))
+		        .map(t -> registrations.getOrFail(ComponentMapper.class, t)).toArray(ComponentMapper[]::new));
 		archetype.setTransmutations(new Transmutation[registrations.typeCount(Archetype.class)]);
 	}
 
@@ -87,10 +90,13 @@ public class DefaultConfigurators {
 		private static class ArchetypeSets {
 			Set<Subscription> subscriptions;
 			@SuppressWarnings("rawtypes")
+			Set<ComponentMapper> autoCreateComponentMappers;
+			@SuppressWarnings("rawtypes")
 			Set<ComponentMapper> componentMappers;
 
 			public ArchetypeSets(Archetype archetype) {
 				subscriptions = new HashSet<>(Arrays.asList(archetype.getSubscriptions()));
+				autoCreateComponentMappers = new HashSet<>(Arrays.asList(archetype.getAutoCreateComponentMappers()));
 				componentMappers = new HashSet<>(Arrays.asList(archetype.getComponentMappers()));
 			}
 		}
@@ -109,7 +115,8 @@ public class DefaultConfigurators {
 			transmutation.setRemoveSubscriptions(notContains(Subscription.class, from.subscriptions, to.subscriptions));
 			transmutation.setChangeSubscriptions(contains(Subscription.class, from.subscriptions, to.subscriptions));
 
-			transmutation.setAddMappers(notContains(ComponentMapper.class, to.componentMappers, from.componentMappers));
+			transmutation.setAddMappers(
+			        notContains(ComponentMapper.class, to.autoCreateComponentMappers, from.componentMappers));
 			transmutation
 			        .setRemoveMappers(notContains(ComponentMapper.class, from.componentMappers, to.componentMappers));
 		}

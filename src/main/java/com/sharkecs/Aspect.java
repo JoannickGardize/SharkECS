@@ -1,11 +1,13 @@
-package com.sharkecs.aspect;
+package com.sharkecs;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import com.sharkecs.Subscriber;
+import com.sharkecs.annotation.WithAll;
+import com.sharkecs.annotation.WithAny;
+import com.sharkecs.annotation.Without;
 
 /**
  * <p>

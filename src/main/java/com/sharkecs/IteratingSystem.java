@@ -1,6 +1,5 @@
 package com.sharkecs;
 
-import com.sharkecs.aspect.Aspect;
 import com.sharkecs.util.IntBag;
 
 /**

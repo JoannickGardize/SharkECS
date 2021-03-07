@@ -20,6 +20,14 @@ public interface ComponentMapper<T> {
 	void create(int entityId);
 
 	/**
+	 * Associates the given component to the given entity
+	 * 
+	 * @param entityId
+	 * @param component
+	 */
+	void put(int entityId, T component);
+
+	/**
 	 * Remove the component associated with the given entity, if any.
 	 * 
 	 * @param entityId the entity for which the component will be removed

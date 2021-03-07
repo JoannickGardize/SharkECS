@@ -1,4 +1,4 @@
-package com.sharkecs.injection;
+package com.sharkecs.annotation;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.TYPE;

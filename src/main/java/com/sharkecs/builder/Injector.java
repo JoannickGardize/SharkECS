@@ -5,8 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.sharkecs.injection.Inject;
-import com.sharkecs.injection.SkipInjection;
+import com.sharkecs.annotation.Inject;
+import com.sharkecs.annotation.SkipInjection;
 import com.sharkecs.util.ReflectionUtils;
 
 public class Injector {

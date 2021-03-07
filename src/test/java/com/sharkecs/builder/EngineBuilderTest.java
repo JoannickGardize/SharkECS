@@ -14,11 +14,13 @@ import com.sharkecs.EntityManager;
 import com.sharkecs.IteratingSystem;
 import com.sharkecs.Subscription;
 import com.sharkecs.Transmutation;
-import com.sharkecs.aspect.WithAll;
-import com.sharkecs.aspect.WithAny;
-import com.sharkecs.injection.SkipInjection;
+import com.sharkecs.annotation.AutoCreation;
+import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.annotation.WithAll;
+import com.sharkecs.annotation.WithAny;
 import com.sharkecs.testutil.ArrayTestUtils;
 
+// Split this test class into smaller ones
 class EngineBuilderTest {
 
 	@WithAny({ A.class, B.class })
@@ -130,6 +132,7 @@ class EngineBuilderTest {
 
 	}
 
+	@AutoCreation(false)
 	static class C {
 
 	}
@@ -175,6 +178,7 @@ class EngineBuilderTest {
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getSubscriptions(), systemA.getSubscription());
 
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getComponentMappers(), systemA.getMapperA());
+		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getAutoCreateComponentMappers(), systemA.getMapperA());
 
 		Assertions.assertEquals(3, archetypeA.getTransmutations().length);
 		Assertions.assertNull(archetypeA.getTransmutations()[0]);
@@ -188,6 +192,7 @@ class EngineBuilderTest {
 
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getComponentMappers(), systemA.getMapperB(),
 		        systemA.getMapperC());
+		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getAutoCreateComponentMappers(), systemA.getMapperB());
 
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getTransmutations(), null, null, null);
 
@@ -195,7 +200,8 @@ class EngineBuilderTest {
 
 		Transmutation transmutation = archetypeA.getTransmutations()[1];
 
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getComponentMappers(), (Object[]) transmutation.getAddMappers());
+		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getAutoCreateComponentMappers(),
+		        (Object[]) transmutation.getAddMappers());
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getComponentMappers(),
 		        (Object[]) transmutation.getRemoveMappers());
 		ArrayTestUtils.assertEqualsAnyOrder(new Subscription[] { systemB.getSubscription() },
@@ -216,8 +222,10 @@ class EngineBuilderTest {
 
 		EntityManager entityManager = systemA.getEntityManager();
 
-		entityManager.create(archetypeC);
-		entityManager.create(archetypeA);
+		int id = entityManager.create(archetypeC);
+		Assertions.assertNull(systemA.getMapperC().get(id));
+		id = entityManager.create(archetypeA);
+		Assertions.assertNotNull(systemA.getMapperA().get(id));
 		entityManager.create(archetypeA);
 
 		engine.process();

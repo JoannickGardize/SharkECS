@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.sharkecs.injection.Inject;
-import com.sharkecs.injection.SkipInjection;
+import com.sharkecs.annotation.Inject;
+import com.sharkecs.annotation.SkipInjection;
 
 class InjectorTest {
 

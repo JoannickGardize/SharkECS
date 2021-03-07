@@ -3,7 +3,7 @@ package com.sharkecs.example;
 import com.sharkecs.ComponentMapper;
 import com.sharkecs.EntityManager;
 import com.sharkecs.IteratingSystem;
-import com.sharkecs.aspect.WithAll;
+import com.sharkecs.annotation.WithAll;
 
 @WithAll({ Physics.class, Bullet.class })
 public class BulletDamageSystem extends IteratingSystem {

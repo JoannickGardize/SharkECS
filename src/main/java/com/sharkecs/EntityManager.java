@@ -1,6 +1,6 @@
 package com.sharkecs;
 
-import com.sharkecs.injection.SkipInjection;
+import com.sharkecs.annotation.SkipInjection;
 import com.sharkecs.util.Bag;
 import com.sharkecs.util.IntBag;
 
@@ -47,7 +47,7 @@ public class EntityManager implements Processor {
 		InsertionEntry entry = pendingInsertion.nextOrAdd(InsertionEntry::new);
 		entry.id = id;
 		entry.archetype = archetype;
-		for (ComponentMapper<Object> mapper : archetype.getComponentMappers()) {
+		for (ComponentMapper<Object> mapper : archetype.getAutoCreateComponentMappers()) {
 			mapper.create(id);
 		}
 		return id;

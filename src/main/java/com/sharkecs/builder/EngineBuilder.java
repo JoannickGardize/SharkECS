@@ -50,6 +50,7 @@ public class EngineBuilder {
 	private RegistrationMap registrations;
 	private Injector injector;
 	private List<Processor> processors;
+	private boolean defaultComponentAutoCreation;
 	private boolean configuring;
 
 	/**
@@ -74,6 +75,7 @@ public class EngineBuilder {
 		registrations = new RegistrationMap();
 		injector = new Injector();
 		processors = new ArrayList<>();
+		defaultComponentAutoCreation = true;
 		configuring = true;
 	}
 
@@ -221,6 +223,33 @@ public class EngineBuilder {
 	 */
 	public void autoInjectType(Class<?> type) {
 		injector.addAutoInjectType(type);
+	}
+
+	/**
+	 * <p>
+	 * Set the default auto creation setting of components.
+	 * <p>
+	 * If true, components are automatically created via
+	 * {@link ComponentMapper#create(int)} at entity creation and transmutation.
+	 * <p>
+	 * If false, components must be inserted manually via
+	 * {@link ComponentMapper#put(int, Object)}. This is useful to avoid a get
+	 * operation for components that systematically requires initialization at
+	 * creation or transmutation.
+	 * <p>
+	 * True by default.
+	 * 
+	 * @param defaultComponentAutoCreation
+	 */
+	public void defaultComponentAutoCreation(boolean defaultComponentAutoCreation) {
+		this.defaultComponentAutoCreation = defaultComponentAutoCreation;
+	}
+
+	/**
+	 * @return the default auto creation setting of components
+	 */
+	public boolean defaultComponentAutoCreation() {
+		return defaultComponentAutoCreation;
 	}
 
 	/**

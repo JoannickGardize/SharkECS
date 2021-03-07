@@ -15,26 +15,32 @@ import com.sharkecs.util.Bag;
  */
 public class FlatArrayComponentMapper<T> implements ComponentMapper<T> {
 
-    private Bag<T> components;
-    private Supplier<? extends T> newInstanceSupplier;
+	private Bag<T> components;
+	private Supplier<? extends T> newInstanceSupplier;
 
-    public FlatArrayComponentMapper(int initialCapacity, Supplier<? extends T> newInstanceSupplier) {
-        components = new Bag<>(initialCapacity);
-        this.newInstanceSupplier = newInstanceSupplier;
-    }
+	public FlatArrayComponentMapper(int initialCapacity, Supplier<? extends T> newInstanceSupplier) {
+		components = new Bag<>(initialCapacity);
+		this.newInstanceSupplier = newInstanceSupplier;
+	}
 
-    @Override
-    public void create(int entityId) {
-        components.unsafeSet(entityId, newInstanceSupplier.get());
-    }
+	@Override
+	public void create(int entityId) {
+		components.unsafeSet(entityId, newInstanceSupplier.get());
+	}
 
-    @Override
-    public void remove(int entityId) {
-        components.unsafeSet(entityId, null);
-    }
+	@Override
+	public void put(int entityId, T component) {
+		components.unsafeSet(entityId, component);
+	}
 
-    @Override
-    public T get(int entityId) {
-        return components.get(entityId);
-    }
+	@Override
+	public void remove(int entityId) {
+		components.unsafeSet(entityId, null);
+	}
+
+	@Override
+	public T get(int entityId) {
+		return components.get(entityId);
+	}
+
 }
