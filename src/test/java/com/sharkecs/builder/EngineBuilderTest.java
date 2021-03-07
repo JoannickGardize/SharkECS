@@ -1,5 +1,9 @@
 package com.sharkecs.builder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +16,7 @@ import com.sharkecs.Subscription;
 import com.sharkecs.Transmutation;
 import com.sharkecs.aspect.WithAll;
 import com.sharkecs.aspect.WithAny;
+import com.sharkecs.injection.SkipInjection;
 import com.sharkecs.testutil.ArrayTestUtils;
 
 class EngineBuilderTest {
@@ -26,8 +31,14 @@ class EngineBuilderTest {
 		private ComponentMapper<B> mapperB;
 		private ComponentMapper<C> mapperC;
 
+		private EntityManager entityManager;
+
+		@SkipInjection
+		private List<Integer> entityLog = new ArrayList<>();
+
 		@Override
 		public void process(int entityId) {
+			entityLog.add(entityId);
 		}
 
 		public Object getThing() {
@@ -68,6 +79,18 @@ class EngineBuilderTest {
 
 		public void setMapperC(ComponentMapper<C> mapperC) {
 			this.mapperC = mapperC;
+		}
+
+		public EntityManager getEntityManager() {
+			return entityManager;
+		}
+
+		public void setEntityManager(EntityManager entityManager) {
+			this.entityManager = entityManager;
+		}
+
+		public List<Integer> getEntityLog() {
+			return entityLog;
 		}
 	}
 
@@ -126,6 +149,7 @@ class EngineBuilderTest {
 
 		Archetype archetypeA = builder.archetype("archetypeA", A.class);
 		Archetype archetypeB = builder.archetype("archetypeB", B.class, C.class);
+		Archetype archetypeC = builder.archetype("archetypeC", C.class);
 
 		builder.transmutation("archetypeA", "archetypeB");
 
@@ -152,10 +176,11 @@ class EngineBuilderTest {
 
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getComponentMappers(), systemA.getMapperA());
 
-		Assertions.assertEquals(2, archetypeA.getTransmutations().length);
+		Assertions.assertEquals(3, archetypeA.getTransmutations().length);
 		Assertions.assertNull(archetypeA.getTransmutations()[0]);
 		Assertions.assertEquals(archetypeA, archetypeA.getTransmutations()[1].getFrom());
 		Assertions.assertEquals(archetypeB, archetypeA.getTransmutations()[1].getTo());
+		Assertions.assertNull(archetypeA.getTransmutations()[2]);
 
 		// archetypeB assertions
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getSubscriptions(), systemA.getSubscription(),
@@ -164,7 +189,7 @@ class EngineBuilderTest {
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getComponentMappers(), systemA.getMapperB(),
 		        systemA.getMapperC());
 
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getTransmutations(), null, null);
+		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getTransmutations(), null, null, null);
 
 		// transmutation assertions
 
@@ -186,5 +211,17 @@ class EngineBuilderTest {
 		// FakeSystemB assertions
 		Assertions.assertSame(archetypeA, systemB.getArchetypeA());
 		Assertions.assertSame(archetypeB, systemB.getArchetypeB());
+
+		// Iteration test
+
+		EntityManager entityManager = systemA.getEntityManager();
+
+		entityManager.create(archetypeC);
+		entityManager.create(archetypeA);
+		entityManager.create(archetypeA);
+
+		engine.process();
+
+		Assertions.assertEquals(Arrays.asList(1, 2), systemA.getEntityLog());
 	}
 }

@@ -15,8 +15,8 @@ public abstract class SubscriberAdapter implements Subscriber {
 
 	@Override
 	public void subscribe(Subscription subscription) {
-		if (subscription == null) {
-			throw new IllegalStateException("The system already has a subscription");
+		if (this.subscription != null) {
+			throw new IllegalStateException("The subscriber already has a subscription");
 		}
 		this.subscription = subscription;
 		this.subscription.addListener(this);
