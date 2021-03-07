@@ -249,7 +249,7 @@ public class EngineBuilder {
 		configuring = false;
 		applyConfigurators();
 		registrations.forEach(o -> injector.inject(o, registrations));
-		return new Engine(processors.toArray(Processor[]::new));
+		return new Engine(processors.toArray(new Processor[processors.size()]));
 	}
 
 	/**
