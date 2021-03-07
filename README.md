@@ -1,3 +1,5 @@
+**DISCLAISMER**: Early development phase, things may drastically change over time and major bugs could exists.
+
 # SharkECS
 Entity Component System implementation focused on performance, good design, and ease of use.
 
