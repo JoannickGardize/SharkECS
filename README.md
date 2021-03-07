@@ -8,7 +8,7 @@ The specificity of SharkECS regarding to other ECS frameworks is that all possib
 - **Entity**: entities are simple integer id, representing something made of components. Entity creation, deletion, and mutation operations are made via the [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityManager.java). Note that entity ids are not unique other time.
 - **Component**: Components are pure data holders representing an aspect of entities (position, body, health, sprite...). Components are accessed via [ComponentMappers](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/ComponentMapper.java).
 - **Archetype**: an [Archetype](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Archetype.java) is a declaration of component composition used to create entities at runtime.
-- **Transmutation**: a [Transmutation](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Transmutation.java) is the declaration of a possible mutation operation from an Archetype to another.
+- **Transmutation**: a [Transmutation](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Transmutation.java) is the declaration of a possible mutation operation from an Archetype to another at runtime.
 - **Aspect:** [Aspects](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/aspect/Aspect.java) represents a group of possible entity composition (of component), Aspect declaration is made via annotation on classes implementing [Subscriber](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Subscriber.java).
 - **Subscription**: a maintained collection of entity, generally of a given aspect. A subscription can be listened to get notified of insertion, removal, and mutation.
 - **Subscriber**: a class interested to subscribe to a subscription (generally of a given aspect, via it's class annotation declaration). [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/SubscriberAdapter.java) is a convenient base for this kind of class. Typical systems will subscribe to a subscription and iterate over its entities during processing.
@@ -95,7 +95,7 @@ builder.with(new ExternalPhysicsEngine());
 
 Engine engine = builder.build();
 ```
-Then, call ```engine.process()``` in your main game loop.
+Finally, call ```engine.process()``` in your main game loop.
 
 ### Transmutation, injection by generic types, custom engine configurator...
 
