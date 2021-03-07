@@ -5,8 +5,24 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import com.sharkecs.Subscriber;
+
 /**
- * Represents a set of component composition of entities.
+ * <p>
+ * Represents a set of component composition of entities. This is not intended
+ * to be instantiated by users. Instead, annotations should be used in classes
+ * declaration to declare their interest to a given aspect. The annotated class
+ * should implements {@link Subscriber} to be wired during the engine building.
+ * <p>
+ * There is three possible annotations:
+ * <ul>
+ * <li>{@link WithAll}: contains at least all the given component types.
+ * <li>{@link WithAny}: contains at least one of the given component types.
+ * <li>{@link Without}: does not contains any of the given component types.
+ * </ul>
+ * These three annotations may be mixed. If the given class does not have any of
+ * these three annotations, the assumed Aspect will match with all possible
+ * composition.
  * 
  * @author Joannick Gardize
  *
@@ -18,15 +34,7 @@ public class Aspect {
 	private Set<Class<?>> without;
 
 	/**
-	 * Creates a new Aspect using annotations present on the given class:
-	 * <ul>
-	 * <li>{@link WithAll}: contains at least all the given component types.
-	 * <li>{@link WithAny}: contains at least one of the given component types.
-	 * <li>{@link Without}: does not contains any of the given component types.
-	 * </ul>
-	 * These three annotations may be mixed. If the given class does not have any of
-	 * these three annotations, the created Aspect will match with all possible
-	 * composition.
+	 * Creates a new Aspect using annotations present on the given class.
 	 * 
 	 * @param annotatedType the annotated class
 	 */

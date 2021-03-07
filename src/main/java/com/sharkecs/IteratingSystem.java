@@ -14,10 +14,19 @@ public abstract class IteratingSystem extends SubscriberAdapter implements Proce
 
 	@Override
 	public void process() {
+		begin();
 		IntBag entities = getEntities();
 		for (int i = 0, size = entities.size(); i < size; i++) {
 			process(entities.get(i));
 		}
+		end();
+	}
+
+	/**
+	 * Called at the beginning of a process run. Does nothing by default.
+	 */
+	public void begin() {
+		// Nothing by default
 	}
 
 	/**
@@ -26,4 +35,11 @@ public abstract class IteratingSystem extends SubscriberAdapter implements Proce
 	 * @param entityId the ID of the entity to process
 	 */
 	public abstract void process(int entityId);
+
+	/**
+	 * Called at the end of a process run. Does nothing by default.
+	 */
+	public void end() {
+		// Nothing by default
+	}
 }

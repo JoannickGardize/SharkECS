@@ -27,12 +27,23 @@ public interface ComponentMapper<T> {
 	void remove(int entityId);
 
 	/**
-	 * Retrieve the component associated to the given entity. The behavior of trying
-	 * to retrieve a component that does not exists is undefined.
+	 * Retrieve the component associated to the given entity, or null if there is
+	 * not.
 	 * 
 	 * @param entityId the entity id for which the associated component will be
 	 *                 returned
-	 * @return the component associated to the given entity
+	 * @return the component associated to the given entity, or null if there is
+	 *         not.
 	 */
 	T get(int entityId);
+
+	/**
+	 * Test if the given entity has this type of component.
+	 * 
+	 * @param entityId
+	 * @return true if the entity has this type of component, false otherwise
+	 */
+	default boolean has(int entityId) {
+		return get(entityId) != null;
+	}
 }
