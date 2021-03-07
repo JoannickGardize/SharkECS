@@ -17,7 +17,7 @@ public interface ComponentMapper<T> {
 	 * @param entityId the entity id associated to the newly created (or recycled)
 	 *                 component
 	 */
-	void create(int entityId);
+	T create(int entityId);
 
 	/**
 	 * Associates the given component to the given entity

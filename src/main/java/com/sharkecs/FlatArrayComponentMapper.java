@@ -24,8 +24,10 @@ public class FlatArrayComponentMapper<T> implements ComponentMapper<T> {
 	}
 
 	@Override
-	public void create(int entityId) {
-		components.unsafeSet(entityId, newInstanceSupplier.get());
+	public T create(int entityId) {
+		T component = newInstanceSupplier.get();
+		components.unsafeSet(entityId, component);
+		return component;
 	}
 
 	@Override
