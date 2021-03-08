@@ -9,6 +9,7 @@ import com.sharkecs.ComponentMapper;
 import com.sharkecs.Engine;
 import com.sharkecs.EntityManager;
 import com.sharkecs.FlatArrayComponentMapper;
+import com.sharkecs.Initializable;
 import com.sharkecs.Processor;
 import com.sharkecs.Subscriber;
 import com.sharkecs.Transmutation;
@@ -18,11 +19,11 @@ import com.sharkecs.Transmutation;
  * Builder of {@link Engine}. Uses {@link #withDefaults()} to create a builder
  * with the following minimal default configuration:
  * <ul>
- * <li>Add all {@link Configurator} methods and classes from
+ * <li>Adds all {@link Configurator} methods and classes from
  * {@link DefaultConfigurators} (See the javadoc of {@link DefaultConfigurators}
- * for more details about these configurators).
- * <li>Add {@link Subscriber} and {@link Processor} types as auto inject types
- * for the {@link Injector}.
+ * for more details about these configurators), plus the {@link Injector}.
+ * <li>Adds {@link Subscriber}, {@link Processor}, and {@link Initializable} as
+ * auto inject types for the {@link Injector}.
  * <li>Register an {@link EntityManager}.
  * </ul>
  * <p>
@@ -80,8 +81,8 @@ public class EngineBuilder {
 	}
 
 	/**
-	 * Creates an EngineBuilder with the a default configuration as mentioned above,
-	 * and an expected maximum number of entity of
+	 * Creates an EngineBuilder with the minimal default configuration as mentioned
+	 * above, and an expected maximum number of entity of
 	 * {@link #DEFAULT_EXPECTED_ENTITY_COUNT}.
 	 * 
 	 * @return an EngineBuilder with default configuration
@@ -91,25 +92,29 @@ public class EngineBuilder {
 	}
 
 	/**
-	 * Creates an EngineBuilder with the a default configuration as mentioned above.
+	 * Creates an EngineBuilder with the minimal default configuration as mentioned
+	 * above.
 	 * 
 	 * @param expectedEntityCount the expected maximum number of entity.
 	 * @return an EngineBuilder with default configuration
 	 */
 	public static EngineBuilder withDefaults(int expectedEntityCount) {
-		EngineBuilder eb = new EngineBuilder(expectedEntityCount);
+		EngineBuilder builder = new EngineBuilder(expectedEntityCount);
 
-		eb.configurator(Subscriber.class, DefaultConfigurators::configureSubscriber);
-		eb.configurator(Archetype.class, DefaultConfigurators::configureArchetype);
-		eb.configurator(Transmutation.class, new DefaultConfigurators.TransmutationConfigurator());
-		eb.configurator(Processor.class, DefaultConfigurators::configureProcessors);
+		builder.configurator(Subscriber.class, DefaultConfigurators::configureSubscriber);
+		builder.configurator(Archetype.class, DefaultConfigurators::configureArchetype);
+		builder.configurator(Transmutation.class, new DefaultConfigurators.TransmutationConfigurator());
+		builder.configurator(Processor.class, DefaultConfigurators::configureProcessors);
+		builder.configurator(Object.class, builder.getInjector());
+		builder.configurator(Initializable.class, DefaultConfigurators::configureInitializables);
 
-		eb.with(new EntityManager(expectedEntityCount));
+		builder.with(new EntityManager(expectedEntityCount));
 
-		eb.autoInjectType(Processor.class);
-		eb.autoInjectType(Subscriber.class);
+		builder.autoInjectType(Processor.class);
+		builder.autoInjectType(Subscriber.class);
+		builder.autoInjectType(Initializable.class);
 
-		return eb;
+		return builder;
 	}
 
 	/**
@@ -124,6 +129,29 @@ public class EngineBuilder {
 	public <T> void configurator(Class<T> type, Configurator<T> configurator) {
 		checkConfiguring();
 		typeConfigurators.add(new TypeConfigurator<>(type, configurator));
+	}
+
+	public <T> void configuratorBefore(Class<T> type, Configurator<T> configurator, Class<?> before) {
+		checkConfiguring();
+		typeConfigurators.add(indexOfConfigurator(before), new TypeConfigurator<>(type, configurator));
+	}
+
+	public <T> void configuratorAfter(Class<T> type, Configurator<T> configurator, Class<?> after) {
+		checkConfiguring();
+		typeConfigurators.add(indexOfConfigurator(after) + 1, new TypeConfigurator<>(type, configurator));
+	}
+
+	public <T> void configuratorBeforeInjection(Class<T> type, Configurator<T> configurator) {
+		configuratorBefore(type, configurator, Object.class);
+	}
+
+	private int indexOfConfigurator(Class<?> type) {
+		for (int i = 0; i < typeConfigurators.size(); i++) {
+			if (typeConfigurators.get(i).getType() == type) {
+				return i;
+			}
+		}
+		throw new EngineConfigurationException("No configurator for type " + type);
 	}
 
 	/**
@@ -277,7 +305,6 @@ public class EngineBuilder {
 		checkConfiguring();
 		configuring = false;
 		applyConfigurators();
-		registrations.forEach(o -> injector.inject(o, registrations));
 		return new Engine(processors.toArray(new Processor[processors.size()]));
 	}
 

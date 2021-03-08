@@ -9,7 +9,7 @@ import com.sharkecs.annotation.Inject;
 import com.sharkecs.annotation.SkipInjection;
 import com.sharkecs.util.ReflectionUtils;
 
-public class Injector {
+public class Injector implements Configurator<Object> {
 
 	private Set<Class<?>> autoInjectTypes;
 
@@ -19,6 +19,11 @@ public class Injector {
 
 	public void addAutoInjectType(Class<?> type) {
 		autoInjectTypes.add(type);
+	}
+
+	@Override
+	public void configure(Object object, EngineBuilder engineBuilder) {
+		inject(object, engineBuilder.getRegistrations());
 	}
 
 	public void inject(Object object, RegistrationMap registrations) {

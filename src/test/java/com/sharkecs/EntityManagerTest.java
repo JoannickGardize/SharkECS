@@ -60,8 +60,11 @@ class EntityManagerTest {
 		subscriptionC.addListener(listenerC);
 
 		archetype1.setComponentMappers(new ComponentMapper[] { mapperA, mapperB });
+		archetype1.setAutoCreateComponentMappers(new ComponentMapper[] { mapperA, mapperB });
 		archetype2.setComponentMappers(new ComponentMapper[] { mapperC });
+		archetype2.setAutoCreateComponentMappers(new ComponentMapper[] { mapperC });
 		archetype3.setComponentMappers(new ComponentMapper[] { mapperB, mapperC });
+		archetype3.setAutoCreateComponentMappers(new ComponentMapper[] { mapperB, mapperC });
 
 		archetype1.setSubscriptions(new Subscription[] { subscriptionA, subscriptionB });
 		archetype2.setSubscriptions(new Subscription[] { subscriptionC });

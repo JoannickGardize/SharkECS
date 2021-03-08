@@ -13,6 +13,7 @@ import com.sharkecs.Archetype;
 import com.sharkecs.Aspect;
 import com.sharkecs.ComponentMapper;
 import com.sharkecs.Engine;
+import com.sharkecs.Initializable;
 import com.sharkecs.Processor;
 import com.sharkecs.Subscriber;
 import com.sharkecs.Subscription;
@@ -75,6 +76,17 @@ public class DefaultConfigurators {
 	 */
 	public static void configureProcessors(Processor processor, EngineBuilder engineBuilder) {
 		engineBuilder.addProcessor(processor);
+	}
+
+	/**
+	 * Lambda-style {@link Configurator} of {@link Initializable}. Calling
+	 * {@link Initializable#initialize()}, usually after injection.
+	 * 
+	 * @param initializable
+	 * @param engineBuilder
+	 */
+	public static void configureInitializables(Initializable initializable, EngineBuilder engineBuilder) {
+		initializable.initialize();
 	}
 
 	/**

@@ -15,4 +15,12 @@ class TypeConfigurator<T> {
 			configurator.configure((T) o, engineBuilder);
 		}
 	}
+
+	public Class<T> getType() {
+		return type;
+	}
+
+	public Configurator<T> getConfigurator() {
+		return configurator;
+	}
 }
