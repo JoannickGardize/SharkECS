@@ -6,18 +6,18 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import com.sharkecs.Aspect;
-import com.sharkecs.Subscriber;
+import com.sharkecs.Archetype.ComponentCreationPolicy;
 
 /**
- * Annotation to build the {@link Aspect} insterest of a {@link Subscriber}
- * class.
+ * Annotation for component types, to indicate the preferred
+ * {@link ComponentCreationPolicy}.
  * 
  * @author Joannick Gardize
  *
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface WithAny {
-	Class<?>[] value();
+public @interface CreationPolicy {
+
+	ComponentCreationPolicy value();
 }

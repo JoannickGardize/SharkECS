@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sharkecs.annotation.AutoCreation;
+import com.sharkecs.annotation.CreationPolicy;
 import com.sharkecs.annotation.SkipInjection;
 import com.sharkecs.builder.EngineConfigurationException;
 
@@ -25,10 +25,34 @@ import com.sharkecs.builder.EngineConfigurationException;
 @SkipInjection
 public class Archetype {
 
+	/**
+	 * The policy to apply when an entity gain a new component
+	 * 
+	 * @author Joannick Gardize
+	 *
+	 */
+	public enum ComponentCreationPolicy {
+		/**
+		 * The component mapper will automatically create the component instance when
+		 * the entity gain it.
+		 */
+		AUTOMATIC,
+		/**
+		 * <p>
+		 * The component mapper won't do anything when the entity gain the component.
+		 * <p>
+		 * The user is usually supposed to manually call
+		 * {@link ComponentMapper#create(int)} or
+		 * {@link ComponentMapper#put(int, Object)} when the entity gain the component
+		 * via creation or mutation.
+		 */
+		MANUAL;
+	}
+
 	private String name;
 	private int id;
 	private Set<Class<?>> componentTypesSet;
-	private Map<Class<?>, Boolean> componentTypes;
+	private Map<Class<?>, ComponentCreationPolicy> componentTypes;
 
 	private Subscription[] subscriptions;
 	private ComponentMapper<Object>[] componentMappers;
@@ -47,9 +71,9 @@ public class Archetype {
 
 	/**
 	 * <p>
-	 * Configure the given component types to be automatically created (or not) at
-	 * entity creation or mutation for the given archetype, this override the
-	 * default and component's annotation setting.
+	 * Configure the given component type policy at entity creation or mutation for
+	 * the given component types, this override the default and component's type
+	 * annotation setting.
 	 * <p>
 	 * Calling this method after the engine building has no effect.
 	 * 
@@ -57,48 +81,48 @@ public class Archetype {
 	 *                       entity creation and mutation, false otherwise.
 	 * @param componentTypes the component types to set the auto creation setting
 	 */
-	public void setAutoCreation(boolean autoCreation, Class<?>... componentTypes) {
+	public void setComponentCreationPolicy(ComponentCreationPolicy componentCreationPolicy, Class<?>... componentTypes) {
 		for (Class<?> componentType : componentTypes) {
 			if (!this.componentTypes.containsKey(componentType)) {
-				throw new EngineConfigurationException(
-				        "the component type " + componentType.getClass() + " is not present for the archetype " + this);
+				throw new EngineConfigurationException("the component type " + componentType.getClass() + " is not present for the archetype " + this);
 			}
-			this.componentTypes.put(componentType, autoCreation);
+			this.componentTypes.put(componentType, componentCreationPolicy);
 		}
 	}
 
 	/**
 	 * Set the auto creation parameter for all component types of this archetype, as
-	 * defined in {@link #setAutoCreation(boolean, Class...)}.
+	 * defined in {@link #setComponentCreationPolicy(boolean, Class...)}.
 	 * 
 	 * @param autoCreation
 	 */
-	public void setAutoCreation(boolean autoCreation) {
-		for (Entry<Class<?>, Boolean> entry : componentTypes.entrySet()) {
-			entry.setValue(autoCreation);
+	public void setComponentCreationPolicy(ComponentCreationPolicy componentCreationPolicy) {
+		for (Entry<Class<?>, ComponentCreationPolicy> entry : componentTypes.entrySet()) {
+			entry.setValue(componentCreationPolicy);
 		}
 	}
 
 	/**
 	 * <p>
-	 * Get the auto creation configuration of the given component type.
+	 * Get the component creation policy of the given component type.
 	 * <p>
-	 * If this archetype has defined manual configuration via
-	 * {@link #setAutoCreation(boolean, Class...)} or
-	 * {@link #setAutoCreation(boolean)}, this value is returned. If not, if the
-	 * component class has defined an {@link AutoCreation} annotation, its value is
-	 * returned. If not, the provided default value is returned.
+	 * If this archetype has manually defined a policy via
+	 * {@link #setComponentCreationPolicy(ComponentCreationPolicy, Class...)} or
+	 * {@link #setComponentCreationPolicy(ComponentCreationPolicy)}, this policy is
+	 * returned. If not, if the component class has defined a {@link CreationPolicy}
+	 * annotation, its value is returned. If not, the provided default value is
+	 * returned.
 	 * 
 	 * @param componentType
 	 * @param defaultValue
 	 * @return
 	 */
-	public boolean isAutoCreation(Class<?> componentType, boolean defaultValue) {
-		Boolean archetypeValue = componentTypes.get(componentType);
+	public ComponentCreationPolicy getComponentCreationPolicy(Class<?> componentType, ComponentCreationPolicy defaultValue) {
+		ComponentCreationPolicy archetypeValue = componentTypes.get(componentType);
 		if (archetypeValue != null) {
 			return archetypeValue;
 		} else {
-			AutoCreation autoCreation = componentType.getAnnotation(AutoCreation.class);
+			CreationPolicy autoCreation = componentType.getAnnotation(CreationPolicy.class);
 			if (autoCreation != null) {
 				return autoCreation.value();
 			} else {
@@ -170,7 +194,6 @@ public class Archetype {
 
 	@Override
 	public String toString() {
-		return "Archetype " + name + componentTypesSet.stream().map(t -> t.getClass().getSimpleName())
-		        .collect(Collectors.joining(", ", " (", ")"));
+		return "Archetype " + name + componentTypesSet.stream().map(t -> t.getClass().getSimpleName()).collect(Collectors.joining(", ", " (", ")"));
 	}
 }

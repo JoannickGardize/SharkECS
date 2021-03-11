@@ -1,4 +1,4 @@
-package com.sharkecs.builder;
+package com.sharkecs.builder.configurator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,13 @@ import org.junit.jupiter.api.Test;
 
 import com.sharkecs.annotation.Inject;
 import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.builder.EngineBuilder;
+import com.sharkecs.builder.EngineConfigurationException;
+import com.sharkecs.builder.RegistrationMap;
 
 class InjectorTest {
 
+	private Injector injector;
 	private EngineBuilder builder;
 
 	private List<Integer> integerList = new ArrayList<Integer>();
@@ -20,6 +24,7 @@ class InjectorTest {
 	@BeforeEach
 	void initialize() {
 		builder = EngineBuilder.withDefaults();
+		injector = builder.getRegistrations().get(Injector.class);
 
 		RegistrationMap registrations = builder.getRegistrations();
 
@@ -30,8 +35,7 @@ class InjectorTest {
 		registrations.put(List.class, Integer.class, integerList);
 		registrations.put(List.class, Long.class, longList);
 
-		builder.getInjector().addAutoInjectType(AutoInject.class);
-
+		builder.autoInjectType(AutoInject.class);
 	}
 
 	private static interface AutoInject {
@@ -130,7 +134,7 @@ class InjectorTest {
 	@Test
 	void testA() {
 		A a = new A();
-		builder.getInjector().inject(a, builder.getRegistrations());
+		injector.inject(a, builder.getRegistrations());
 		Assertions.assertSame(integerList, a.intList);
 		Assertions.assertEquals(1L, a.l1);
 		Assertions.assertEquals(2L, a.fieldName);
@@ -140,7 +144,7 @@ class InjectorTest {
 	@Test
 	void testB() {
 		B b = new B();
-		builder.getInjector().inject(b, builder.getRegistrations());
+		injector.inject(b, builder.getRegistrations());
 		Assertions.assertSame(longList, b.theLongList);
 		Assertions.assertNull(((D) b).i);
 	}
@@ -148,20 +152,20 @@ class InjectorTest {
 	@Test
 	void testC() {
 		C c = new C();
-		builder.getInjector().inject(c, builder.getRegistrations());
+		injector.inject(c, builder.getRegistrations());
 		Assertions.assertEquals(3, ((D) c).i);
 	}
 
 	void testE() {
 		E e = new E();
-		builder.getInjector().inject(e, builder.getRegistrations());
+		injector.inject(e, builder.getRegistrations());
 		Assertions.assertNull(e.i);
 	}
 
 	@Test
 	void testF() {
 		F f = new F();
-		builder.getInjector().inject(f, builder.getRegistrations());
+		injector.inject(f, builder.getRegistrations());
 		Assertions.assertEquals(1L, f.l1);
 		Assertions.assertNull(f.l2);
 		Assertions.assertNull(f.fieldName);
@@ -170,9 +174,7 @@ class InjectorTest {
 	@Test
 	void testMissingSetter() {
 		MissingSetter missingSetter = new MissingSetter();
-		Injector injector = builder.getInjector();
 		RegistrationMap registrations = builder.getRegistrations();
-		Assertions.assertThrows(EngineConfigurationException.class,
-		        () -> injector.inject(missingSetter, registrations));
+		Assertions.assertThrows(EngineConfigurationException.class, () -> injector.inject(missingSetter, registrations));
 	}
 }

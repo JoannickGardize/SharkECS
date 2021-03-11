@@ -20,8 +20,8 @@ public class GettingStarted {
 
 		// Register systems
 		builder.with(new PhysicsSystem());
-		builder.with(new BulletDamageSystem());
-		builder.with(new HealthSystem());
+		builder.then(new BulletDamageSystem());
+		builder.then(new HealthSystem());
 
 		// Register some singletons
 		builder.with(new Time());

@@ -11,4 +11,8 @@ public class EngineConfigurationException extends RuntimeException {
 	public EngineConfigurationException(Throwable cause) {
 		super(cause);
 	}
+
+	public EngineConfigurationException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

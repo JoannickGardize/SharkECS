@@ -9,22 +9,27 @@ import com.sharkecs.util.IntBag;
  * @author Joannick Gardize
  *
  */
-public abstract class IteratingSystem extends SubscriberAdapter implements Processor {
+public abstract class IteratingSystem extends SubscriberAdapter implements Processor, Initializable {
 
 	@Override
 	public void process() {
-		begin();
+		beginProcess();
 		IntBag entities = getEntities();
 		for (int i = 0, size = entities.size(); i < size; i++) {
 			process(entities.get(i));
 		}
-		end();
+		endProcess();
+	}
+
+	@Override
+	public void initialize() {
+		// Nothing by default
 	}
 
 	/**
 	 * Called at the beginning of a process run. Does nothing by default.
 	 */
-	public void begin() {
+	public void beginProcess() {
 		// Nothing by default
 	}
 
@@ -38,7 +43,7 @@ public abstract class IteratingSystem extends SubscriberAdapter implements Proce
 	/**
 	 * Called at the end of a process run. Does nothing by default.
 	 */
-	public void end() {
+	public void endProcess() {
 		// Nothing by default
 	}
 }

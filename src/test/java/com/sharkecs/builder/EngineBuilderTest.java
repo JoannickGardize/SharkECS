@@ -8,23 +8,24 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.sharkecs.Archetype;
+import com.sharkecs.Archetype.ComponentCreationPolicy;
 import com.sharkecs.ComponentMapper;
 import com.sharkecs.Engine;
 import com.sharkecs.EntityManager;
 import com.sharkecs.IteratingSystem;
 import com.sharkecs.Subscription;
 import com.sharkecs.Transmutation;
-import com.sharkecs.annotation.AutoCreation;
+import com.sharkecs.annotation.CreationPolicy;
 import com.sharkecs.annotation.SkipInjection;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.annotation.WithAny;
 import com.sharkecs.testutil.ArrayTestUtils;
 
-// Split this test class into smaller ones
+// TODO reduce this class to the minimum test cases and make assembly test of the default configuration in the package com.sharkecs.example
 class EngineBuilderTest {
 
 	@WithAny({ A.class, B.class })
-	static class FakeSystemA extends IteratingSystem {
+	public static class FakeSystemA extends IteratingSystem {
 
 		private Object thing;
 		private Object somethingElse;
@@ -97,7 +98,7 @@ class EngineBuilderTest {
 	}
 
 	@WithAll(C.class)
-	static class FakeSystemB extends IteratingSystem {
+	public static class FakeSystemB extends IteratingSystem {
 
 		private Archetype archetypeA;
 		private Archetype archetypeB;
@@ -132,7 +133,7 @@ class EngineBuilderTest {
 
 	}
 
-	@AutoCreation(false)
+	@CreationPolicy(ComponentCreationPolicy.MANUAL)
 	static class C {
 
 	}
@@ -187,11 +188,9 @@ class EngineBuilderTest {
 		Assertions.assertNull(archetypeA.getTransmutations()[2]);
 
 		// archetypeB assertions
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getSubscriptions(), systemA.getSubscription(),
-		        systemB.getSubscription());
+		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getSubscriptions(), systemA.getSubscription(), systemB.getSubscription());
 
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getComponentMappers(), systemA.getMapperB(),
-		        systemA.getMapperC());
+		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getComponentMappers(), systemA.getMapperB(), systemA.getMapperC());
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getAutoCreateComponentMappers(), systemA.getMapperB());
 
 		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getTransmutations(), null, null, null);
@@ -200,15 +199,11 @@ class EngineBuilderTest {
 
 		Transmutation transmutation = archetypeA.getTransmutations()[1];
 
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getAutoCreateComponentMappers(),
-		        (Object[]) transmutation.getAddMappers());
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getComponentMappers(),
-		        (Object[]) transmutation.getRemoveMappers());
-		ArrayTestUtils.assertEqualsAnyOrder(new Subscription[] { systemB.getSubscription() },
-		        (Object[]) transmutation.getAddSubscriptions());
+		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getAutoCreateComponentMappers(), (Object[]) transmutation.getAddMappers());
+		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getComponentMappers(), (Object[]) transmutation.getRemoveMappers());
+		ArrayTestUtils.assertEqualsAnyOrder(new Subscription[] { systemB.getSubscription() }, (Object[]) transmutation.getAddSubscriptions());
 		Assertions.assertEquals(0, transmutation.getRemoveSubscriptions().length);
-		Assertions.assertArrayEquals(new Subscription[] { systemA.getSubscription() },
-		        transmutation.getChangeSubscriptions());
+		Assertions.assertArrayEquals(new Subscription[] { systemA.getSubscription() }, transmutation.getChangeSubscriptions());
 
 		// FakeSystemA assertions
 		Assertions.assertSame(something, systemA.getThing());

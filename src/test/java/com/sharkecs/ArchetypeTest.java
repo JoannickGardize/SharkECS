@@ -3,7 +3,8 @@ package com.sharkecs;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.sharkecs.annotation.AutoCreation;
+import com.sharkecs.Archetype.ComponentCreationPolicy;
+import com.sharkecs.annotation.CreationPolicy;
 
 class ArchetypeTest {
 
@@ -11,21 +12,21 @@ class ArchetypeTest {
 
 	}
 
-	@AutoCreation(false)
+	@CreationPolicy(ComponentCreationPolicy.MANUAL)
 	static class B {
 
 	}
 
 	@Test
-	void isAutoCreationTest() {
+	void getComponentCreationPolicySTest() {
 
 		Archetype archetype = new Archetype("test", 0, A.class, B.class);
 
-		Assertions.assertFalse(archetype.isAutoCreation(A.class, false));
-		Assertions.assertFalse(archetype.isAutoCreation(B.class, true));
-		archetype.setAutoCreation(false, A.class);
-		Assertions.assertFalse(archetype.isAutoCreation(A.class, true));
-		archetype.setAutoCreation(true);
-		Assertions.assertTrue(archetype.isAutoCreation(B.class, false));
+		Assertions.assertEquals(ComponentCreationPolicy.MANUAL, archetype.getComponentCreationPolicy(A.class, ComponentCreationPolicy.MANUAL));
+		Assertions.assertEquals(ComponentCreationPolicy.MANUAL, archetype.getComponentCreationPolicy(B.class, ComponentCreationPolicy.AUTOMATIC));
+		archetype.setComponentCreationPolicy(ComponentCreationPolicy.MANUAL, A.class);
+		Assertions.assertEquals(ComponentCreationPolicy.MANUAL, archetype.getComponentCreationPolicy(A.class, ComponentCreationPolicy.AUTOMATIC));
+		archetype.setComponentCreationPolicy(ComponentCreationPolicy.AUTOMATIC);
+		Assertions.assertEquals(ComponentCreationPolicy.AUTOMATIC, archetype.getComponentCreationPolicy(B.class, ComponentCreationPolicy.MANUAL));
 	}
 }
