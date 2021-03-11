@@ -110,9 +110,9 @@ You may want a specific execution order of your systems (or any sequentially exe
 
 To achieve this, the naive way is to specify a priority number to elements, but this can lead to readability and maintainability issues.
 
-In SharkECS, you specify priority in the form of before / after constraints. There is different ways to do this:
+In SharkECS, you specify priorities in the form of before / after constraints. There is different ways to do this:
 
-- use `EngineBuilder#then(Object)` to register an element and add a "after" priority constraint between it and previously registered element
+- use `EngineBuilder#then(Object)` to register an element and add a "after" priority constraint between it and the previously registered element
 - use `EngineBuilder#after(Object, Object...)` or `EngineBuilder#before(Object, Object...)` to add constraints between registered elements, elements could be:
   - the instance of the concerned element
   - a Class, every elements assignable to this Class will be concerned
