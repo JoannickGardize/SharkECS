@@ -36,6 +36,8 @@ import com.sharkecs.util.ReflectionUtils;
  * <li>a Class key matching the first generic type of the field's type
  * <li>the empty key (null)
  * </ul>
+ * If no registration has been found at this point, any registration assignable
+ * from the field's type will be taken, if any.
  * <p>
  * Injection is done via setter methods, if a field is eligible and a registered
  * object has been found for it, but the setter method is missing or not
@@ -105,34 +107,42 @@ public class Injector implements Configurator {
 		}
 		boolean injectAllFields = isAutoInjectType(type);
 		for (Field field : type.getDeclaredFields()) {
-			if (!isEligibleField(field, injectAllFields) || registrations.typeCount(field.getType()) == 0) {
+			if (!isEligibleField(field, injectAllFields)) {
 				continue;
 			}
-			if (!injectByName(object, field, registrations) && !injectByGenericType(object, field, registrations) && !inject(object, field, null, registrations)
-					&& failWhenNotFound) {
+			if ((registrations.typeCount(field.getType()) == 0
+					|| !injectByName(object, field, registrations) && !injectByGenericType(object, field, registrations) && !injectByKey(object, field, null, registrations))
+					&& !injectByAssignableType(object, field, registrations) && failWhenNotFound) {
 				throw new EngineConfigurationException("No registered object found for field " + field);
 			}
 		}
 	}
 
 	private boolean injectByName(Object object, Field field, RegistrationMap registrations) {
-		return inject(object, field, field.getName(), registrations);
+		return injectByKey(object, field, field.getName(), registrations);
 	}
 
 	private boolean injectByGenericType(Object object, Field field, RegistrationMap registrations) {
 		Class<?> argumentType = ReflectionUtils.getFirstGenericTypeArgument(field.getGenericType());
 		if (argumentType != null) {
-			return inject(object, field, argumentType, registrations);
+			return injectByKey(object, field, argumentType, registrations);
 		} else {
 			return false;
 		}
 	}
 
-	private boolean inject(Object object, Field field, Object key, RegistrationMap registrations) {
-		Object registration = registrations.get(field.getType(), key);
-		if (registration != null) {
+	private boolean injectByAssignableType(Object object, Field field, RegistrationMap registrations) {
+		return inject(object, field, registrations.getAnyAssignableFrom(field.getType()));
+	}
+
+	private boolean injectByKey(Object object, Field field, Object key, RegistrationMap registrations) {
+		return inject(object, field, registrations.get(field.getType(), key));
+	}
+
+	private boolean inject(Object object, Field field, Object value) {
+		if (value != null) {
 			try {
-				ReflectionUtils.getSetter(field).invoke(object, registration);
+				ReflectionUtils.getSetter(field).invoke(object, value);
 				return true;
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
 				throw new EngineConfigurationException("Missing public setter to inject the field " + field, e);

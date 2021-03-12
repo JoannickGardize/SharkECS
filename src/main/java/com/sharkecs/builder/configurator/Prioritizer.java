@@ -1,17 +1,16 @@
 package com.sharkecs.builder.configurator;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
 import com.sharkecs.annotation.BeforeAll;
 import com.sharkecs.builder.EngineBuilder;
 import com.sharkecs.builder.EngineConfigurationException;
+import com.sharkecs.builder.RegistrationMap;
 import com.sharkecs.util.Digraph;
 import com.sharkecs.util.GraphCycleException;
 
@@ -36,6 +35,10 @@ import com.sharkecs.util.GraphCycleException;
 @BeforeAll
 public class Prioritizer implements Configurator {
 
+	private static interface ClassPriorityEntry {
+		void configure(RegistrationMap registrations);
+	}
+
 	private Digraph<Object> priorityGraph = new Digraph<>();
 	private Map<Object, Integer> priorityMap;
 	private List<ClassPriorityEntry> classPriorityEntries = new ArrayList<>();
@@ -51,16 +54,29 @@ public class Prioritizer implements Configurator {
 		checkSelfPriority(before, after);
 		if (before instanceof Class) {
 			for (Object afterElement : after) {
-				classPriorityEntries.add(ClassPriorityEntry.of(before, afterElement));
+				classPriorityEntries.add(createClassPriorityEntry(before, afterElement));
 			}
 		} else {
 			for (Object afterElement : after) {
 				if (afterElement instanceof Class) {
-					classPriorityEntries.add(ClassPriorityEntry.of(before, afterElement));
+					classPriorityEntries.add(createClassPriorityEntry(before, afterElement));
 				} else {
 					priorityGraph.precedes(before, afterElement);
 				}
 			}
+		}
+	}
+
+	private ClassPriorityEntry createClassPriorityEntry(Object before, Object after) {
+		if (before instanceof Class && after instanceof Class) {
+			return registrations -> registrations.forEachAssignableFrom((Class<?>) before,
+					fromObj -> registrations.forEachAssignableFrom((Class<?>) after, toObj -> beforeIfNotSame(fromObj, toObj)));
+		} else if (before instanceof Class) {
+			return registrations -> registrations.forEachAssignableFrom((Class<?>) before, fromObj -> beforeIfNotSame(fromObj, after));
+		} else if (after instanceof Class) {
+			return registrations -> registrations.forEachAssignableFrom((Class<?>) after, afterObj -> beforeIfNotSame(before, afterObj));
+		} else {
+			throw new IllegalArgumentException();
 		}
 	}
 
@@ -76,12 +92,12 @@ public class Prioritizer implements Configurator {
 		priorityGraph.follows(after, before);
 		if (after instanceof Class) {
 			for (Object beforeElement : before) {
-				classPriorityEntries.add(ClassPriorityEntry.of(beforeElement, after));
+				classPriorityEntries.add(createClassPriorityEntry(beforeElement, after));
 			}
 		} else {
 			for (Object beforeElement : before) {
 				if (beforeElement instanceof Class) {
-					classPriorityEntries.add(ClassPriorityEntry.of(beforeElement, after));
+					classPriorityEntries.add(createClassPriorityEntry(beforeElement, after));
 				} else {
 					priorityGraph.precedes(beforeElement, after);
 				}
@@ -132,21 +148,8 @@ public class Prioritizer implements Configurator {
 	}
 
 	private void applyClassPriorities(EngineBuilder engineBuilder) {
-		Map<Class<?>, Collection<Object>> objectsByClass = new IdentityHashMap<>();
 		for (ClassPriorityEntry entry : classPriorityEntries) {
-			for (Class<?> type : entry.getClasses()) {
-				objectsByClass.computeIfAbsent(type, t -> new ArrayList<>());
-			}
-		}
-		engineBuilder.getRegistrations().forEach(o -> {
-			for (Entry<Class<?>, Collection<Object>> classCollection : objectsByClass.entrySet()) {
-				if (classCollection.getKey().isAssignableFrom(o.getClass())) {
-					classCollection.getValue().add(o);
-				}
-			}
-		});
-		for (ClassPriorityEntry entry : classPriorityEntries) {
-			entry.configure(this, objectsByClass);
+			entry.configure(engineBuilder.getRegistrations());
 		}
 	}
 
@@ -169,5 +172,11 @@ public class Prioritizer implements Configurator {
 		Map<Object, Object> map = new IdentityHashMap<>();
 		priorityGraph.values().forEach(o -> map.put(o, o));
 		return map.keySet();
+	}
+
+	private void beforeIfNotSame(Object from, Object to) {
+		if (from != to) {
+			before(from, to);
+		}
 	}
 }

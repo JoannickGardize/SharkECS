@@ -34,6 +34,7 @@ class InjectorTest {
 		registrations.put(1L);
 		registrations.put(List.class, Integer.class, integerList);
 		registrations.put(List.class, Long.class, longList);
+		registrations.put(new C());
 
 		builder.autoInjectType(AutoInject.class);
 	}
@@ -70,11 +71,15 @@ class InjectorTest {
 	@SuppressWarnings("unused")
 	private static class B extends D {
 		private List<Long> theLongList;
+		private D d;
 
 		public void setTheLongList(List<Long> theLongList) {
 			this.theLongList = theLongList;
 		}
 
+		public void setD(D d) {
+			this.d = d;
+		}
 	}
 
 	@Inject(injectParent = true)
@@ -147,6 +152,7 @@ class InjectorTest {
 		injector.inject(b, builder.getRegistrations());
 		Assertions.assertSame(longList, b.theLongList);
 		Assertions.assertNull(((D) b).i);
+		Assertions.assertEquals(C.class, b.d.getClass());
 	}
 
 	@Test

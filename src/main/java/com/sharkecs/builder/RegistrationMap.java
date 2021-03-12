@@ -11,8 +11,11 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.sharkecs.util.ReflectionUtils;
+
 /**
- * A map storing elements by element type and key.
+ * A map storing elements by element type and key. Also able to retrieve all
+ * registered objects assignable from a given type.
  * 
  * @author Joannick Gardize
  *
@@ -20,7 +23,8 @@ import java.util.function.Supplier;
 public class RegistrationMap {
 
 	private List<Object> list = new ArrayList<>();
-	private Map<Class<?>, Map<Object, Object>> map = new IdentityHashMap<>();
+	private Map<Class<?>, Map<Object, Object>> byDeclaredTypeAndKey = new IdentityHashMap<>();
+	private Map<Class<?>, List<Object>> byAssignableType = new IdentityHashMap<>();
 
 	/**
 	 * Add the given object with a null key.
@@ -52,11 +56,16 @@ public class RegistrationMap {
 	 * @param o    the object to put
 	 */
 	public <T> void put(Class<? super T> type, Object key, T o) {
-		Map<Object, Object> typeMap = map.computeIfAbsent(type, t -> new HashMap<>());
+		Map<Object, Object> typeMap = byDeclaredTypeAndKey.computeIfAbsent(type, t -> new HashMap<>());
 		if (typeMap.put(key, o) != null) {
 			throw new EngineConfigurationException("Duplicate registration: [type = " + type + ", key = " + key + "]");
 		}
+		addAssignableTypes(o);
 		list.add(o);
+	}
+
+	private <T> void addAssignableTypes(T o) {
+		ReflectionUtils.forEachAssignableTypes(o.getClass(), t -> byAssignableType.computeIfAbsent(t, t2 -> new ArrayList<>()).add(o));
 	}
 
 	/**
@@ -70,8 +79,13 @@ public class RegistrationMap {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T computeIfAbsent(Class<T> type, Object key, Supplier<T> valueSupplier) {
-		Map<Object, Object> typeMap = map.computeIfAbsent(type, t -> new HashMap<>());
-		return (T) typeMap.computeIfAbsent(key, k -> valueSupplier.get());
+		Map<Object, Object> typeMap = byDeclaredTypeAndKey.computeIfAbsent(type, t -> new HashMap<>());
+
+		return (T) typeMap.computeIfAbsent(key, k -> {
+			T value = valueSupplier.get();
+			addAssignableTypes(value);
+			return value;
+		});
 	}
 
 	/**
@@ -122,7 +136,7 @@ public class RegistrationMap {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T get(Class<T> type, Object key) {
-		return (T) map.getOrDefault(type, Collections.emptyMap()).get(key);
+		return (T) byDeclaredTypeAndKey.getOrDefault(type, Collections.emptyMap()).get(key);
 	}
 
 	/**
@@ -134,7 +148,7 @@ public class RegistrationMap {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public <T> Set<Entry<Object, T>> entrySet(Class<T> type) {
-		return (Set) map.getOrDefault(type, Collections.emptyMap()).entrySet();
+		return (Set) byDeclaredTypeAndKey.getOrDefault(type, Collections.emptyMap()).entrySet();
 	}
 
 	/**
@@ -142,11 +156,33 @@ public class RegistrationMap {
 	 * @return the number of entry of the given type
 	 */
 	public int typeCount(Class<?> type) {
-		return map.getOrDefault(type, Collections.emptyMap()).size();
+		return byDeclaredTypeAndKey.getOrDefault(type, Collections.emptyMap()).size();
 	}
 
 	/**
-	 * Iterates over all values of all types.
+	 * Iterates over all registered objects assignable from the given type.
+	 * 
+	 * @param type
+	 * @param action
+	 */
+	public void forEachAssignableFrom(Class<?> type, Consumer<Object> action) {
+		byAssignableType.getOrDefault(type, Collections.emptyList()).forEach(action);
+	}
+
+	/**
+	 * Retrieve any registered object assignable from the given type.
+	 * 
+	 * @param <T>
+	 * @param type
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getAnyAssignableFrom(Class<? super T> type) {
+		return (T) byAssignableType.getOrDefault(type, null).get(0);
+	}
+
+	/**
+	 * Iterates over all registered objects.
 	 * 
 	 * @param action
 	 */

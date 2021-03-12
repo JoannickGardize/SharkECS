@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 /**
  * <p>
- * Represents a directed graph
+ * Represents a directed graph.
  * <p>
  * Each node is identified by a value instance (by identity, not equality), and
  * is doubly-linked to its following and preceding nodes. Any possible value
