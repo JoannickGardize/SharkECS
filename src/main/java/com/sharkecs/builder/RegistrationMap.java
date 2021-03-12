@@ -178,7 +178,7 @@ public class RegistrationMap {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T getAnyAssignableFrom(Class<? extends T> type) {
+	public <T> T getAnyAssignableFrom(Class<T> type) {
 		return (T) byAssignableType.getOrDefault(type, null).get(0);
 	}
 
