@@ -22,7 +22,7 @@ public abstract class TypeConfigurator<T> implements Configurator {
 	@Override
 	public void configure(EngineBuilder engineBuilder) {
 		beginConfiguration(engineBuilder);
-		engineBuilder.getRegistrations().forEachAssignableFrom(type, o -> configure((T) o, engineBuilder));
+		engineBuilder.getRegistrations().forEachAssignableFrom(type, o -> configure(o, engineBuilder));
 		endConfiguration(engineBuilder);
 	}
 

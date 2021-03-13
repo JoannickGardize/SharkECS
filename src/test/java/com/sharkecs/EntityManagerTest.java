@@ -49,13 +49,13 @@ class EntityManagerTest {
 		mapperB = new FlatArrayComponentMapper<>(1, B::new);
 		mapperC = new FlatArrayComponentMapper<>(1, C::new);
 
-		subscriptionA = new Subscription(1);
+		subscriptionA = new TrackingSubscription(1);
 		listenerA = new SubscriptionLogger();
 		subscriptionA.addListener(listenerA);
-		subscriptionB = new Subscription(1);
+		subscriptionB = new TrackingSubscription(1);
 		listenerB = new SubscriptionLogger();
 		subscriptionB.addListener(listenerB);
-		subscriptionC = new Subscription(1);
+		subscriptionC = new TrackingSubscription(1);
 		listenerC = new SubscriptionLogger();
 		subscriptionC.addListener(listenerC);
 

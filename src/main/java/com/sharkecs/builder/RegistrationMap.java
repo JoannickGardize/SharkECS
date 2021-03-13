@@ -166,8 +166,9 @@ public class RegistrationMap {
 	 * @param type
 	 * @param action
 	 */
-	public void forEachAssignableFrom(Class<?> type, Consumer<Object> action) {
-		byAssignableType.getOrDefault(type, Collections.emptyList()).forEach(action);
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T> void forEachAssignableFrom(Class<T> type, Consumer<T> action) {
+		byAssignableType.getOrDefault(type, Collections.emptyList()).forEach((Consumer) action);
 	}
 
 	/**

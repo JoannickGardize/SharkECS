@@ -3,8 +3,9 @@ package com.sharkecs;
 import com.sharkecs.util.IntBag;
 
 /**
- * The most common system. Subscribe to an entity group via an {@link Aspect},
- * and process each entity of the subscription one time per {@link #process()}.
+ * The most common base class for an entity iterating system. Subscribe to an
+ * entity group via an {@link Aspect}, and process each entity of the
+ * subscription one time per {@link #process()}.
  * 
  * @author Joannick Gardize
  *
@@ -29,7 +30,7 @@ public abstract class IteratingSystem extends SubscriberAdapter implements Proce
 	/**
 	 * Called at the beginning of a process run. Does nothing by default.
 	 */
-	public void beginProcess() {
+	protected void beginProcess() {
 		// Nothing by default
 	}
 
@@ -38,12 +39,12 @@ public abstract class IteratingSystem extends SubscriberAdapter implements Proce
 	 * 
 	 * @param entityId the ID of the entity to process
 	 */
-	public abstract void process(int entityId);
+	protected abstract void process(int entityId);
 
 	/**
 	 * Called at the end of a process run. Does nothing by default.
 	 */
-	public void endProcess() {
+	protected void endProcess() {
 		// Nothing by default
 	}
 }

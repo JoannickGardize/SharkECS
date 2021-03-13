@@ -20,9 +20,9 @@ class TransmutationConfiguratorTest {
 		ComponentMapper<Object> m3 = new FlatArrayComponentMapper<>(0, Object::new);
 		ComponentMapper<Object> m4 = new FlatArrayComponentMapper<>(0, Object::new);
 
-		Subscription s1 = new Subscription(0);
-		Subscription s2 = new Subscription(0);
-		Subscription s3 = new Subscription(0);
+		Subscription s1 = new Subscription();
+		Subscription s2 = new Subscription();
+		Subscription s3 = new Subscription();
 
 		Archetype a = new Archetype("a", 0);
 		a.setAutoCreateComponentMappers(new ComponentMapper[] { m1, m2 });

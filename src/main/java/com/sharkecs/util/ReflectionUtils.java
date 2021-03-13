@@ -1,5 +1,6 @@
 package com.sharkecs.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -19,7 +20,8 @@ public class ReflectionUtils {
 				Type typeArgument = typeArguments[0];
 				if (typeArgument instanceof Class) {
 					return (Class<?>) typeArgument;
-				} else if (typeArgument instanceof ParameterizedType && ((ParameterizedType) typeArgument).getRawType() instanceof Class<?>) {
+				} else if (typeArgument instanceof ParameterizedType
+				        && ((ParameterizedType) typeArgument).getRawType() instanceof Class<?>) {
 					return (Class<?>) ((ParameterizedType) typeArgument).getRawType();
 
 				}
@@ -29,7 +31,8 @@ public class ReflectionUtils {
 	}
 
 	public static Method getSetter(Field field) throws NoSuchMethodException {
-		return field.getDeclaringClass().getMethod("set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1), field.getType());
+		return field.getDeclaringClass().getMethod(
+		        "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1), field.getType());
 	}
 
 	public static void forEachAssignableTypes(Class<?> type, Consumer<Class<?>> action) {
@@ -41,5 +44,25 @@ public class ReflectionUtils {
 			}
 			currentType = currentType.getSuperclass();
 		}
+	}
+
+	/**
+	 * Get the annotation of the given {@code annotationType} to the given
+	 * {@code type}, Going up to superclass until the annotation is found. Returns
+	 * null if the annotation has not been found.
+	 * 
+	 * @param <A>
+	 * @param type
+	 * @param annotationType
+	 * @return
+	 */
+	public static <A extends Annotation> A getAnnotationOnSuperclass(Class<?> type, Class<A> annotationType) {
+		Class<?> currentType = type;
+		A annotation = type.getAnnotation(annotationType);
+		while (annotation == null && currentType != null && currentType != Object.class) {
+			currentType = currentType.getSuperclass();
+			annotation = type.getAnnotation(annotationType);
+		}
+		return annotation;
 	}
 }

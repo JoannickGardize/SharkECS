@@ -308,7 +308,8 @@ public class EngineBuilder {
 	 *                                      in this EngineBuilder
 	 */
 	public void defaultComponentCreationPolicy(ComponentCreationPolicy defaultComponentCreationPolicy) {
-		registrations.getOrFail(ArchetypeConfigurator.class).setDefaultComponentCreationPolicy(defaultComponentCreationPolicy);
+		registrations.getOrFail(ArchetypeConfigurator.class)
+		        .setDefaultComponentCreationPolicy(defaultComponentCreationPolicy);
 	}
 
 	/**

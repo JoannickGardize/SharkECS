@@ -7,59 +7,72 @@ import com.sharkecs.util.IntBag;
 
 /**
  * <p>
- * Collection of entity IDs. Insertions and deletions can be listened via the
- * {@link SubscriptionListener} interface. Supports fast removal by entity ID.
- * The order of the collection is unmaintained.
+ * Subscription of a given group of entity, generally of a given {@link Aspect}.
+ * Notify insertion, removal, and change.
  * <p>
- * The behavior of calling {@link #add(int)} multiple times successively with
- * the same entity ID is unspecified, same with {@link #remove(int)}.
- * <p>
- * This class is typically used internally as {@link Aspect} subscription.
+ * Does not track the actual collection of entity. Use
+ * {@link TrackingSubscription} for that.
  * 
  * @author Joannick Gardize
  *
+ * @see TrackingSubscription
  */
 public class Subscription {
 
-	private IntBag entities;
-	private IntBag entityIndexes;
-
-	private List<SubscriptionListener> listeners;
-
-	public Subscription(int expectedEntityCount) {
-		entities = new IntBag(expectedEntityCount);
-		entityIndexes = new IntBag(expectedEntityCount);
-		listeners = new ArrayList<>();
-	}
+	private List<SubscriptionListener> listeners = new ArrayList<>();
 
 	public void addListener(SubscriptionListener listener) {
 		listeners.add(listener);
 	}
 
+	/**
+	 * Notify listeners that the given entity has been added to this subscription.
+	 * 
+	 * @param entityId
+	 */
 	public void add(int entityId) {
-		entityIndexes.put(entityId, entities.size());
-		entities.add(entityId);
 		for (SubscriptionListener listener : listeners) {
 			listener.added(entityId);
 		}
 	}
 
+	/**
+	 * Notify listeners that the given entity has been removed from this
+	 * subscription.
+	 * 
+	 * @param entityId
+	 */
 	public void remove(int entityId) {
-		int removeIndex = entityIndexes.get(entityId);
-		entityIndexes.unsafeSet(entities.remove(removeIndex), removeIndex);
 		for (SubscriptionListener listener : listeners) {
 			listener.removed(entityId);
 		}
 	}
 
+	/**
+	 * Notify listeners that the given entity has changed its {@link Archetype}, but
+	 * is kept to this subscription.
+	 * 
+	 * @param entityId
+	 */
 	public void notifyChanged(int entityId) {
 		for (SubscriptionListener listener : listeners) {
 			listener.changed(entityId);
 		}
 	}
 
+	/**
+	 * <p>
+	 * Get the maintained collection of entities this subscription is interested of.
+	 * The returned bag is intended to only be read and modifying it may result to
+	 * unexpected behaviors.
+	 * 
+	 * <p>
+	 * Not supported by this class, use {@link TrackingSubscription} for that.
+	 * 
+	 * @return the maintained collection of entities this subscription is interested
+	 *         of
+	 */
 	public IntBag getEntities() {
-		return entities;
+		throw new UnsupportedOperationException();
 	}
-
 }

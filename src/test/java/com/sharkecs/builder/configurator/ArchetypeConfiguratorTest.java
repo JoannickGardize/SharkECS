@@ -45,11 +45,11 @@ class ArchetypeConfiguratorTest {
 		a.setComponentCreationPolicy(ComponentCreationPolicy.MANUAL, Short.class);
 		builder.archetype("test2", Short.class);
 
-		Subscription sA = new Subscription(0);
+		Subscription sA = new Subscription();
 		builder.getRegistrations().put(new Aspect(A.class), sA);
-		Subscription sB = new Subscription(0);
+		Subscription sB = new Subscription();
 		builder.getRegistrations().put(new Aspect(B.class), sB);
-		Subscription sC = new Subscription(0);
+		Subscription sC = new Subscription();
 		builder.getRegistrations().put(new Aspect(C.class), sC);
 
 		ArchetypeConfigurator configurator = new ArchetypeConfigurator();

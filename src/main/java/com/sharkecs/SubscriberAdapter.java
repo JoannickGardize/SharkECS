@@ -1,5 +1,7 @@
 package com.sharkecs;
 
+import java.util.Objects;
+
 import com.sharkecs.util.IntBag;
 
 /**
@@ -15,6 +17,7 @@ public abstract class SubscriberAdapter implements Subscriber {
 
 	@Override
 	public void subscribe(Subscription subscription) {
+		Objects.requireNonNull(subscription);
 		if (this.subscription != null) {
 			throw new IllegalStateException("The subscriber already has a subscription");
 		}

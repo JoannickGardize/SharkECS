@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import com.sharkecs.Aspect;
 import com.sharkecs.SubscriberAdapter;
 import com.sharkecs.Subscription;
+import com.sharkecs.TrackingSubscription;
+import com.sharkecs.annotation.RequiresEntityTracking;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.builder.EngineBuilder;
 
@@ -17,11 +19,13 @@ class SubscriberConfiguratorTest {
 	}
 
 	@WithAll(Integer.class)
+	@RequiresEntityTracking(false)
 	private static class B extends SubscriberAdapter {
 
 	}
 
 	@WithAll(Long.class)
+	@RequiresEntityTracking(false)
 	private static class C extends SubscriberAdapter {
 
 	}
@@ -40,7 +44,9 @@ class SubscriberConfiguratorTest {
 		Subscription s1 = builder.getRegistrations().get(Subscription.class, new Aspect(A.class));
 		Subscription s2 = builder.getRegistrations().get(Subscription.class, new Aspect(C.class));
 		Assertions.assertNotNull(s1);
+		Assertions.assertSame(TrackingSubscription.class, s1.getClass());
 		Assertions.assertNotNull(s2);
+		Assertions.assertSame(Subscription.class, s2.getClass());
 		Assertions.assertNotSame(s1, s2);
 	}
 }
