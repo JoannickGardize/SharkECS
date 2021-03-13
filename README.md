@@ -45,12 +45,11 @@ public class BulletDamageSystem extends IteratingSystem {
 		Physics physics = physicsMapper.get(entityId);
 		for (Physics colliding : physics.getColliding()) {
 			int collidingId = colliding.getEntityId();
-			Health health = healthMapper.getIfExists(collidingId);
-			if (health != null) {
+			healthMapper.ifExists(collidingId, health -> {
 				Bullet bullet = bulletMapper.get(entityId);
 				health.takeDamage(bullet.getDamage());
 				entityManager.remove(entityId);
-			}
+			});
 		}
 	}
 
