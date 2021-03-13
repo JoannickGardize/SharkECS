@@ -78,7 +78,7 @@ The attributes of the system will be automatically injected during the engine bu
 [EngineBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/EngineBuilder.java) is used to configure and create the Engine:
 
 ```java
-EngineBuilder builder = new EngineBuilder();
+EngineBuilder builder = EngineBuilder.withDefaults();
 
 // Register component types
 builder.component(Physics.class, Physics::new);
