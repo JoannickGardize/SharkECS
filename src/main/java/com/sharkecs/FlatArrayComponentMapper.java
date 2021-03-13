@@ -26,13 +26,13 @@ public class FlatArrayComponentMapper<T> implements ComponentMapper<T> {
 	@Override
 	public T create(int entityId) {
 		T component = newInstanceSupplier.get();
-		components.unsafeSet(entityId, component);
+		components.put(entityId, component);
 		return component;
 	}
 
 	@Override
 	public void put(int entityId, T component) {
-		components.unsafeSet(entityId, component);
+		components.put(entityId, component);
 	}
 
 	@Override
@@ -43,6 +43,11 @@ public class FlatArrayComponentMapper<T> implements ComponentMapper<T> {
 	@Override
 	public T get(int entityId) {
 		return components.get(entityId);
+	}
+
+	@Override
+	public T getIfExists(int entityId) {
+		return components.getOrNull(entityId);
 	}
 
 }

@@ -45,7 +45,7 @@ public class BulletDamageSystem extends IteratingSystem {
 		Physics physics = physicsMapper.get(entityId);
 		for (Physics colliding : physics.getColliding()) {
 			int collidingId = colliding.getEntityId();
-			Health health = healthMapper.get(collidingId);
+			Health health = healthMapper.getIfExists(collidingId);
 			if (health != null) {
 				Bullet bullet = bulletMapper.get(entityId);
 				health.takeDamage(bullet.getDamage());

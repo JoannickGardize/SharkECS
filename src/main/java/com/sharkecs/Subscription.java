@@ -37,7 +37,7 @@ public class Subscription {
 	}
 
 	public void add(int entityId) {
-		entityIndexes.unsafeSet(entityId, entities.size());
+		entityIndexes.put(entityId, entities.size());
 		entities.add(entityId);
 		for (SubscriptionListener listener : listeners) {
 			listener.added(entityId);

@@ -29,22 +29,33 @@ public interface ComponentMapper<T> {
 	void put(int entityId, T component);
 
 	/**
-	 * Remove the component associated with the given entity, if any.
+	 * Remove the component associated with the given entity. The behavior of trying
+	 * to remove a non-existing component is undefined.
 	 * 
 	 * @param entityId the entity for which the component will be removed
 	 */
 	void remove(int entityId);
 
 	/**
-	 * Retrieve the component associated to the given entity, or null if there is
-	 * not.
+	 * Retrieve the component associated to the given entity. The component must
+	 * exists, or the behavior of this method is undefined.
 	 * 
 	 * @param entityId the entity id for which the associated component will be
 	 *                 returned
-	 * @return the component associated to the given entity, or null if there is
-	 *         not.
+	 * @return the component associated to the given entity.
 	 */
 	T get(int entityId);
+
+	/**
+	 * Retrieve the component associated to the given entity, or null if the given
+	 * entity doesn't have this component.
+	 * 
+	 * @param entityId the entity id for which the associated component will be
+	 *                 returned
+	 * @return the component associated to the given entity, or null if doesn't
+	 *         exists.
+	 */
+	T getIfExists(int entityId);
 
 	/**
 	 * Test if the given entity has this type of component.
@@ -53,6 +64,6 @@ public interface ComponentMapper<T> {
 	 * @return true if the entity has this type of component, false otherwise
 	 */
 	default boolean has(int entityId) {
-		return get(entityId) != null;
+		return getIfExists(entityId) != null;
 	}
 }

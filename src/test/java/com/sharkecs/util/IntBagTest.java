@@ -58,10 +58,10 @@ class IntBagTest {
     }
 
     @Test
-    void unsafeSetTest() {
+    void putTest() {
         IntBag bag = new IntBag(4);
-        bag.unsafeSet(1, 10);
-        bag.unsafeSet(5, 20);
+        bag.put(1, 10);
+        bag.put(5, 20);
         BagTestUtils.assertBagEquals(false, bag, 0, 10, 0, 0, 0, 20);
     }
 
