@@ -1,5 +1,7 @@
 package com.sharkecs;
 
+import java.util.function.Consumer;
+
 /**
  * Base interface for component mappers. A component mapper is responsible of
  * binding all components of a given type to entities.
@@ -56,6 +58,20 @@ public interface ComponentMapper<T> {
 	 *         exists.
 	 */
 	T getIfExists(int entityId);
+
+	/**
+	 * Execute the given {@code action} if the given entity has a component from
+	 * this mapper.
+	 * 
+	 * @param entityId
+	 * @param action
+	 */
+	default void ifExists(int entityId, Consumer<T> action) {
+		T component = getIfExists(entityId);
+		if (component != null) {
+			action.accept(component);
+		}
+	}
 
 	/**
 	 * Test if the given entity has this type of component.
