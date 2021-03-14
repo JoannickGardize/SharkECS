@@ -44,6 +44,12 @@ public class ArchetypeConfigurator extends TypeConfigurator<Archetype> {
 		return defaultComponentCreationPolicy;
 	}
 
+	/**
+	 * Set the default {@link ComponentCreationPolicy}. The default value is
+	 * {@link ComponentCreationPolicy#MANUAL}.
+	 * 
+	 * @param defaultComponentCreationPolicy
+	 */
 	public void setDefaultComponentCreationPolicy(ComponentCreationPolicy defaultComponentCreationPolicy) {
 		this.defaultComponentCreationPolicy = defaultComponentCreationPolicy;
 	}

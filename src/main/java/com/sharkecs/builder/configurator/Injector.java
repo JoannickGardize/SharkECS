@@ -47,7 +47,7 @@ import com.sharkecs.util.ReflectionUtils;
  * nothing happens, this can be changed by
  * {@link Injector#setFailWhenNotFound(boolean)}.
  * <p>
- * By default, the fields of parent classes is not checked, use
+ * By default, fields of the parent class are not checked, use
  * {@link Inject#injectParent()} on the class to change that.
  * 
  * @author Joannick Gardize

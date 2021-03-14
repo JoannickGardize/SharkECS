@@ -26,7 +26,7 @@ import com.sharkecs.builder.EngineConfigurationException;
 public class Archetype {
 
 	/**
-	 * The policy to apply when an entity gain a new component
+	 * The policy to apply to a component when an entity gain a new component
 	 * 
 	 * @author Joannick Gardize
 	 *
@@ -34,15 +34,15 @@ public class Archetype {
 	public enum ComponentCreationPolicy {
 		/**
 		 * The component mapper will automatically create the component instance when
-		 * the entity gain it.
+		 * the entity gains it.
 		 */
 		AUTOMATIC,
 		/**
 		 * <p>
-		 * The component mapper won't do anything when the entity gain the component.
+		 * The component mapper won't do anything when the entity gains the component
+		 * type.
 		 * <p>
-		 * The user is usually supposed to manually call
-		 * {@link ComponentMapper#create(int)} or
+		 * The user is intended to manually call {@link ComponentMapper#create(int)} or
 		 * {@link ComponentMapper#put(int, Object)} when the entity gain the component
 		 * via creation or mutation.
 		 */
@@ -71,15 +71,16 @@ public class Archetype {
 
 	/**
 	 * <p>
-	 * Configure the given component type policy at entity creation or mutation for
-	 * the given component types, this override the default and component's type
+	 * Configure the {@link ComponentCreationPolicy} for the given component types.
+	 * This configuration overrides the default setting and the component's type
 	 * annotation setting.
 	 * <p>
 	 * Calling this method after the engine building has no effect.
 	 * 
-	 * @param autoCreation   true for the component to be automatically created at
-	 *                       entity creation and mutation, false otherwise.
-	 * @param componentTypes the component types to set the auto creation setting
+	 * @param componentCreationPolicy the {@link ComponentCreationPolicy} to apply
+	 *                                to the given component types
+	 * @param componentTypes          the component types to set the
+	 *                                {@link ComponentCreationPolicy} setting
 	 */
 	public void setComponentCreationPolicy(ComponentCreationPolicy componentCreationPolicy, Class<?>... componentTypes) {
 		for (Class<?> componentType : componentTypes) {
@@ -91,10 +92,11 @@ public class Archetype {
 	}
 
 	/**
-	 * Set the auto creation parameter for all component types of this archetype, as
-	 * defined in {@link #setComponentCreationPolicy(boolean, Class...)}.
+	 * Set the {@link ComponentCreationPolicy} for all component types of this
+	 * archetype.
 	 * 
-	 * @param autoCreation
+	 * @param componentCreationPolicy the {@link ComponentCreationPolicy} to apply
+	 *                                to all component types of this archetype
 	 */
 	public void setComponentCreationPolicy(ComponentCreationPolicy componentCreationPolicy) {
 		for (Entry<Class<?>, ComponentCreationPolicy> entry : componentTypes.entrySet()) {

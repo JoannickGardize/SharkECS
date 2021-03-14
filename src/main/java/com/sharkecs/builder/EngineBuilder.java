@@ -299,7 +299,11 @@ public class EngineBuilder {
 
 	/**
 	 * Convenience method to change the default component creation policy of the
-	 * {@link ArchetypeConfigurator}
+	 * {@link ArchetypeConfigurator}. The default value
+	 * {@link ComponentCreationPolicy#MANUAL}, so the user intended to manually add
+	 * the components of a created or mutated entity, avoiding a
+	 * {@link ComponentMapper} access when the component requires some
+	 * initializations.
 	 * 
 	 * @param defaultComponentCreationPolicy the new default component creation
 	 *                                       policy
@@ -312,9 +316,9 @@ public class EngineBuilder {
 	}
 
 	/**
-	 * Convenience method for {@link Injector#addAutoInjectType(Class)}. The given
-	 * class will be automatically injected without the need of marking it with
-	 * {@link Inject}.
+	 * Convenience method to call {@link Injector#addAutoInjectType(Class)}. The
+	 * given class will be automatically injected without the need of marking it
+	 * with {@link Inject}.
 	 * 
 	 * @param type
 	 */

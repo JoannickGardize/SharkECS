@@ -10,14 +10,15 @@ import com.sharkecs.Subscriber;
 
 /**
  * <p>
- * Annotation for {@link Subscriber}s implementers to indicates if the
- * subscriber requires entity tracking (maintain an entity collection of the
- * subscription).
+ * Optimization topic.
+ * <p>
+ * Annotation for {@link Subscriber} implementers to indicate if the subscriber
+ * requires entity tracking (maintain an entity collection of the subscription).
  * <p>
  * True by default when this annotation is not present.
  * <p>
- * Use it when a subscriber only requires to get notified, to avoid the
- * maintenance of the unused entity collection.
+ * Use it with a false value when a subscriber only requires to get notified, to
+ * avoid the maintenance of the unused entity collection.
  * 
  * @author Joannick Gardize
  *

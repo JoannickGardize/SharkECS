@@ -10,8 +10,8 @@ import com.sharkecs.Aspect;
 import com.sharkecs.Subscriber;
 
 /**
- * Annotation to build the {@link Aspect} insterest of a {@link Subscriber}
- * class.
+ * Annotation to build the {@link Aspect} interest of a {@link Subscriber}
+ * class. Entities must have all the given component types to match the aspect.
  * 
  * @author Joannick Gardize
  *
