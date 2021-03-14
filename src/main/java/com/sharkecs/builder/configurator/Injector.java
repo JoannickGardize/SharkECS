@@ -57,6 +57,7 @@ public class Injector implements Configurator {
 
 	private Set<Class<?>> autoInjectTypes = new HashSet<>();
 	private boolean failWhenNotFound = false;
+	private boolean injectAnyAssignableType = false;
 
 	/**
 	 * Adds the given type as auto-inject type. Objects assignable from this type
@@ -79,6 +80,17 @@ public class Injector implements Configurator {
 	 */
 	public void setFailWhenNotFound(boolean failWhenNotFound) {
 		this.failWhenNotFound = failWhenNotFound;
+	}
+
+	/**
+	 * 
+	 * @param injectAnyAssignableType if true, when no matching key has been found
+	 *                                (including the null key for the field's type)
+	 *                                any assignable type for the field will be
+	 *                                taken, if any. False by default
+	 */
+	public void setInjectAnyAssignableType(boolean injectAnyAssignableType) {
+		this.injectAnyAssignableType = injectAnyAssignableType;
 	}
 
 	@Override
@@ -112,7 +124,7 @@ public class Injector implements Configurator {
 			}
 			if ((registrations.typeCount(field.getType()) == 0
 			        || !injectByName(object, field, registrations) && !injectByGenericType(object, field, registrations) && !injectByKey(object, field, null, registrations))
-			        && !injectByAssignableType(object, field, registrations) && failWhenNotFound) {
+			        && (!injectAnyAssignableType || !injectByAssignableType(object, field, registrations)) && failWhenNotFound) {
 				throw new EngineConfigurationException("No registered object found for field " + field);
 			}
 		}

@@ -148,11 +148,22 @@ class InjectorTest {
 
 	@Test
 	void testB() {
+		RegistrationMap registrations = builder.getRegistrations();
 		B b = new B();
-		injector.inject(b, builder.getRegistrations());
+		injector.inject(b, registrations);
 		Assertions.assertSame(longList, b.theLongList);
 		Assertions.assertNull(((D) b).i);
+		Assertions.assertNull(b.d);
+
+		b = new B();
+		injector.setInjectAnyAssignableType(true);
+		injector.inject(b, registrations);
 		Assertions.assertEquals(C.class, b.d.getClass());
+
+		injector.setFailWhenNotFound(true);
+		injector.setInjectAnyAssignableType(false);
+		B b2 = new B();
+		Assertions.assertThrows(EngineConfigurationException.class, () -> injector.inject(b2, registrations));
 	}
 
 	@Test

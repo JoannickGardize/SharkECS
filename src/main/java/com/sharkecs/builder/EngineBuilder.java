@@ -323,6 +323,25 @@ public class EngineBuilder {
 	}
 
 	/**
+	 * Convenience method to call {@link Injector#setFailWhenNotFound(boolean)}
+	 * 
+	 * @param failWhenNotFound
+	 */
+	public void failInjectionWhenNotFound(boolean failWhenNotFound) {
+		registrations.getOrFail(Injector.class).setFailWhenNotFound(failWhenNotFound);
+	}
+
+	/**
+	 * Convenience method to call
+	 * {@link Injector#setInjectAnyAssignableType(boolean)}
+	 * 
+	 * @param injectAnyAssignableType
+	 */
+	public void setInjectAnyAssignableType(boolean injectAnyAssignableType) {
+		registrations.getOrFail(Injector.class).setInjectAnyAssignableType(injectAnyAssignableType);
+	}
+
+	/**
 	 * Convenience method to register a Configurator, after the {@link Injector} and
 	 * before the {@link InitializableConfigurator}.
 	 * 
@@ -342,6 +361,16 @@ public class EngineBuilder {
 	public void configuratorBeforeInjection(Configurator configurator) {
 		with(configurator);
 		before(configurator, Injector.class);
+	}
+
+	/**
+	 * Set the root configurator to use. The default is a {@link RootConfigurator},
+	 * which calls all registered configurators in their priority orders.
+	 * 
+	 * @param rootConfigurator the root configurator to use
+	 */
+	public void setRootConfigurator(Configurator rootConfigurator) {
+		this.rootConfigurator = rootConfigurator;
 	}
 
 	/**
