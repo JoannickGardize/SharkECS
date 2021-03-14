@@ -101,6 +101,7 @@ public class Digraph<T> {
 		while (!toTreat.isEmpty()) {
 			topologicalSortVisit(result, toTreat, toTreat.keySet().iterator().next());
 		}
+		Collections.reverse(result);
 		return result;
 	}
 
@@ -115,6 +116,6 @@ public class Digraph<T> {
 			topologicalSortVisit(result, toTreat, following);
 		}
 		toTreat.remove(node);
-		result.add(0, node.value);
+		result.add(node.value);
 	}
 }
