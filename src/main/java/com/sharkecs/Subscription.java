@@ -67,7 +67,7 @@ public class Subscription {
 	 * unexpected behaviors.
 	 * 
 	 * <p>
-	 * Not supported by this class, use {@link TrackingSubscription} for that.
+	 * This is only supported by {@link TrackingSubscription} instances.
 	 * 
 	 * @return the maintained collection of entities this subscription is interested
 	 *         of
