@@ -65,8 +65,7 @@ public class RegistrationMap {
 	}
 
 	private <T> void addAssignableTypes(T o) {
-		ReflectionUtils.forEachAssignableTypes(o.getClass(),
-		        t -> byAssignableType.computeIfAbsent(t, t2 -> new ArrayList<>()).add(o));
+		ReflectionUtils.forEachAssignableTypes(o.getClass(), t -> byAssignableType.computeIfAbsent(t, t2 -> new ArrayList<>()).add(o));
 	}
 
 	/**
@@ -180,7 +179,8 @@ public class RegistrationMap {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getAnyAssignableFrom(Class<T> type) {
-		return (T) byAssignableType.getOrDefault(type, null).get(0);
+		List<Object> typeList = byAssignableType.get(type);
+		return (typeList != null && !typeList.isEmpty()) ? (T) typeList.get(0) : null;
 	}
 
 	/**

@@ -18,7 +18,6 @@ public abstract class TypeConfigurator<T> implements Configurator {
 		this.type = type;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(EngineBuilder engineBuilder) {
 		beginConfiguration(engineBuilder);

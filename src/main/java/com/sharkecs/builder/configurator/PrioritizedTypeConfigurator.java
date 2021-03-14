@@ -6,8 +6,8 @@ import java.util.List;
 import com.sharkecs.builder.EngineBuilder;
 
 /**
- * A {@link TypeConfigurator} using the {@link Prioritizer} to iterate
- * over elements according to their priority.
+ * A {@link TypeConfigurator} using the {@link Prioritizer} to iterate over
+ * elements according to their priority.
  * 
  * @author Joannick Gardize
  *

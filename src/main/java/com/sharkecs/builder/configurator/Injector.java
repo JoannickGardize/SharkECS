@@ -111,8 +111,8 @@ public class Injector implements Configurator {
 				continue;
 			}
 			if ((registrations.typeCount(field.getType()) == 0
-					|| !injectByName(object, field, registrations) && !injectByGenericType(object, field, registrations) && !injectByKey(object, field, null, registrations))
-					&& !injectByAssignableType(object, field, registrations) && failWhenNotFound) {
+			        || !injectByName(object, field, registrations) && !injectByGenericType(object, field, registrations) && !injectByKey(object, field, null, registrations))
+			        && !injectByAssignableType(object, field, registrations) && failWhenNotFound) {
 				throw new EngineConfigurationException("No registered object found for field " + field);
 			}
 		}

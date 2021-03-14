@@ -20,8 +20,7 @@ public class ReflectionUtils {
 				Type typeArgument = typeArguments[0];
 				if (typeArgument instanceof Class) {
 					return (Class<?>) typeArgument;
-				} else if (typeArgument instanceof ParameterizedType
-				        && ((ParameterizedType) typeArgument).getRawType() instanceof Class<?>) {
+				} else if (typeArgument instanceof ParameterizedType && ((ParameterizedType) typeArgument).getRawType() instanceof Class<?>) {
 					return (Class<?>) ((ParameterizedType) typeArgument).getRawType();
 
 				}
@@ -31,8 +30,7 @@ public class ReflectionUtils {
 	}
 
 	public static Method getSetter(Field field) throws NoSuchMethodException {
-		return field.getDeclaringClass().getMethod(
-		        "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1), field.getType());
+		return field.getDeclaringClass().getMethod("set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1), field.getType());
 	}
 
 	public static void forEachAssignableTypes(Class<?> type, Consumer<Class<?>> action) {

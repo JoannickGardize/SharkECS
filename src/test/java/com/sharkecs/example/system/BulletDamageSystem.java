@@ -1,9 +1,12 @@
-package com.sharkecs.example;
+package com.sharkecs.example.system;
 
 import com.sharkecs.ComponentMapper;
 import com.sharkecs.EntityManager;
 import com.sharkecs.IteratingSystem;
 import com.sharkecs.annotation.WithAll;
+import com.sharkecs.example.component.Bullet;
+import com.sharkecs.example.component.Health;
+import com.sharkecs.example.component.Physics;
 
 @WithAll({ Physics.class, Bullet.class })
 public class BulletDamageSystem extends IteratingSystem {
@@ -19,7 +22,7 @@ public class BulletDamageSystem extends IteratingSystem {
 	@Override
 	public void process(int entityId) {
 		Physics physics = physicsMapper.get(entityId);
-		for (Physics colliding : physics.getColliding()) {
+		for (Physics colliding : physics.getCollisionGroup()) {
 			int collidingId = colliding.getEntityId();
 			healthMapper.ifExists(collidingId, health -> {
 				Bullet bullet = bulletMapper.get(entityId);

@@ -146,6 +146,7 @@ class EngineBuilderTest {
 	@Test
 	void defaultBuildTest() {
 		EngineBuilder builder = EngineBuilder.withDefaults();
+		builder.defaultComponentCreationPolicy(ComponentCreationPolicy.AUTOMATIC);
 
 		builder.component(A.class, A::new);
 		builder.component(B.class, B::new);
@@ -160,7 +161,7 @@ class EngineBuilderTest {
 		FakeSystemA systemA = new FakeSystemA();
 		FakeSystemB systemB = new FakeSystemB();
 		builder.with(systemA);
-		builder.with(systemB);
+		builder.then(systemB);
 
 		Object something = new Object();
 		Object somethingElse = new Object();

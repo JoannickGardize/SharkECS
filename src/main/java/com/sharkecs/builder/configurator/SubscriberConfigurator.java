@@ -35,10 +35,8 @@ public class SubscriberConfigurator extends TypeConfigurator<Subscriber> {
 
 	@Override
 	protected void configure(Subscriber subscriber, EngineBuilder engineBuilder) {
-		RequiresEntityTracking annotation = ReflectionUtils.getAnnotationOnSuperclass(subscriber.getClass(),
-		        RequiresEntityTracking.class);
-		subscriptionsToCreate.merge(new Aspect(subscriber.getClass()), annotation == null || annotation.value(),
-		        Boolean::logicalOr);
+		RequiresEntityTracking annotation = ReflectionUtils.getAnnotationOnSuperclass(subscriber.getClass(), RequiresEntityTracking.class);
+		subscriptionsToCreate.merge(new Aspect(subscriber.getClass()), annotation == null || annotation.value(), Boolean::logicalOr);
 	}
 
 	@Override
@@ -46,11 +44,8 @@ public class SubscriberConfigurator extends TypeConfigurator<Subscriber> {
 		RegistrationMap registrations = engineBuilder.getRegistrations();
 		for (Entry<Aspect, Boolean> entry : subscriptionsToCreate.entrySet()) {
 			registrations.put(Subscription.class, entry.getKey(),
-			        Boolean.TRUE.equals(entry.getValue())
-			                ? new TrackingSubscription(engineBuilder.getExpectedEntityCount())
-			                : new Subscription());
+			        Boolean.TRUE.equals(entry.getValue()) ? new TrackingSubscription(engineBuilder.getExpectedEntityCount()) : new Subscription());
 		}
-		registrations.forEachAssignableFrom(Subscriber.class,
-		        s -> s.subscribe(registrations.get(Subscription.class, new Aspect(s.getClass()))));
+		registrations.forEachAssignableFrom(Subscriber.class, s -> s.subscribe(registrations.get(Subscription.class, new Aspect(s.getClass()))));
 	}
 }

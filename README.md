@@ -43,7 +43,7 @@ public class BulletDamageSystem extends IteratingSystem {
 	@Override
 	public void process(int entityId) {
 		Physics physics = physicsMapper.get(entityId);
-		for (Physics colliding : physics.getColliding()) {
+		for (Physics colliding : physics.getCollisionGroup()) {
 			int collidingId = colliding.getEntityId();
 			healthMapper.ifExists(collidingId, health -> {
 				Bullet bullet = bulletMapper.get(entityId);
@@ -78,30 +78,42 @@ The attributes of the system will be automatically injected during the engine bu
 [EngineBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/EngineBuilder.java) is used to configure and create the Engine:
 
 ```java
-EngineBuilder builder = new EngineBuilder();
+EngineBuilder builder = EngineBuilder.withDefaults();
 
 // Register component types
 builder.component(Physics.class, Physics::new);
 builder.component(Bullet.class, Bullet::new);
 builder.component(Health.class, Health::new);
+builder.component(Shooter.class, Shooter::new);
+builder.component(Corpse.class, Corpse::new);
 
-// Register entity archetypes, they are injected by name where required
-builder.archetype("playerArchetype", Physics.class, Health.class);
-builder.archetype("bulletArchetype", Physics.class, Bullet.class);
+// Register entity archetypes
+builder.archetype("player", Physics.class, Health.class, Shooter.class);
+builder.archetype("corpse", Physics.class, Corpse.class);
+builder.archetype("bullet", Physics.class, Bullet.class);
 
-// Register systems, with order constraints
-builder.with(new PhysicsSystem());
+// Register transmutations
+builder.transmutation("player", "corpse");
+
+// Register managers & systems, in the right order
+builder.with(new TimeManager());
+builder.then(new PhysicsSystem());
 builder.then(new BulletDamageSystem());
-builder.then(new HealthSystem());
+builder.then(new BulletLifetimeSystem());
+builder.then(new ShootSystem());
+builder.then(new DeathSystem());
 
-// Register some singletons to be injected where required
+// Register miscellaneous stuff
 builder.with(new Time());
-builder.with(new ExternalPhysicsEngine());
+builder.with(new Viewport());
+builder.with(new ExampleScenarioInitializer());
 
 Engine engine = builder.build();
 ```
 
 Finally, call ```engine.process()``` in your main game loop.
+
+The full and runnable code of this example can be found [here](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/java/com/sharkecs/example)
 
 ## Priority management
 

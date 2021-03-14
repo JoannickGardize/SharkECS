@@ -21,7 +21,7 @@ import com.sharkecs.builder.RegistrationMap;
  */
 public class ArchetypeConfigurator extends TypeConfigurator<Archetype> {
 
-	private ComponentCreationPolicy defaultComponentCreationPolicy = ComponentCreationPolicy.AUTOMATIC;
+	private ComponentCreationPolicy defaultComponentCreationPolicy = ComponentCreationPolicy.MANUAL;
 
 	public ArchetypeConfigurator() {
 		super(Archetype.class);
@@ -32,11 +32,11 @@ public class ArchetypeConfigurator extends TypeConfigurator<Archetype> {
 	protected void configure(Archetype archetype, EngineBuilder engineBuilder) {
 		RegistrationMap registrations = engineBuilder.getRegistrations();
 		archetype.setSubscriptions(registrations.entrySet(Subscription.class).stream().filter(e -> ((Aspect) e.getKey()).matches(archetype.getComponentTypes()))
-				.map(Entry::getValue).toArray(Subscription[]::new));
+		        .map(Entry::getValue).toArray(Subscription[]::new));
 		archetype.setComponentMappers(archetype.getComponentTypes().stream().map(t -> registrations.getOrFail(ComponentMapper.class, t)).toArray(ComponentMapper[]::new));
 		archetype.setAutoCreateComponentMappers(
-				archetype.getComponentTypes().stream().filter(t -> archetype.getComponentCreationPolicy(t, defaultComponentCreationPolicy) == ComponentCreationPolicy.AUTOMATIC)
-						.map(t -> registrations.getOrFail(ComponentMapper.class, t)).toArray(ComponentMapper[]::new));
+		        archetype.getComponentTypes().stream().filter(t -> archetype.getComponentCreationPolicy(t, defaultComponentCreationPolicy) == ComponentCreationPolicy.AUTOMATIC)
+		                .map(t -> registrations.getOrFail(ComponentMapper.class, t)).toArray(ComponentMapper[]::new));
 		archetype.setTransmutations(new Transmutation[registrations.typeCount(Archetype.class)]);
 	}
 

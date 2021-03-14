@@ -13,7 +13,7 @@ import com.sharkecs.util.IntBag;
 public abstract class IteratingSystem extends SubscriberAdapter implements Processor, Initializable {
 
 	@Override
-	public void process() {
+	public final void process() {
 		beginProcess();
 		IntBag entities = getEntities();
 		for (int i = 0, size = entities.size(); i < size; i++) {

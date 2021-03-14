@@ -103,8 +103,7 @@ public class Aspect {
 			return false;
 		}
 		Aspect other = (Aspect) obj;
-		return Objects.equals(withAll, other.withAll) && Objects.equals(withAny, other.withAny)
-		        && Objects.equals(without, other.without);
+		return Objects.equals(withAll, other.withAll) && Objects.equals(withAny, other.withAny) && Objects.equals(without, other.without);
 	}
 
 }
