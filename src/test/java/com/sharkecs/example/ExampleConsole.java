@@ -5,7 +5,7 @@ import com.sharkecs.Engine;
 public class ExampleConsole {
 
 	public static void main(String[] args) throws InterruptedException {
-		Engine engine = ExampleUtils.createEngine(true);
+		Engine engine = ExampleBuilder.createEngine(true);
 		for (int i = 0; i < 40; i++) {
 			engine.process();
 			Thread.sleep(500);

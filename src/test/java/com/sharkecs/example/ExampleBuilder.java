@@ -20,9 +20,9 @@ import com.sharkecs.example.system.PhysicsSystem;
 import com.sharkecs.example.system.ShootSystem;
 import com.sharkecs.example.system.TimeManager;
 
-public class ExampleUtils {
+public class ExampleBuilder {
 
-	public static Engine createEngine(boolean withGraphics) {
+	public static Engine createEngine(boolean withGraphics, Object... additonalRegistrations) {
 
 		EngineBuilder builder = EngineBuilder.withDefaults();
 
@@ -59,6 +59,9 @@ public class ExampleUtils {
 		builder.with(new Time());
 		builder.with(new Viewport());
 		builder.with(new ExampleScenarioInitializer());
+		for (Object o : additonalRegistrations) {
+			builder.with(o);
+		}
 
 		return builder.build();
 	}
