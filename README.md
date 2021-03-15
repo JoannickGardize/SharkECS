@@ -18,7 +18,7 @@ The major specificity of SharkECS regarding to other ECS frameworks is that all 
 - **Processor**: a [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Processor.java) is something that will be processed at each engine process call.
 - **System**: systems are processors of a given entity aspect, they implement a part of the game logic related to this entity aspect. In SharkECS, there is no explicit system base class to extends. Systems generally extends [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/SubscriberAdapter.java) and implements [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/SubscriberAdapter.java). [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/IteratingSystem.java) is provided for convenience, and is the most common base class to use.
 - **Manager**: manager is a general term of something providing shared behaviors / access to systems. The [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityManager.java) is the most relevant example.
-- **Engine**: the root class, call ```Engine#process()``` in your main game loop. It is simply made of an array of Processor, since everything is wired during the engine building.
+- **Engine**: the root class, call `Engine#process()` in your main game loop. It is simply made of an array of Processor, since everything is wired during the engine building.
 
 ## Getting started
 
@@ -26,7 +26,7 @@ Let's take a simple, fictitious example of an engine made of player(s) and bulle
 
 ### System example
 
-Most systems extends [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/IteratingSystem.java), which iterates over all subscribed entity each process cycle. Let's assume that we have a ```PhysicsSystem```, updating a ```Physics``` component and its list of actually colliding other ```Physics```. The system responsible of damaging players with the bullets could looks like this:
+Most systems extends [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/IteratingSystem.java), which iterates over all subscribed entity each process cycle. Let's assume that we have a `PhysicsSystem`, updating a `Physics` component and its list of actually colliding other `Physics`. The system responsible of damaging players with the bullets could looks like this:
 
 ```java
 @WithAll({ Physics.class, Bullet.class })
@@ -103,7 +103,7 @@ builder.with(new ExampleScenarioInitializer());
 Engine engine = builder.build();
 ```
 
-Finally, call ```engine.process()``` in your main game loop.
+Finally, call `engine.process()` in your main game loop.
 
 The full and runnable code of this example can be found [here](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/java/com/sharkecs/example)
 
