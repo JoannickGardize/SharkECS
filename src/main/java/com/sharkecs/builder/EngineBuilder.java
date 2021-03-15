@@ -144,7 +144,7 @@ public class EngineBuilder {
 
 		EntityManager entityManager = new EntityManager(expectedEntityCount);
 		builder.with(entityManager);
-		builder.after(Processor.class, entityManager);
+		builder.before(entityManager, Processor.class);
 
 		builder.autoInjectType(Processor.class);
 		builder.autoInjectType(Subscriber.class);
@@ -274,11 +274,13 @@ public class EngineBuilder {
 	/**
 	 * Calls {@link Prioritizer#before(Object, Object...)}. Adding a priority rule
 	 * to {@code before} to be before each {@code after}. Parameters can be
-	 * registration instances, "marker" instances, or registration types, applying
-	 * the rule to all registrations assignable from the given type.
+	 * registration instances, "marker" instances, registration types, or annotation
+	 * types.
 	 * 
-	 * @param before the object / type to be before each {@code after} elements
-	 * @param after  the objects / types to be after the {@code before} element
+	 * @param before the object / type / annotation to be before each {@code after}
+	 *               elements
+	 * @param after  the objects / types / annotations to be after the
+	 *               {@code before} element
 	 */
 	public void before(Object before, Object... after) {
 		registrations.getOrFail(Prioritizer.class).before(before, after);
@@ -287,11 +289,12 @@ public class EngineBuilder {
 	/**
 	 * Calls {@link Prioritizer#after(Object, Object...)}. Adding a priority rule to
 	 * {@code after} to be after each {@code before}. Parameters can be registration
-	 * instances, "marker" instances, or registration types, applying the rule to
-	 * all registrations assignable from the given type.
+	 * instances, "marker" instances, registration types, or annotation types.
 	 * 
-	 * @param after  the object / type to be after each {@code before} elements
-	 * @param before the objects / types to be before the {@code after} element
+	 * @param after  the object / type / annotation to be after each {@code before}
+	 *               elements
+	 * @param before the objects / types / annotations to be before the
+	 *               {@code after} element
 	 */
 	public void after(Object after, Object... before) {
 		registrations.getOrFail(Prioritizer.class).after(after, before);

@@ -1,6 +1,7 @@
 package com.sharkecs.builder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -165,9 +166,13 @@ public class RegistrationMap {
 	 * @param type
 	 * @param action
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> void forEachAssignableFrom(Class<T> type, Consumer<T> action) {
-		byAssignableType.getOrDefault(type, Collections.emptyList()).forEach((Consumer) action);
+		getAllAssignableFrom(type).forEach(action);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> Collection<T> getAllAssignableFrom(Class<T> type) {
+		return (Collection<T>) Collections.unmodifiableCollection(byAssignableType.getOrDefault(type, Collections.emptyList()));
 	}
 
 	/**
@@ -180,7 +185,7 @@ public class RegistrationMap {
 	@SuppressWarnings("unchecked")
 	public <T> T getAnyAssignableFrom(Class<T> type) {
 		List<Object> typeList = byAssignableType.get(type);
-		return (typeList != null && !typeList.isEmpty()) ? (T) typeList.get(0) : null;
+		return typeList != null && !typeList.isEmpty() ? (T) typeList.get(0) : null;
 	}
 
 	/**
@@ -190,5 +195,9 @@ public class RegistrationMap {
 	 */
 	public void forEach(Consumer<Object> action) {
 		list.forEach(action);
+	}
+
+	public List<Object> all() {
+		return Collections.unmodifiableList(list);
 	}
 }

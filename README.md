@@ -2,7 +2,7 @@
 
 # SharkECS
 
-Entity Component System implementation focused on performance and ease of use.
+Entity Component System implementation focused on both performance and ease of use. It was inspired by the well known [artemis-odb](https://github.com/junkdog/artemis-odb) framework.
 
 The specificity of SharkECS regarding to other ECS frameworks is that all possible entity composition and mutation must be declared first. In this way, performance is easily optimized.
 
@@ -127,9 +127,10 @@ In SharkECS, you specify priorities in the form of before / after constraints. T
 - use `EngineBuilder#after(Object, Object...)` or `EngineBuilder#before(Object, Object...)` to add constraints between registered elements, elements could be:
   - the instance of the concerned element
   - a Class, every elements assignable to this Class will be concerned
+  - an annotation type, every elements declaring this annotation will be concerned
   - any non-registered instance as a "marker" in the priority graph
 
-For instance, the EngineBuilder's default configuration calls `builder.after(Processor.class, entityManager);` to put the EntityManager before any other Processor.
+For instance, the EngineBuilder's default configuration calls `builder.before(entityManager, Processor.class);` to put the EntityManager before any other Processor.
 
 ## Transmutation, injection by generic types, custom engine configurator...
 
