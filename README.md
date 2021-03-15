@@ -2,16 +2,16 @@
 
 # SharkECS
 
-Entity Component System implementation focused on both performance and ease of use. It was inspired by the well known [artemis-odb](https://github.com/junkdog/artemis-odb) framework.
+Entity Component System implementation focused on performance, ease of use, and flexibility, inspired by the popular [artemis-odb](https://github.com/junkdog/artemis-odb) framework.
 
-The specificity of SharkECS regarding to other ECS frameworks is that all possible entity composition and mutation must be declared first. In this way, performance is easily optimized.
+The major specificity of SharkECS regarding to other ECS frameworks is that all possible entity composition and mutation must be declared first. In this way, performance is easily optimized.
 
 ## Terminology
 
-- **Entity**: entities are simple integer id, representing something made of components. Entity creation, deletion, and mutation operations are made via the [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityManager.java). Note that entity ids are not unique other time.
+- **Entity**: entities are simple integer ID, representing something made of components. Entity creation, deletion, and mutation operations are made via the [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityManager.java). Note that entity IDs are not unique other time.
 - **Component**: Components are pure data holders representing an aspect of entities (position, body, health, sprite...). Components are accessed via [ComponentMappers](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/ComponentMapper.java).
 - **Archetype**: an [Archetype](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Archetype.java) is a declaration of component composition used to create entities at runtime.
-- **Transmutation**: a [Transmutation](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Transmutation.java) is the declaration of a possible mutation operation from an Archetype to another at runtime.
+- **Transmutation**: a [Transmutation](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Transmutation.java) is the declaration of a possible mutation operation from an Archetype to another one at runtime.
 - **Aspect:** [Aspects](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Aspect.java) represents a group of possible entity composition (of component), Aspect declaration is made via annotation on classes implementing [Subscriber](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Subscriber.java).
 - **Subscription**: a maintained collection of entity, generally of a given aspect. A subscription can be listened to get notified of insertion, removal, and mutation.
 - **Subscriber**: a class interested to subscribe to a subscription (generally of a given aspect, via it's class annotation declaration). [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/SubscriberAdapter.java) is a convenient base for this kind of class. Typical systems will subscribe to a subscription and iterate over its entities during processing.
@@ -32,12 +32,8 @@ Most systems extends [IteratingSystem](https://github.com/JoannickGardize/SharkE
 @WithAll({ Physics.class, Bullet.class })
 public class BulletDamageSystem extends IteratingSystem {
 
-	private EntityManager entityManager;
-
 	private ComponentMapper<Physics> physicsMapper;
-
 	private ComponentMapper<Bullet> bulletMapper;
-
 	private ComponentMapper<Health> healthMapper;
 
 	@Override
@@ -51,10 +47,6 @@ public class BulletDamageSystem extends IteratingSystem {
 				entityManager.remove(entityId);
 			});
 		}
-	}
-
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
 	}
 
 	public void setPhysicsMapper(ComponentMapper<Physics> physicsMapper) {
@@ -123,8 +115,8 @@ To achieve this, the naive way is to specify a priority number to elements, but 
 
 In SharkECS, you specify priorities in the form of before / after constraints. There is different ways to do this:
 
-- use `EngineBuilder#then(Object)` to register an element and add a "after" priority constraint between it and the previously registered element
-- use `EngineBuilder#after(Object, Object...)` or `EngineBuilder#before(Object, Object...)` to add constraints between registered elements, elements could be:
+- `EngineBuilder#then(Object)` is a convenience method to register an element **and** add an "after" priority constraint between it and the previously registered element
+- `EngineBuilder#after(Object, Object...)` and `EngineBuilder#before(Object, Object...)` add constraints between registered elements, parameters could be:
   - the instance of the concerned element
   - a Class, every elements assignable to this Class will be concerned
   - an annotation type, every elements declaring this annotation will be concerned

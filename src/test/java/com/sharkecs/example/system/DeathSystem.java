@@ -2,17 +2,18 @@ package com.sharkecs.example.system;
 
 import com.sharkecs.Archetype;
 import com.sharkecs.ComponentMapper;
-import com.sharkecs.EntityManager;
 import com.sharkecs.IteratingSystem;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.example.component.Health;
 import com.sharkecs.example.component.Physics;
+import com.sharkecs.example.system.annotation.LogicPhase;
 
+@LogicPhase
 @WithAll({ Physics.class, Health.class })
 public class DeathSystem extends IteratingSystem {
 
 	private ComponentMapper<Health> healthMapper;
-	private EntityManager entityManager;
+
 	private Archetype corpse;
 
 	@Override
@@ -24,10 +25,6 @@ public class DeathSystem extends IteratingSystem {
 
 	public void setHealthMapper(ComponentMapper<Health> healthMapper) {
 		this.healthMapper = healthMapper;
-	}
-
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
 	}
 
 	public void setCorpse(Archetype corpse) {

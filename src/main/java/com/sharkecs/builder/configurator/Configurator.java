@@ -12,5 +12,8 @@ import com.sharkecs.builder.EngineBuilder;
  */
 public interface Configurator {
 
+	/**
+	 * @param engineBuilder the EngineBuilder to configure
+	 */
 	void configure(EngineBuilder engineBuilder);
 }

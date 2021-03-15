@@ -11,13 +11,15 @@ import com.sharkecs.annotation.SkipInjection;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.example.component.Physics;
 import com.sharkecs.example.singleton.Time;
+import com.sharkecs.example.system.annotation.LogicPhase;
 
+@LogicPhase
 @WithAll(Physics.class)
 public class PhysicsSystem extends IteratingSystem {
 
-	private Time time;
-
 	private ComponentMapper<Physics> physicsMapper;
+
+	private Time time;
 
 	@SkipInjection
 	private Map<Integer, List<Physics>> collisions = new HashMap<>();

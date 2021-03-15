@@ -2,7 +2,6 @@ package com.sharkecs.example.system;
 
 import com.sharkecs.Archetype;
 import com.sharkecs.ComponentMapper;
-import com.sharkecs.EntityManager;
 import com.sharkecs.IteratingSystem;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.example.component.Bullet;
@@ -10,7 +9,9 @@ import com.sharkecs.example.component.Physics;
 import com.sharkecs.example.component.Shooter;
 import com.sharkecs.example.component.Shooter.ShooterCommand;
 import com.sharkecs.example.singleton.Time;
+import com.sharkecs.example.system.annotation.LogicPhase;
 
+@LogicPhase
 @WithAll({ Shooter.class, Physics.class })
 public class ShootSystem extends IteratingSystem {
 
@@ -21,8 +22,6 @@ public class ShootSystem extends IteratingSystem {
 	private Time time;
 
 	private Archetype bullet;
-
-	private EntityManager entityManager;
 
 	@Override
 	protected void process(int entityId) {
@@ -72,9 +71,5 @@ public class ShootSystem extends IteratingSystem {
 
 	public void setBullet(Archetype bullet) {
 		this.bullet = bullet;
-	}
-
-	public void setEntityManager(EntityManager entityManager) {
-		this.entityManager = entityManager;
 	}
 }

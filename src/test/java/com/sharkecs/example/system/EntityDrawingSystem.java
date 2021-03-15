@@ -12,7 +12,9 @@ import com.sharkecs.example.component.Physics;
 import com.sharkecs.example.component.Shooter;
 import com.sharkecs.example.component.Shooter.ShooterCommand;
 import com.sharkecs.example.singleton.Viewport;
+import com.sharkecs.example.system.annotation.DrawingPhase;
 
+@DrawingPhase
 @WithAll(Physics.class)
 public class EntityDrawingSystem extends IteratingSystem {
 
@@ -37,6 +39,7 @@ public class EntityDrawingSystem extends IteratingSystem {
 	private ComponentMapper<Shooter> shooterMapper;
 	private ComponentMapper<Bullet> bulletMapper;
 	private ComponentMapper<Corpse> corpseMapper;
+
 	private Viewport viewport;
 
 	private List<DrawEntry> batch = new ArrayList<>();

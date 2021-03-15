@@ -48,10 +48,10 @@ import com.sharkecs.builder.configurator.TransmutationConfigurator;
  * </ul>
  * <p>
  * Typically, systems, managers, and singletons are registered via
- * {@link #with(Object)} or {@link #with(String, Object)}. Multiple instances of
- * the same type is allowed but a different name must be given via
- * {@link #with(String, Object)}. Components, {@link Archetype}s and
- * {@link Transmutation}s have their dedicated convenience methods.
+ * {@link #with(Object)}. Multiple instances of the same type is allowed but a
+ * different name must be given via {@link #with(String, Object)}. Components,
+ * {@link Archetype}s and {@link Transmutation}s have their dedicated
+ * convenience methods.
  * <p>
  * Once all elements are registered, {@link #build()} is called to create the
  * {@link Engine}. One instance of {@link EngineBuilder} can only create one

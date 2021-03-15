@@ -7,7 +7,7 @@ import com.sharkecs.annotation.SkipInjection;
 /**
  * <p>
  * Represents a transmutation operation, changing an entity of a given archetype
- * to another.
+ * to another one.
  * 
  * <p>
  * Stores the {@link Subscription}s and {@link ComponentMapper}s associated with
@@ -87,8 +87,8 @@ public class Transmutation {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((from == null) ? 0 : from.hashCode());
-		result = prime * result + ((to == null) ? 0 : to.hashCode());
+		result = prime * result + (from == null ? 0 : from.hashCode());
+		result = prime * result + (to == null ? 0 : to.hashCode());
 		return result;
 	}
 

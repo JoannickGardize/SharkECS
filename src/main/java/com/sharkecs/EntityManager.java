@@ -1,9 +1,18 @@
 package com.sharkecs;
 
+import com.sharkecs.Archetype.ComponentCreationPolicy;
 import com.sharkecs.annotation.SkipInjection;
 import com.sharkecs.util.Bag;
 import com.sharkecs.util.IntBag;
 
+/**
+ * Manage all entities. Provides entity creation, deletion, and mutation
+ * operations. These three operations are delayed and effective for the next
+ * process cycle.
+ * 
+ * @author Joannick Gardize
+ *
+ */
 @SkipInjection
 public class EntityManager implements Processor {
 
@@ -35,8 +44,9 @@ public class EntityManager implements Processor {
 	}
 
 	/**
-	 * Creates a new entity for the given archetype. All components are immediately
-	 * created, but the insertion will be effective for the next process cycle.
+	 * Creates a new entity for the given archetype. All components with a
+	 * {@link ComponentCreationPolicy#AUTOMATIC} policy are immediately created, but
+	 * the entity insertion will be effective for the next process cycle.
 	 * 
 	 * @param archetype the archetype of the new entity, components will be created
 	 *                  accordingly
@@ -63,9 +73,9 @@ public class EntityManager implements Processor {
 	}
 
 	/**
-	 * Transmute the given entity into the given archetype. The new components are
-	 * immediately created. The effective transmutation is done for the next process
-	 * cycle.
+	 * Transmute the given entity into the given archetype. The new components with
+	 * a {@link ComponentCreationPolicy#AUTOMATIC} policy are immediately created,
+	 * but the transmutation will be effective for the next process cycle. cycle.
 	 * 
 	 * @param entityId
 	 * @param toArchetype
@@ -89,6 +99,12 @@ public class EntityManager implements Processor {
 		nextId = entities.size();
 	}
 
+	/**
+	 * Returns the actual archetype of the given entity.
+	 * 
+	 * @param entityId the entity id
+	 * @return the actual archetype of the given entity
+	 */
 	public Archetype archetypeOf(int entityId) {
 		return entities.get(entityId);
 	}

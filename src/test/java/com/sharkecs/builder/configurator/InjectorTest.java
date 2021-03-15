@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sharkecs.annotation.ForceInject;
 import com.sharkecs.annotation.Inject;
 import com.sharkecs.annotation.SkipInjection;
 import com.sharkecs.builder.EngineBuilder;
@@ -91,8 +92,15 @@ class InjectorTest {
 	private static class D {
 		private Integer i;
 
+		@ForceInject
+		private Long forced;
+
 		public void setI(Integer i) {
 			this.i = i;
+		}
+
+		public void setForced(Long forced) {
+			this.forced = forced;
 		}
 
 	}
@@ -153,6 +161,7 @@ class InjectorTest {
 		injector.inject(b, registrations);
 		Assertions.assertSame(longList, b.theLongList);
 		Assertions.assertNull(((D) b).i);
+		Assertions.assertEquals(1L, ((D) b).forced);
 		Assertions.assertNull(b.d);
 
 		b = new B();
@@ -171,6 +180,7 @@ class InjectorTest {
 		C c = new C();
 		injector.inject(c, builder.getRegistrations());
 		Assertions.assertEquals(3, ((D) c).i);
+		Assertions.assertEquals(1L, ((D) c).forced);
 	}
 
 	void testE() {

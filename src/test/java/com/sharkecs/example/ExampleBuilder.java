@@ -1,5 +1,7 @@
 package com.sharkecs.example;
 
+import java.util.Arrays;
+
 import com.sharkecs.Engine;
 import com.sharkecs.builder.EngineBuilder;
 import com.sharkecs.example.component.Bullet;
@@ -19,6 +21,8 @@ import com.sharkecs.example.system.HealthDrawerSystem;
 import com.sharkecs.example.system.PhysicsSystem;
 import com.sharkecs.example.system.ShootSystem;
 import com.sharkecs.example.system.TimeManager;
+import com.sharkecs.example.system.annotation.DrawingPhase;
+import com.sharkecs.example.system.annotation.LogicPhase;
 
 public class ExampleBuilder {
 
@@ -48,8 +52,11 @@ public class ExampleBuilder {
 		builder.then(new BulletLifetimeSystem());
 		builder.then(new ShootSystem());
 		builder.then(new DeathSystem());
+
 		if (withGraphics) {
-			builder.then(new ConsoleCleaner());
+			builder.before(LogicPhase.class, DrawingPhase.class);
+
+			builder.with(new ConsoleCleaner());
 			builder.then(new HeaderDrawer());
 			builder.then(new HealthDrawerSystem());
 			builder.then(new EntityDrawingSystem());
@@ -59,9 +66,7 @@ public class ExampleBuilder {
 		builder.with(new Time());
 		builder.with(new Viewport());
 		builder.with(new ExampleScenarioInitializer());
-		for (Object o : additonalRegistrations) {
-			builder.with(o);
-		}
+		Arrays.stream(additonalRegistrations).forEach(builder::with);
 
 		return builder.build();
 	}

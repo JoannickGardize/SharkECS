@@ -2,6 +2,7 @@ package com.sharkecs;
 
 import java.util.Objects;
 
+import com.sharkecs.annotation.RequiresEntityTracking;
 import com.sharkecs.util.IntBag;
 
 /**
@@ -26,7 +27,11 @@ public abstract class SubscriberAdapter implements Subscriber {
 	}
 
 	/**
-	 * @return the entity IDs of the subscription. must be subscribed first.
+	 * @return the entity IDs of the subscription. must be subscribed first. The
+	 *         returned collection must not be modified.
+	 * @throws UnsupportedOperationException if the subscription does not maintain
+	 *                                       the entity collection (see
+	 *                                       {@link RequiresEntityTracking})
 	 */
 	public IntBag getEntities() {
 		return subscription.getEntities();

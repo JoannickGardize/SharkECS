@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.sharkecs.annotation.ForceInject;
 import com.sharkecs.annotation.Inject;
 import com.sharkecs.annotation.SkipInjection;
 import com.sharkecs.builder.EngineBuilder;
@@ -47,8 +48,9 @@ import com.sharkecs.util.ReflectionUtils;
  * nothing happens, this can be changed by
  * {@link Injector#setFailWhenNotFound(boolean)}.
  * <p>
- * By default, fields of the parent class are not checked, use
- * {@link Inject#injectParent()} on the class to change that.
+ * By default, fields of the parent class are not injected, use
+ * {@link Inject#injectParent()} on the class to change that, or use
+ * {@link ForceInject} to parent classes / fields to force their injections.
  * 
  * @author Joannick Gardize
  *
@@ -74,20 +76,26 @@ public class Injector implements Configurator {
 	}
 
 	/**
+	 * Set if this injector should fail with an {@link EngineConfigurationException}
+	 * when no registration object is found for an eligible field. False by default.
+	 * 
 	 * @param failWhenNotFound if true, injection will fail with an
 	 *                         {@link EngineConfigurationException} when no object
-	 *                         is found for a field.
+	 *                         is found for an eligible field.
 	 */
 	public void setFailWhenNotFound(boolean failWhenNotFound) {
 		this.failWhenNotFound = failWhenNotFound;
 	}
 
 	/**
+	 * Set if this injector should try to inject any registration object by
+	 * assignable type when no matching registration object has been found by key
+	 * and type. False by default.
 	 * 
 	 * @param injectAnyAssignableType if true, when no matching key has been found
 	 *                                (including the null key for the field's type)
 	 *                                any assignable type for the field will be
-	 *                                taken, if any. False by default
+	 *                                taken, if any.
 	 */
 	public void setInjectAnyAssignableType(boolean injectAnyAssignableType) {
 		this.injectAnyAssignableType = injectAnyAssignableType;
@@ -106,20 +114,18 @@ public class Injector implements Configurator {
 	 * @param registrations the registration map to use for injection
 	 */
 	public void inject(Object object, RegistrationMap registrations) {
-		inject(object.getClass(), object, registrations);
+		inject(object.getClass(), object, registrations, false);
 	}
 
-	private void inject(Class<?> type, Object object, RegistrationMap registrations) {
-		Inject inject = type.getAnnotation(Inject.class);
-		if (inject != null && inject.injectParent()) {
-			inject(type.getSuperclass(), object, registrations);
-		}
-		if (type.isAnnotationPresent(SkipInjection.class)) {
+	private void inject(Class<?> type, Object object, RegistrationMap registrations, boolean requiresForce) {
+		if (type == null || type.isAnnotationPresent(SkipInjection.class)) {
 			return;
 		}
-		boolean injectAllFields = isAutoInjectType(type);
+		Inject inject = type.getAnnotation(Inject.class);
+		inject(type.getSuperclass(), object, registrations, requiresForce || inject == null || !inject.injectParent());
+		boolean injectAllFields = isAutoInjectType(type, requiresForce);
 		for (Field field : type.getDeclaredFields()) {
-			if (!isEligibleField(field, injectAllFields)) {
+			if (!isEligibleField(field, injectAllFields, requiresForce)) {
 				continue;
 			}
 			if ((registrations.typeCount(field.getType()) == 0
@@ -164,11 +170,13 @@ public class Injector implements Configurator {
 		}
 	}
 
-	private boolean isEligibleField(Field field, boolean injectAllFields) {
-		return !field.isAnnotationPresent(SkipInjection.class) && (injectAllFields || field.isAnnotationPresent(Inject.class));
+	private boolean isEligibleField(Field field, boolean injectAllFields, boolean requiresForce) {
+		return !field.isAnnotationPresent(SkipInjection.class)
+				&& (injectAllFields || (requiresForce ? field.isAnnotationPresent(ForceInject.class) : field.isAnnotationPresent(Inject.class)));
 	}
 
-	private boolean isAutoInjectType(Class<?> type) {
-		return autoInjectTypes.stream().anyMatch(t -> t.isAssignableFrom(type)) || type.isAnnotationPresent(Inject.class);
+	private boolean isAutoInjectType(Class<?> type, boolean requiresForce) {
+		return type.isAnnotationPresent(ForceInject.class)
+				|| !requiresForce && (type.isAnnotationPresent(Inject.class) || autoInjectTypes.stream().anyMatch(t -> t.isAssignableFrom(type)));
 	}
 }

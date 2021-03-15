@@ -10,8 +10,8 @@ import com.sharkecs.util.IntBag;
  * Subscription of a given group of entity, generally of a given {@link Aspect}.
  * Notify insertion, removal, and change.
  * <p>
- * Does not track the actual collection of entity. Use
- * {@link TrackingSubscription} for that.
+ * Does not track the actual collection of entity. Use the
+ * {@link TrackingSubscription} specialization for that.
  * 
  * @author Joannick Gardize
  *
@@ -63,11 +63,11 @@ public class Subscription {
 	/**
 	 * <p>
 	 * Get the maintained collection of entities this subscription is interested of.
-	 * The returned bag is intended to only be read and modifying it may result to
+	 * The returned bag is intended to only be read, modifying it may result to
 	 * unexpected behaviors.
 	 * 
 	 * <p>
-	 * This is only supported by {@link TrackingSubscription} instances.
+	 * This method is only supported by {@link TrackingSubscription} instances.
 	 * 
 	 * @return the maintained collection of entities this subscription is interested
 	 *         of
