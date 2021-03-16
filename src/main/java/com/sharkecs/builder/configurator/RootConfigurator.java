@@ -14,7 +14,7 @@ import com.sharkecs.builder.EngineBuilder;
  * First, it calls all registered {@link Configurator}s annotated with
  * {@link BeforeAll}, then, it calls all other registered {@link Configurator}s
  * using a {@link Prioritizer} to call them in the right order (So the
- * {@link Prioritizer} is obvisouly marked with {@link BeforeAll}).
+ * {@link Prioritizer} is obviously marked with {@link BeforeAll}).
  * 
  * @author Joannick Gardize
  *
@@ -45,5 +45,4 @@ public class RootConfigurator extends TypeConfigurator<Configurator> {
 		engineBuilder.getRegistrations().getOrFail(Prioritizer.class).prioritize(configurators);
 		configurators.forEach(c -> c.configure(engineBuilder));
 	}
-
 }

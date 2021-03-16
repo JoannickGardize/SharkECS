@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sharkecs.annotation.ForceInject;
 import com.sharkecs.annotation.Inject;
-import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.builder.EngineBuilder;
 import com.sharkecs.builder.EngineConfigurationException;
 import com.sharkecs.builder.RegistrationMap;
@@ -48,7 +48,7 @@ class InjectorTest {
 		private List<Integer> intList;
 		private Long l1;
 		private Long fieldName;
-		@SkipInjection
+		@SkipInject
 		private Long l2;
 
 		public void setIntList(List<Integer> intList) {
@@ -105,7 +105,7 @@ class InjectorTest {
 
 	}
 
-	@SkipInjection
+	@SkipInject
 	@SuppressWarnings("unused")
 	private static class E implements AutoInject {
 		private Integer i;
@@ -121,7 +121,7 @@ class InjectorTest {
 		@Inject
 		private Long l1;
 		private Long l2;
-		@SkipInjection
+		@SkipInject
 		private Long fieldName;
 
 		public void setL1(Long l1) {

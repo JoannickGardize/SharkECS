@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.sharkecs.ComponentMapper;
 import com.sharkecs.IteratingSystem;
-import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.example.component.Physics;
 import com.sharkecs.example.singleton.Time;
@@ -21,7 +21,7 @@ public class PhysicsSystem extends IteratingSystem {
 
 	private Time time;
 
-	@SkipInjection
+	@SkipInject
 	private Map<Integer, List<Physics>> collisions = new HashMap<>();
 
 	@Override

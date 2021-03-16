@@ -3,6 +3,7 @@ package com.sharkecs;
 import java.util.Objects;
 
 import com.sharkecs.annotation.RequiresEntityTracking;
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.util.IntBag;
 
 /**
@@ -12,6 +13,7 @@ import com.sharkecs.util.IntBag;
  * @author Joannick Gardize
  *
  */
+@SkipInject
 public abstract class SubscriberAdapter implements Subscriber {
 
 	private Subscription subscription;

@@ -15,7 +15,7 @@ import com.sharkecs.builder.configurator.Injector;
  * injection is required.
  * <p>
  * When annotating a class, it indicates that all fields requires injection,
- * unless they are marked with {@link SkipInjection}.
+ * unless they are marked with {@link SkipInject}.
  * <p>
  * the {@link #injectParent()} boolean can be set to true to indicates to check
  * the parent class for injection, with the same rules.

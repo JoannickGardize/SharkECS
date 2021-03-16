@@ -60,10 +60,6 @@ public class HealthDrawerSystem extends IteratingSystem {
 		this.healthMapper = healthMapper;
 	}
 
-	public void setBatch(List<Physics> batch) {
-		this.batch = batch;
-	}
-
 	public void setViewport(Viewport viewport) {
 		this.viewport = viewport;
 	}

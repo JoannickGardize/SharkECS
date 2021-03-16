@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.sharkecs.annotation.ForceInject;
 import com.sharkecs.annotation.Inject;
-import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.builder.EngineBuilder;
 import com.sharkecs.builder.EngineConfigurationException;
 import com.sharkecs.builder.RegistrationMap;
@@ -25,7 +25,7 @@ import com.sharkecs.util.ReflectionUtils;
  * <li>The declaring class is assignable from one of the registered auto inject
  * type via {@link #addAutoInjectType(Class)}
  * </ul>
- * If the field or its declaring class is annotated with {@link SkipInjection},
+ * If the field or its declaring class is annotated with {@link SkipInject},
  * injection will always be skipped.
  * <p>
  * When a field is eligible, the injector will look the {@link RegistrationMap}
@@ -118,7 +118,7 @@ public class Injector implements Configurator {
 	}
 
 	private void inject(Class<?> type, Object object, RegistrationMap registrations, boolean requiresForce) {
-		if (type == null || type.isAnnotationPresent(SkipInjection.class)) {
+		if (type == null || type.isAnnotationPresent(SkipInject.class)) {
 			return;
 		}
 		Inject inject = type.getAnnotation(Inject.class);
@@ -171,7 +171,7 @@ public class Injector implements Configurator {
 	}
 
 	private boolean isEligibleField(Field field, boolean injectAllFields, boolean requiresForce) {
-		return !field.isAnnotationPresent(SkipInjection.class)
+		return !field.isAnnotationPresent(SkipInject.class)
 				&& (injectAllFields || (requiresForce ? field.isAnnotationPresent(ForceInject.class) : field.isAnnotationPresent(Inject.class)));
 	}
 

@@ -154,6 +154,58 @@ public class EngineBuilder {
 	}
 
 	/**
+	 * Register the given object. Injection will be done by field type.
+	 * 
+	 * @param object the object to register
+	 */
+	public void with(Object object) {
+		with(null, object);
+	}
+
+	/**
+	 * Register the given object. Injection will be done by field type and name.
+	 * 
+	 * @param name   the name of the registration for field name matching during
+	 *               injection. Giving a null value is equivalent to
+	 *               {@link #with(Object)}
+	 * @param object the object to register
+	 */
+	public void with(String name, Object object) {
+		checkConfiguring();
+		registrations.put(name, object);
+		previousObject = object;
+	}
+
+	/**
+	 * Register the given object. Injection will be done by field type. Adds a
+	 * priority rule to be after the previously registered object.
+	 * 
+	 * @param object the object to register with a priority after the previously
+	 *               registered object
+	 */
+	public void then(Object object) {
+		then(null, object);
+	}
+
+	/**
+	 * Register the given object. Injection will be done by field type. Adds a
+	 * priority rule to be after the previously registered object.
+	 * 
+	 * @param name   the name of the registration for field name matching during
+	 *               injection. Giving a null value is equivalent to
+	 *               {@link #then(Object)}
+	 * @param object the object to register with a priority after the previously
+	 *               registered object
+	 */
+	public void then(String name, Object object) {
+		if (previousObject == null) {
+			throw new EngineConfigurationException("No previous object to prioritize");
+		}
+		before(previousObject, object);
+		with(name, object);
+	}
+
+	/**
 	 * Register a {@link ComponentMapper} for the given component type.
 	 * {@link FlatArrayComponentMapper} is used.
 	 * 
@@ -217,58 +269,6 @@ public class EngineBuilder {
 		Archetype fromArchetype = registrations.getOrFail(Archetype.class, from);
 		Archetype toArchetype = registrations.getOrFail(Archetype.class, to);
 		transmutation(fromArchetype, toArchetype);
-	}
-
-	/**
-	 * Register the given object. Injection will be done by field type.
-	 * 
-	 * @param object the object to register
-	 */
-	public void with(Object object) {
-		with(null, object);
-	}
-
-	/**
-	 * Register the given object. Injection will be done by field type and name.
-	 * 
-	 * @param name   the name of the registration for field name matching during
-	 *               injection. Giving a null value is equivalent to
-	 *               {@link #with(Object)}
-	 * @param object the object to register
-	 */
-	public void with(String name, Object object) {
-		checkConfiguring();
-		registrations.put(name, object);
-		previousObject = object;
-	}
-
-	/**
-	 * Register the given object. Injection will be done by field type. Adds a
-	 * priority rule to be after the previously registered object.
-	 * 
-	 * @param object the object to register with a priority after the previously
-	 *               registered object
-	 */
-	public void then(Object object) {
-		then(null, object);
-	}
-
-	/**
-	 * Register the given object. Injection will be done by field type. Adds a
-	 * priority rule to be after the previously registered object.
-	 * 
-	 * @param name   the name of the registration for field name matching during
-	 *               injection. Giving a null value is equivalent to
-	 *               {@link #then(Object)}
-	 * @param object the object to register with a priority after the previously
-	 *               registered object
-	 */
-	public void then(String name, Object object) {
-		if (previousObject == null) {
-			throw new EngineConfigurationException("No previous object to prioritize");
-		}
-		before(previousObject, object);
-		with(name, object);
 	}
 
 	/**
@@ -344,7 +344,7 @@ public class EngineBuilder {
 	 * 
 	 * @param injectAnyAssignableType
 	 */
-	public void setInjectAnyAssignableType(boolean injectAnyAssignableType) {
+	public void injectAnyAssignableType(boolean injectAnyAssignableType) {
 		registrations.getOrFail(Injector.class).setInjectAnyAssignableType(injectAnyAssignableType);
 	}
 

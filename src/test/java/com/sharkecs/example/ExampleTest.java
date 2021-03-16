@@ -9,6 +9,7 @@ import com.sharkecs.Engine;
 import com.sharkecs.EntityManager;
 import com.sharkecs.SubscriberAdapter;
 import com.sharkecs.annotation.WithAll;
+import com.sharkecs.builder.EngineBuilder;
 import com.sharkecs.example.component.Bullet;
 import com.sharkecs.example.component.Corpse;
 import com.sharkecs.example.component.Shooter;
@@ -44,10 +45,15 @@ class ExampleTest {
 		PlayerSubscriber playerSubscriber = new PlayerSubscriber();
 		CorpseSubscriber corpseSubscriber = new CorpseSubscriber();
 
-		Engine engine = ExampleBuilder.createEngine(false, bulletSubscriber, playerSubscriber, corpseSubscriber);
+		EngineBuilder builder = ExampleBuilder.buider();
+		builder.with(bulletSubscriber);
+		builder.with(playerSubscriber);
+		builder.with(corpseSubscriber);
+
+		Engine engine = builder.build();
 
 		Assertions.assertArrayEquals(new Object[] { EntityManager.class, TimeManager.class, PhysicsSystem.class, BulletDamageSystem.class, BulletLifetimeSystem.class,
-		        ShootSystem.class, DeathSystem.class }, Arrays.stream(engine.getProcessors()).map(Object::getClass).toArray());
+				ShootSystem.class, DeathSystem.class }, Arrays.stream(engine.getProcessors()).map(Object::getClass).toArray());
 		advance(engine, 2);
 		Object[] playerIds = Arrays.stream(playerSubscriber.getEntities().getData()).mapToObj(Integer::valueOf).toArray();
 		Assertions.assertEquals(3, playerSubscriber.getEntities().size());

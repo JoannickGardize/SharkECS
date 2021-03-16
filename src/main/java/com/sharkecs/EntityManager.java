@@ -1,7 +1,7 @@
 package com.sharkecs;
 
 import com.sharkecs.Archetype.ComponentCreationPolicy;
-import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.util.Bag;
 import com.sharkecs.util.IntBag;
 
@@ -13,7 +13,7 @@ import com.sharkecs.util.IntBag;
  * @author Joannick Gardize
  *
  */
-@SkipInjection
+@SkipInject
 public class EntityManager implements Processor {
 
 	private static class InsertionEntry {

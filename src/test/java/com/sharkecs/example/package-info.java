@@ -1,4 +1,5 @@
 /**
+ * <p>
  * This package contains an example of a one-dimensional world where players
  * periodically shoot bullets to damage others. Dead players leave a corpse, for
  * the transmutation example. This example can be visualized by running the

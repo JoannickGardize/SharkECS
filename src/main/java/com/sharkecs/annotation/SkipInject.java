@@ -18,6 +18,6 @@ import com.sharkecs.builder.configurator.Injector;
  */
 @Retention(RUNTIME)
 @Target({ TYPE, FIELD })
-public @interface SkipInjection {
+public @interface SkipInject {
 
 }

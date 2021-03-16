@@ -34,12 +34,11 @@ import com.sharkecs.util.GraphCycleException;
  * their instance type will be concerned.
  * </ul>
  * <p>
- * {@link Prioritizer#configure(EngineBuilder)} must be called before calling
- * {@link Prioritizer#priorityOf(Object)} or
- * {@link Prioritizer#prioritize(List)}. Once
- * {@link Prioritizer#configure(EngineBuilder)} is called,
- * {@link Prioritizer#after(Object, Object...)} and
- * {@link Prioritizer#before(Object, Object...)} throws an error.
+ * {@link #configure(EngineBuilder)} must be called before calling
+ * {@link #priorityOf(Object)} or {@link #prioritize(List)}. Once
+ * {@link #configure(EngineBuilder)} is called,
+ * {@link #after(Object, Object...)} and {@link #before(Object, Object...)}
+ * throws an error.
  * 
  * @author Joannick Gardize
  *

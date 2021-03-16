@@ -17,7 +17,7 @@ public class Engine {
 	}
 
 	/**
-	 * Process successively all {@link Processor}s of this engine. This is intended
+	 * Process sequentially all {@link Processor}s of this engine. This is intended
 	 * to be called successively, for instance, every frame of a game or a
 	 * simulation.
 	 */

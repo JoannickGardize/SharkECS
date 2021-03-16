@@ -8,7 +8,7 @@ import java.util.function.Consumer;
  * 
  * @author Joannick Gardize
  *
- * @param <T>
+ * @param <T> the component type this mapper is responsible of
  */
 public interface ComponentMapper<T> {
 
@@ -18,7 +18,7 @@ public interface ComponentMapper<T> {
 	 * 
 	 * @param entityId the entity id associated to the newly created (or recycled)
 	 *                 component
-	 * @return the newly created component
+	 * @return the newly created or recycled component associated to the entity
 	 */
 	T create(int entityId);
 
@@ -39,8 +39,12 @@ public interface ComponentMapper<T> {
 	void remove(int entityId);
 
 	/**
+	 * <p>
 	 * Retrieve the component associated to the given entity. The component must
 	 * exists, or the behavior of this method is undefined.
+	 * <p>
+	 * Prefer {@link #getIfExists(int)} if you are not sure the component does
+	 * exists.
 	 * 
 	 * @param entityId the entity id for which the associated component will be
 	 *                 returned
@@ -50,11 +54,11 @@ public interface ComponentMapper<T> {
 
 	/**
 	 * Retrieve the component associated to the given entity, or null if the given
-	 * entity doesn't have this component.
+	 * entity doesn't hold this component.
 	 * 
 	 * @param entityId the entity id for which the associated component will be
 	 *                 returned
-	 * @return the component associated to the given entity, or null if doesn't
+	 * @return the component associated to the given entity, or null if it doesn't
 	 *         exists.
 	 */
 	T getIfExists(int entityId);

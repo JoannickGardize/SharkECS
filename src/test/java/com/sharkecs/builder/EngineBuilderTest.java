@@ -16,7 +16,7 @@ import com.sharkecs.IteratingSystem;
 import com.sharkecs.Subscription;
 import com.sharkecs.Transmutation;
 import com.sharkecs.annotation.CreationPolicy;
-import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.annotation.WithAny;
 import com.sharkecs.testutil.ArrayTestUtils;
@@ -36,7 +36,7 @@ class EngineBuilderTest {
 
 		private EntityManager entityManager;
 
-		@SkipInjection
+		@SkipInject
 		private List<Integer> entityLog = new ArrayList<>();
 
 		@Override

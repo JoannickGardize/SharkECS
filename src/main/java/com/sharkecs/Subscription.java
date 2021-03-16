@@ -3,6 +3,7 @@ package com.sharkecs;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.util.IntBag;
 
 /**
@@ -10,13 +11,14 @@ import com.sharkecs.util.IntBag;
  * Subscription of a given group of entity, generally of a given {@link Aspect}.
  * Notify insertion, removal, and change.
  * <p>
- * Does not track the actual collection of entity. Use the
- * {@link TrackingSubscription} specialization for that.
+ * Does not track the actual collection of entity, the
+ * {@link TrackingSubscription} specialization is used for that.
  * 
  * @author Joannick Gardize
  *
  * @see TrackingSubscription
  */
+@SkipInject
 public class Subscription {
 
 	private List<SubscriptionListener> listeners = new ArrayList<>();
