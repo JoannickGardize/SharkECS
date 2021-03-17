@@ -21,9 +21,9 @@ import com.sharkecs.util.ReflectionUtils;
  * A field is eligible if one of the following condition is met:
  * <ul>
  * <li>The declaring class is annotated with {@link Inject}
- * <li>The field is annotated with {@link Inject}
- * <li>The declaring class is assignable from one of the registered auto inject
+ * <li>The declaring class is assignable to one of the registered auto inject
  * type via {@link #addAutoInjectType(Class)}
+ * <li>The field is annotated with {@link Inject}
  * </ul>
  * If the field or its declaring class is annotated with {@link SkipInject},
  * injection will always be skipped.
@@ -37,16 +37,19 @@ import com.sharkecs.util.ReflectionUtils;
  * <li>a Class key matching the first generic type of the field's type
  * <li>the empty key (null)
  * </ul>
- * If no registration has been found at this point, any registration assignable
+ * If no registration has been found at this point, and
+ * {@code injectAnyAssignableType} has been set to true, via
+ * {@link #setInjectAnyAssignableType(boolean)}, any registration assignable
  * from the field's type will be taken, if any.
+ * <p>
+ * If a field is eligible but no registered object has been found for it,
+ * nothing happens. This can be changed by
+ * {@link Injector#setFailWhenNotFound(boolean)}, throwing an
+ * {@link EngineConfigurationException} if set to true.
  * <p>
  * Injection is done via setter methods, if a field is eligible and a registered
  * object has been found for it, but the setter method is missing or not
  * visible, an {@link EngineConfigurationException} is thrown.
- * <p>
- * If a field is eligible but no registered object has been found for it,
- * nothing happens, this can be changed by
- * {@link Injector#setFailWhenNotFound(boolean)}.
  * <p>
  * By default, fields of the parent class are not injected, use
  * {@link Inject#injectParent()} on the class to change that, or use

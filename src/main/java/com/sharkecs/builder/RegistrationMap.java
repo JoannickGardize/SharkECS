@@ -73,13 +73,13 @@ public class RegistrationMap {
 	 * put or get the object associated with the given type and key.
 	 * 
 	 * @param <T>           the type of the object
-	 * @param type          the type to associate the object with
+	 * @param type          the declared type to associate the object with
 	 * @param key           the key to associate the object with
 	 * @param valueSupplier the supplier of object used if not present
 	 * @return the object retrieved or newly created
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T computeIfAbsent(Class<T> type, Object key, Supplier<T> valueSupplier) {
+	public <T> T computeIfAbsent(Class<? super T> type, Object key, Supplier<T> valueSupplier) {
 		Map<Object, Object> typeMap = byDeclaredTypeAndKey.computeIfAbsent(type, t -> new HashMap<>());
 
 		return (T) typeMap.computeIfAbsent(key, k -> {
@@ -141,7 +141,7 @@ public class RegistrationMap {
 	}
 
 	/**
-	 * Returns an entry set or key/value pairs of the given object type.
+	 * Returns an entry set of key/value pairs of the given object type.
 	 * 
 	 * @param <T>
 	 * @param type
@@ -149,7 +149,7 @@ public class RegistrationMap {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public <T> Set<Entry<Object, T>> entrySet(Class<T> type) {
-		return (Set) byDeclaredTypeAndKey.getOrDefault(type, Collections.emptyMap()).entrySet();
+		return (Set) Collections.unmodifiableSet(byDeclaredTypeAndKey.getOrDefault(type, Collections.emptyMap()).entrySet());
 	}
 
 	/**
@@ -161,7 +161,7 @@ public class RegistrationMap {
 	}
 
 	/**
-	 * Iterates over all registered objects assignable from the given type.
+	 * Iterates over all registered objects assignable to the given type.
 	 * 
 	 * @param type
 	 * @param action
@@ -170,6 +170,13 @@ public class RegistrationMap {
 		getAllAssignableFrom(type).forEach(action);
 	}
 
+	/**
+	 * returns a collection of all registered objects assignable to the given type.
+	 * 
+	 * @param <T>
+	 * @param type
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> Collection<T> getAllAssignableFrom(Class<T> type) {
 		return (Collection<T>) Collections.unmodifiableCollection(byAssignableType.getOrDefault(type, Collections.emptyList()));
@@ -197,6 +204,9 @@ public class RegistrationMap {
 		list.forEach(action);
 	}
 
+	/**
+	 * @return all registered objects
+	 */
 	public List<Object> all() {
 		return Collections.unmodifiableList(list);
 	}

@@ -4,7 +4,7 @@ import com.sharkecs.annotation.ForceInject;
 
 /**
  * Convenience class to extends {@link SubscriberAdapter}, implements
- * {@link Processor} and {@link Initializable}, and provide an
+ * {@link Processor} and {@link Initializable}, and provides an
  * {@link EntityManager} attribute. Which is the most common base for an entity
  * processing system.
  * 
