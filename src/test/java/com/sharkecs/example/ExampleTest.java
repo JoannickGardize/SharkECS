@@ -45,7 +45,7 @@ class ExampleTest {
 		PlayerSubscriber playerSubscriber = new PlayerSubscriber();
 		CorpseSubscriber corpseSubscriber = new CorpseSubscriber();
 
-		EngineBuilder builder = ExampleBuilder.buider();
+		EngineBuilder builder = ExampleBuilder.builder();
 		builder.with(bulletSubscriber);
 		builder.with(playerSubscriber);
 		builder.with(corpseSubscriber);

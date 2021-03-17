@@ -12,7 +12,7 @@ import com.sharkecs.example.system.annotation.LogicPhase;
 public class ExampleConsole {
 
 	public static void main(String[] args) throws InterruptedException {
-		EngineBuilder builder = ExampleBuilder.buider();
+		EngineBuilder builder = ExampleBuilder.builder();
 
 		builder.with(new ConsoleCleaner());
 		builder.then(new HeaderDrawer());

@@ -17,7 +17,7 @@ import com.sharkecs.example.system.TimeManager;
 
 public class ExampleBuilder {
 
-	public static EngineBuilder buider() {
+	public static EngineBuilder builder() {
 
 		EngineBuilder builder = EngineBuilder.withDefaults();
 

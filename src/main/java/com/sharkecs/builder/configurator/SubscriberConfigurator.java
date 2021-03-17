@@ -1,6 +1,8 @@
 package com.sharkecs.builder.configurator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -20,7 +22,8 @@ import com.sharkecs.util.ReflectionUtils;
  * type.
  * <p>
  * Takes care of {@link RequiresEntityTracking} annotations to create the right
- * type of {@link Subscription}.
+ * type of {@link Subscription}. Uses the {@link Prioritizer} to subscribe and
+ * so get notified at runtime in the right order.
  * 
  * @author Joannick Gardize
  *
@@ -44,8 +47,10 @@ public class SubscriberConfigurator extends TypeConfigurator<Subscriber> {
 		RegistrationMap registrations = engineBuilder.getRegistrations();
 		for (Entry<Aspect, Boolean> entry : subscriptionsToCreate.entrySet()) {
 			registrations.put(Subscription.class, entry.getKey(),
-			        Boolean.TRUE.equals(entry.getValue()) ? new TrackingSubscription(engineBuilder.getExpectedEntityCount()) : new Subscription());
+					Boolean.TRUE.equals(entry.getValue()) ? new TrackingSubscription(engineBuilder.getExpectedEntityCount()) : new Subscription());
 		}
-		registrations.forEachAssignableFrom(Subscriber.class, s -> s.subscribe(registrations.get(Subscription.class, new Aspect(s.getClass()))));
+		List<Subscriber> subscribers = new ArrayList<>(registrations.getAllAssignableFrom(Subscriber.class));
+		registrations.getOrFail(Prioritizer.class).prioritize(subscribers);
+		subscribers.forEach(s -> s.subscribe(registrations.get(Subscription.class, new Aspect(s.getClass()))));
 	}
 }

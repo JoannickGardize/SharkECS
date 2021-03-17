@@ -23,7 +23,7 @@ public interface ComponentMapper<T> {
 	T create(int entityId);
 
 	/**
-	 * Associates the given component to the given entity
+	 * Associates the given component to the given entity.
 	 * 
 	 * @param entityId
 	 * @param component
@@ -31,7 +31,7 @@ public interface ComponentMapper<T> {
 	void put(int entityId, T component);
 
 	/**
-	 * Remove the component associated with the given entity. The behavior of trying
+	 * Remove the component associated to the given entity. The behavior of trying
 	 * to remove a non-existing component is undefined.
 	 * 
 	 * @param entityId the entity for which the component will be removed
@@ -54,7 +54,7 @@ public interface ComponentMapper<T> {
 
 	/**
 	 * Retrieve the component associated to the given entity, or null if the given
-	 * entity doesn't hold this component.
+	 * entity doesn't hold this component type.
 	 * 
 	 * @param entityId the entity id for which the associated component will be
 	 *                 returned
@@ -65,7 +65,7 @@ public interface ComponentMapper<T> {
 
 	/**
 	 * Execute the given {@code action} if the given entity has a component from
-	 * this mapper.
+	 * this mapper. The default implementation uses {@link #getIfExists(int)}.
 	 * 
 	 * @param entityId
 	 * @param action
@@ -78,7 +78,8 @@ public interface ComponentMapper<T> {
 	}
 
 	/**
-	 * Test if the given entity has this type of component.
+	 * Test if the given entity has this type of component. The default
+	 * implementation uses {@link #getIfExists(int)}.
 	 * 
 	 * @param entityId
 	 * @return true if the entity has this type of component, false otherwise

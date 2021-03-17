@@ -188,8 +188,8 @@ public class EngineBuilder {
 	}
 
 	/**
-	 * Register the given object. Injection will be done by field type. Adds a
-	 * priority rule to be after the previously registered object.
+	 * Register the given object. Injection will be done by field type and name.
+	 * Adds a priority rule to be after the previously registered object.
 	 * 
 	 * @param name   the name of the registration for field name matching during
 	 *               injection. Giving a null value is equivalent to
@@ -272,8 +272,8 @@ public class EngineBuilder {
 	}
 
 	/**
-	 * Calls {@link Prioritizer#before(Object, Object...)}. Adding a priority rule
-	 * to {@code before} to be before each {@code after}. Parameters can be
+	 * Calls {@link Prioritizer#before(Object, Object...)}. Adds a priority rule to
+	 * {@code before} to be before each {@code after}. Parameters can be
 	 * registration instances, "marker" instances, registration types, or annotation
 	 * types.
 	 * 
@@ -287,7 +287,7 @@ public class EngineBuilder {
 	}
 
 	/**
-	 * Calls {@link Prioritizer#after(Object, Object...)}. Adding a priority rule to
+	 * Calls {@link Prioritizer#after(Object, Object...)}. Adds a priority rule to
 	 * {@code after} to be after each {@code before}. Parameters can be registration
 	 * instances, "marker" instances, registration types, or annotation types.
 	 * 

@@ -75,7 +75,7 @@ public class EntityManager implements Processor {
 	/**
 	 * Transmute the given entity into the given archetype. The new components with
 	 * a {@link ComponentCreationPolicy#AUTOMATIC} policy are immediately created,
-	 * but the transmutation will be effective for the next process cycle. cycle.
+	 * but the transmutation will be effective for the next process cycle.
 	 * 
 	 * @param entityId
 	 * @param toArchetype
