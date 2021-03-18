@@ -6,9 +6,13 @@ import com.sharkecs.util.Bag;
 import com.sharkecs.util.IntBag;
 
 /**
+ * <p>
  * Manage all entities. Provides entity creation, deletion, and mutation
  * operations. These three operations are delayed and effective for the next
  * process cycle.
+ * <p>
+ * {@link #reference(int)} provides a safe way to reference entities between
+ * them, by clearing entity id of removed entity.
  * 
  * @author Joannick Gardize
  *
@@ -27,6 +31,7 @@ public class EntityManager implements Processor {
 	}
 
 	private Bag<Archetype> entities;
+	private Bag<EntityReference> references;
 	private IntBag recycleBin;
 	private IntBag pendingRemoval;
 	private Bag<InsertionEntry> pendingInsertion;
@@ -35,6 +40,7 @@ public class EntityManager implements Processor {
 
 	public EntityManager(int expectedEntityCount) {
 		entities = new Bag<>(expectedEntityCount);
+		references = new Bag<>(expectedEntityCount);
 		int tmpCollectionsSize = expectedEntityCount / 10;
 		recycleBin = new IntBag(tmpCollectionsSize);
 		pendingInsertion = new Bag<>(tmpCollectionsSize);
@@ -64,7 +70,7 @@ public class EntityManager implements Processor {
 	}
 
 	/**
-	 * Remove the given entity for the next process cycle.
+	 * Removes the given entity for the next process cycle.
 	 * 
 	 * @param entityId
 	 */
@@ -73,7 +79,7 @@ public class EntityManager implements Processor {
 	}
 
 	/**
-	 * Transmute the given entity into the given archetype. The new components with
+	 * Transmutes the given entity into the given archetype. The new components with
 	 * a {@link ComponentCreationPolicy#AUTOMATIC} policy are immediately created,
 	 * but the transmutation will be effective for the next process cycle.
 	 * 
@@ -91,8 +97,33 @@ public class EntityManager implements Processor {
 		entry.transmutation = transmutation;
 	}
 
+	/**
+	 * <p>
+	 * Provides a safe reference to the given entity. Once the entity is removed,
+	 * the entity reference is cleared.
+	 * <p>
+	 * This is safe to get a reference of a newly created entity. This is also safe
+	 * to use references during a {@link SubscriptionListener} event call.
+	 * <p>
+	 * The behavior of referencing a non-existing entity is undefined.
+	 * 
+	 * @param entityId the existing entity to reference
+	 * @return the EntityReference instance referencing the given entity
+	 */
+	public EntityReference reference(int entityId) {
+		EntityReference reference = references.getOrNull(entityId);
+		if (reference == null) {
+			reference = new EntityReference(entityId);
+			references.put(entityId, reference);
+			return reference;
+		} else {
+			return reference;
+		}
+	}
+
 	@Override
 	public void process() {
+		clearReferences();
 		insertPending();
 		transmutePending();
 		removePending();
@@ -118,6 +149,17 @@ public class EntityManager implements Processor {
 			}
 		}
 		pendingInsertion.clear();
+	}
+
+	private void clearReferences() {
+		for (int i = 0, size = pendingRemoval.size(); i < size; i++) {
+			int entityId = pendingRemoval.get(i);
+			EntityReference reference = references.getOrNull(entityId);
+			if (reference != null) {
+				reference.clear();
+				references.unsafeSet(entityId, null);
+			}
+		}
 	}
 
 	private void removePending() {

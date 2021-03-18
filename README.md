@@ -107,6 +107,10 @@ Finally, call `engine.process()` in your main game loop.
 
 The full and runnable code of this example can be found [here](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/java/com/sharkecs/example)
 
+## Entity references
+
+`EntityManager#reference(int)` allows to creates safe references of entities, properly cleared when the referenced entity is removed.
+
 ## Priority management
 
 You may want a specific execution order of your systems (or any sequentially executed elements: Processor, Initializable, Configurator...).

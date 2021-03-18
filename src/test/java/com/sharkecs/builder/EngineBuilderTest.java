@@ -12,6 +12,7 @@ import com.sharkecs.Archetype.ComponentCreationPolicy;
 import com.sharkecs.ComponentMapper;
 import com.sharkecs.Engine;
 import com.sharkecs.EntityManager;
+import com.sharkecs.EntityReference;
 import com.sharkecs.IteratingSystem;
 import com.sharkecs.Subscription;
 import com.sharkecs.Transmutation;
@@ -88,6 +89,7 @@ class EngineBuilderTest {
 			return entityManager;
 		}
 
+		@Override
 		public void setEntityManager(EntityManager entityManager) {
 			this.entityManager = entityManager;
 		}
@@ -126,7 +128,7 @@ class EngineBuilderTest {
 	}
 
 	static class A {
-
+		EntityReference reference;
 	}
 
 	static class B {
@@ -227,5 +229,47 @@ class EngineBuilderTest {
 		engine.process();
 
 		Assertions.assertEquals(Arrays.asList(1, 2), systemA.getEntityLog());
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void referenceTest() {
+		EngineBuilder builder = EngineBuilder.withDefaults();
+
+		builder.component(A.class, A::new);
+
+		ComponentMapper<A> mapper = builder.getRegistrations().get(ComponentMapper.class, A.class);
+		EntityManager manager = builder.getRegistrations().get(EntityManager.class);
+
+		Archetype archetypeA = builder.archetype("archetypeA", A.class);
+
+		Engine engine = builder.build();
+
+		int id1 = manager.create(archetypeA);
+		int id2 = manager.create(archetypeA);
+		int id3 = manager.create(archetypeA);
+
+		A a1 = mapper.create(id1);
+		a1.reference = manager.reference(id2);
+
+		mapper.create(id2);
+
+		engine.process();
+
+		A a3 = mapper.create(id3);
+		a3.reference = manager.reference(id2);
+
+		Assertions.assertEquals(id2, a1.reference.get());
+		Assertions.assertTrue(a1.reference.exists());
+		Assertions.assertEquals(id2, a3.reference.get());
+
+		manager.remove(id2);
+
+		engine.process();
+
+		Assertions.assertEquals(-1, a1.reference.get());
+		Assertions.assertFalse(a1.reference.exists());
+		Assertions.assertEquals(-1, a3.reference.get());
+
 	}
 }
