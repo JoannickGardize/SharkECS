@@ -1,5 +1,3 @@
-**DISCLAISMER**: Early development phase, things may drastically change over time and major bugs could exists.
-
 # SharkECS
 
 Entity Component System implementation focused on performance, ease of use, and flexibility, inspired by the popular [artemis-odb](https://github.com/junkdog/artemis-odb) framework.
@@ -63,7 +61,7 @@ public class BulletDamageSystem extends IteratingSystem {
 }
 ```
 
-The attributes of the system will be automatically injected during the engine building. Note the presence of setter methods: they are required and used for injection, because SharkECS is respectful of the encapsulation principle.
+The attributes of the system will be automatically injected during the engine building. Note the presence of setter methods: they are required and used for injection, because SharkECS is respectful of the encapsulation principle. If you feel uncomfortable with this boilerplate code, Take a look at the [Project Lombok](https://projectlombok.org/).
 
 ### EngineBuilder
 
