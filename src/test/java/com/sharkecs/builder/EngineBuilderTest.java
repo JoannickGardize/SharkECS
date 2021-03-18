@@ -231,6 +231,8 @@ class EngineBuilderTest {
 		Assertions.assertEquals(Arrays.asList(1, 2), systemA.getEntityLog());
 	}
 
+	private int testID;
+
 	@Test
 	@SuppressWarnings("unchecked")
 	void referenceTest() {
@@ -262,6 +264,8 @@ class EngineBuilderTest {
 		Assertions.assertEquals(id2, a1.reference.get());
 		Assertions.assertTrue(a1.reference.exists());
 		Assertions.assertEquals(id2, a3.reference.get());
+		a3.reference.ifExists(i -> testID = i);
+		Assertions.assertEquals(id2, testID);
 
 		manager.remove(id2);
 
@@ -270,6 +274,7 @@ class EngineBuilderTest {
 		Assertions.assertEquals(-1, a1.reference.get());
 		Assertions.assertFalse(a1.reference.exists());
 		Assertions.assertEquals(-1, a3.reference.get());
+		a3.reference.ifExists(i -> Assertions.fail("should not be executed"));
 
 	}
 }
