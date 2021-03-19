@@ -9,17 +9,18 @@ import com.sharkecs.annotation.WithAll;
 import com.sharkecs.example.component.Health;
 import com.sharkecs.example.component.Physics;
 import com.sharkecs.example.singleton.Viewport;
+import com.sharkecs.example.system.annotation.DrawingPhase;
 
+@DrawingPhase
 @WithAll({ Physics.class, Health.class })
 public class HealthDrawerSystem extends IteratingSystem {
 
 	private ComponentMapper<Physics> physicsMapper;
-
 	private ComponentMapper<Health> healthMapper;
 
-	private List<Physics> batch = new ArrayList<>();
-
 	private Viewport viewport;
+
+	private List<Physics> batch = new ArrayList<>();
 
 	@Override
 	protected void beginProcess() {
@@ -57,10 +58,6 @@ public class HealthDrawerSystem extends IteratingSystem {
 
 	public void setHealthMapper(ComponentMapper<Health> healthMapper) {
 		this.healthMapper = healthMapper;
-	}
-
-	public void setBatch(List<Physics> batch) {
-		this.batch = batch;
 	}
 
 	public void setViewport(Viewport viewport) {

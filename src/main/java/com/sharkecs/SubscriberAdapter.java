@@ -2,6 +2,8 @@ package com.sharkecs;
 
 import java.util.Objects;
 
+import com.sharkecs.annotation.RequiresEntityTracking;
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.util.IntBag;
 
 /**
@@ -11,6 +13,7 @@ import com.sharkecs.util.IntBag;
  * @author Joannick Gardize
  *
  */
+@SkipInject
 public abstract class SubscriberAdapter implements Subscriber {
 
 	private Subscription subscription;
@@ -26,7 +29,11 @@ public abstract class SubscriberAdapter implements Subscriber {
 	}
 
 	/**
-	 * @return the entity IDs of the subscription. must be subscribed first.
+	 * @return the entity IDs of the subscription. must be subscribed first. The
+	 *         returned collection must not be modified.
+	 * @throws UnsupportedOperationException if the subscription does not maintain
+	 *                                       the entity collection (see
+	 *                                       {@link RequiresEntityTracking})
 	 */
 	public IntBag getEntities() {
 		return subscription.getEntities();
@@ -47,7 +54,7 @@ public abstract class SubscriberAdapter implements Subscriber {
 	}
 
 	@Override
-	public void changed(int entityId) {
+	public void changed(int entityId, Transmutation transmutation) {
 		// Nothing by default, not always required.
 	}
 }

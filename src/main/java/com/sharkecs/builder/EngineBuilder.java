@@ -48,10 +48,10 @@ import com.sharkecs.builder.configurator.TransmutationConfigurator;
  * </ul>
  * <p>
  * Typically, systems, managers, and singletons are registered via
- * {@link #with(Object)} or {@link #with(String, Object)}. Multiple instances of
- * the same type is allowed but a different name must be given via
- * {@link #with(String, Object)}. Components, {@link Archetype}s and
- * {@link Transmutation}s have their dedicated convenience methods.
+ * {@link #with(Object)}. Multiple instances of the same type is allowed but a
+ * different name must be given via {@link #with(String, Object)}. Components,
+ * {@link Archetype}s and {@link Transmutation}s have their dedicated
+ * convenience methods.
  * <p>
  * Once all elements are registered, {@link #build()} is called to create the
  * {@link Engine}. One instance of {@link EngineBuilder} can only create one
@@ -144,13 +144,65 @@ public class EngineBuilder {
 
 		EntityManager entityManager = new EntityManager(expectedEntityCount);
 		builder.with(entityManager);
-		builder.after(Processor.class, entityManager);
+		builder.before(entityManager, Processor.class);
 
 		builder.autoInjectType(Processor.class);
 		builder.autoInjectType(Subscriber.class);
 		builder.autoInjectType(Initializable.class);
 
 		return builder;
+	}
+
+	/**
+	 * Register the given object. Injection will be done by field type.
+	 * 
+	 * @param object the object to register
+	 */
+	public void with(Object object) {
+		with(null, object);
+	}
+
+	/**
+	 * Register the given object. Injection will be done by field type and name.
+	 * 
+	 * @param name   the name of the registration for field name matching during
+	 *               injection. Giving a null value is equivalent to
+	 *               {@link #with(Object)}
+	 * @param object the object to register
+	 */
+	public void with(String name, Object object) {
+		checkConfiguring();
+		registrations.put(name, object);
+		previousObject = object;
+	}
+
+	/**
+	 * Register the given object. Injection will be done by field type. Adds a
+	 * priority rule to be after the previously registered object.
+	 * 
+	 * @param object the object to register with a priority after the previously
+	 *               registered object
+	 */
+	public void then(Object object) {
+		then(null, object);
+	}
+
+	/**
+	 * Register the given object. Injection will be done by field type and name.
+	 * Adds a priority rule to be after the previously registered object.
+	 * 
+	 * @param name   the name of the registration for field name matching during
+	 *               injection. Giving a null value is equivalent to
+	 *               {@link #then(Object)}
+	 * @param object the object to register with a priority after the previously
+	 *               registered object
+	 */
+	public void then(String name, Object object) {
+		if (previousObject == null) {
+			throw new EngineConfigurationException("No previous object to prioritize");
+		}
+		before(previousObject, object);
+		with(name, object);
 	}
 
 	/**
@@ -220,78 +272,29 @@ public class EngineBuilder {
 	}
 
 	/**
-	 * Register the given object. Injection will be done by field type.
+	 * Calls {@link Prioritizer#before(Object, Object...)}. Adds a priority rule to
+	 * {@code before} to be before each {@code after}. Parameters can be
+	 * registration instances, "marker" instances, registration types, or annotation
+	 * types.
 	 * 
-	 * @param object the object to register
-	 */
-	public void with(Object object) {
-		with(null, object);
-	}
-
-	/**
-	 * Register the given object. Injection will be done by field type and name.
-	 * 
-	 * @param name   the name of the registration for field name matching during
-	 *               injection. Giving a null value is equivalent to
-	 *               {@link #with(Object)}
-	 * @param object the object to register
-	 */
-	public void with(String name, Object object) {
-		checkConfiguring();
-		registrations.put(name, object);
-		previousObject = object;
-	}
-
-	/**
-	 * Register the given object. Injection will be done by field type. Adds a
-	 * priority rule to be after the previously registered object.
-	 * 
-	 * @param object the object to register with a priority after the previously
-	 *               registered object
-	 */
-	public void then(Object object) {
-		then(null, object);
-	}
-
-	/**
-	 * Register the given object. Injection will be done by field type. Adds a
-	 * priority rule to be after the previously registered object.
-	 * 
-	 * @param name   the name of the registration for field name matching during
-	 *               injection. Giving a null value is equivalent to
-	 *               {@link #then(Object)}
-	 * @param object the object to register with a priority after the previously
-	 *               registered object
-	 */
-	public void then(String name, Object object) {
-		if (previousObject == null) {
-			throw new EngineConfigurationException("No previous object to prioritize");
-		}
-		before(previousObject, object);
-		with(name, object);
-	}
-
-	/**
-	 * Calls {@link Prioritizer#before(Object, Object...)}. Adding a priority rule
-	 * to {@code before} to be before each {@code after}. Parameters can be
-	 * registration instances, "marker" instances, or registration types, applying
-	 * the rule to all registrations assignable from the given type.
-	 * 
-	 * @param before the object / type to be before each {@code after} elements
-	 * @param after  the objects / types to be after the {@code before} element
+	 * @param before the object / type / annotation to be before each {@code after}
+	 *               elements
+	 * @param after  the objects / types / annotations to be after the
+	 *               {@code before} element
 	 */
 	public void before(Object before, Object... after) {
 		registrations.getOrFail(Prioritizer.class).before(before, after);
 	}
 
 	/**
-	 * Calls {@link Prioritizer#after(Object, Object...)}. Adding a priority rule to
+	 * Calls {@link Prioritizer#after(Object, Object...)}. Adds a priority rule to
 	 * {@code after} to be after each {@code before}. Parameters can be registration
-	 * instances, "marker" instances, or registration types, applying the rule to
-	 * all registrations assignable from the given type.
+	 * instances, "marker" instances, registration types, or annotation types.
 	 * 
-	 * @param after  the object / type to be after each {@code before} elements
-	 * @param before the objects / types to be before the {@code after} element
+	 * @param after  the object / type / annotation to be after each {@code before}
+	 *               elements
+	 * @param before the objects / types / annotations to be before the
+	 *               {@code after} element
 	 */
 	public void after(Object after, Object... before) {
 		registrations.getOrFail(Prioritizer.class).after(after, before);
@@ -341,7 +344,7 @@ public class EngineBuilder {
 	 * 
 	 * @param injectAnyAssignableType
 	 */
-	public void setInjectAnyAssignableType(boolean injectAnyAssignableType) {
+	public void injectAnyAssignableType(boolean injectAnyAssignableType) {
 		registrations.getOrFail(Injector.class).setInjectAnyAssignableType(injectAnyAssignableType);
 	}
 

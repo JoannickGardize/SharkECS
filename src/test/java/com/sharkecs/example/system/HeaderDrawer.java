@@ -2,7 +2,9 @@ package com.sharkecs.example.system;
 
 import com.sharkecs.Processor;
 import com.sharkecs.example.singleton.Time;
+import com.sharkecs.example.system.annotation.DrawingPhase;
 
+@DrawingPhase
 public class HeaderDrawer implements Processor {
 
 	private Time time;

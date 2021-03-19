@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.sharkecs.annotation.CreationPolicy;
-import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.builder.EngineConfigurationException;
 
 /**
@@ -22,7 +22,7 @@ import com.sharkecs.builder.EngineConfigurationException;
  * @author Joannick Gardize
  *
  */
-@SkipInjection
+@SkipInject
 public class Archetype {
 
 	/**
@@ -175,23 +175,6 @@ public class Archetype {
 
 	public Transmutation[] getTransmutations() {
 		return transmutations;
-	}
-
-	@Override
-	public int hashCode() {
-		return id;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		} else if (!(obj instanceof Archetype)) {
-			return false;
-		} else {
-			Archetype other = (Archetype) obj;
-			return id == other.id;
-		}
 	}
 
 	@Override

@@ -1,10 +1,23 @@
 package com.sharkecs;
 
-import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.Archetype.ComponentCreationPolicy;
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.util.Bag;
 import com.sharkecs.util.IntBag;
 
-@SkipInjection
+/**
+ * <p>
+ * Manage all entities. Provides entity creation, deletion, and mutation
+ * operations. These three operations are delayed and effective for the next
+ * process cycle.
+ * <p>
+ * {@link #reference(int)} provides a safe way to reference entities between
+ * them, by clearing entity id of removed entity.
+ * 
+ * @author Joannick Gardize
+ *
+ */
+@SkipInject
 public class EntityManager implements Processor {
 
 	private static class InsertionEntry {
@@ -18,6 +31,7 @@ public class EntityManager implements Processor {
 	}
 
 	private Bag<Archetype> entities;
+	private Bag<EntityReference> references;
 	private IntBag recycleBin;
 	private IntBag pendingRemoval;
 	private Bag<InsertionEntry> pendingInsertion;
@@ -26,6 +40,7 @@ public class EntityManager implements Processor {
 
 	public EntityManager(int expectedEntityCount) {
 		entities = new Bag<>(expectedEntityCount);
+		references = new Bag<>(expectedEntityCount);
 		int tmpCollectionsSize = expectedEntityCount / 10;
 		recycleBin = new IntBag(tmpCollectionsSize);
 		pendingInsertion = new Bag<>(tmpCollectionsSize);
@@ -35,8 +50,9 @@ public class EntityManager implements Processor {
 	}
 
 	/**
-	 * Creates a new entity for the given archetype. All components are immediately
-	 * created, but the insertion will be effective for the next process cycle.
+	 * Creates a new entity for the given archetype. All components with a
+	 * {@link ComponentCreationPolicy#AUTOMATIC} policy are immediately created, but
+	 * the entity insertion will be effective for the next process cycle.
 	 * 
 	 * @param archetype the archetype of the new entity, components will be created
 	 *                  accordingly
@@ -54,7 +70,7 @@ public class EntityManager implements Processor {
 	}
 
 	/**
-	 * Remove the given entity for the next process cycle.
+	 * Removes the given entity for the next process cycle.
 	 * 
 	 * @param entityId
 	 */
@@ -63,9 +79,9 @@ public class EntityManager implements Processor {
 	}
 
 	/**
-	 * Transmute the given entity into the given archetype. The new components are
-	 * immediately created. The effective transmutation is done for the next process
-	 * cycle.
+	 * Transmutes the given entity into the given archetype. The new components with
+	 * a {@link ComponentCreationPolicy#AUTOMATIC} policy are immediately created,
+	 * but the transmutation will be effective for the next process cycle.
 	 * 
 	 * @param entityId
 	 * @param toArchetype
@@ -81,16 +97,58 @@ public class EntityManager implements Processor {
 		entry.transmutation = transmutation;
 	}
 
+	/**
+	 * <p>
+	 * Provides a safe reference to the given entity. Once the entity is removed,
+	 * the entity reference is cleared.
+	 * <p>
+	 * This is safe to get a reference of a newly created entity. This is also safe
+	 * to use references during a {@link SubscriptionListener} event call.
+	 * <p>
+	 * The behavior of referencing a non-existing entity is undefined.
+	 * 
+	 * @param entityId the existing entity to reference
+	 * @return the EntityReference instance referencing the given entity
+	 */
+	public EntityReference reference(int entityId) {
+		EntityReference reference = references.getOrNull(entityId);
+		if (reference == null) {
+			reference = new EntityReference(entityId);
+			references.put(entityId, reference);
+			return reference;
+		} else {
+			return reference;
+		}
+	}
+
+	/**
+	 * Returns the actual archetype of the given entity.
+	 * 
+	 * @param entityId the entity id
+	 * @return the actual archetype of the given entity
+	 */
+	public Archetype archetypeOf(int entityId) {
+		return entities.get(entityId);
+	}
+
 	@Override
 	public void process() {
+		clearReferences();
 		insertPending();
 		transmutePending();
 		removePending();
 		nextId = entities.size();
 	}
 
-	public Archetype archetypeOf(int entityId) {
-		return entities.get(entityId);
+	private void clearReferences() {
+		for (int i = 0, size = pendingRemoval.size(); i < size; i++) {
+			int entityId = pendingRemoval.get(i);
+			EntityReference reference = references.getOrNull(entityId);
+			if (reference != null) {
+				reference.clear();
+				references.unsafeSet(entityId, null);
+			}
+		}
 	}
 
 	private void insertPending() {
@@ -104,34 +162,17 @@ public class EntityManager implements Processor {
 		pendingInsertion.clear();
 	}
 
-	private void removePending() {
-		for (int i = 0, size = pendingRemoval.size(); i < size; i++) {
-			int entityId = pendingRemoval.get(i);
-			Archetype archetype = entities.get(entityId);
-			if (archetype != null) {
-				entities.unsafeSet(entityId, null);
-				recycleBin.add(entityId);
-				for (Subscription subscription : archetype.getSubscriptions()) {
-					subscription.remove(entityId);
-				}
-				for (ComponentMapper<Object> mapper : archetype.getComponentMappers()) {
-					mapper.remove(entityId);
-				}
-			}
-		}
-		pendingRemoval.clear();
-	}
-
 	private void transmutePending() {
 		for (int i = 0, size = pendingTransmutation.size(); i < size; i++) {
 			TransmutationEntry entry = pendingTransmutation.get(i);
 			int id = entry.id;
 			Transmutation transmutation = entry.transmutation;
+			entities.unsafeSet(id, transmutation.getTo());
 			for (Subscription subscription : transmutation.getAddSubscriptions()) {
 				subscription.add(id);
 			}
 			for (Subscription subscription : transmutation.getChangeSubscriptions()) {
-				subscription.notifyChanged(id);
+				subscription.notifyChanged(id, transmutation);
 			}
 			for (Subscription subscription : transmutation.getRemoveSubscriptions()) {
 				subscription.remove(id);
@@ -141,5 +182,23 @@ public class EntityManager implements Processor {
 			}
 		}
 		pendingTransmutation.clear();
+	}
+
+	private void removePending() {
+		for (int i = 0, size = pendingRemoval.size(); i < size; i++) {
+			int entityId = pendingRemoval.get(i);
+			Archetype archetype = entities.get(entityId);
+			if (archetype != null) {
+				recycleBin.add(entityId);
+				for (Subscription subscription : archetype.getSubscriptions()) {
+					subscription.remove(entityId);
+				}
+				for (ComponentMapper<Object> mapper : archetype.getComponentMappers()) {
+					mapper.remove(entityId);
+				}
+				entities.unsafeSet(entityId, null);
+			}
+		}
+		pendingRemoval.clear();
 	}
 }

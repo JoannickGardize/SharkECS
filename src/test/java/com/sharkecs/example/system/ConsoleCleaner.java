@@ -3,7 +3,9 @@ package com.sharkecs.example.system;
 import java.io.IOException;
 
 import com.sharkecs.Processor;
+import com.sharkecs.example.system.annotation.DrawingPhase;
 
+@DrawingPhase
 public class ConsoleCleaner implements Processor {
 
 	@Override

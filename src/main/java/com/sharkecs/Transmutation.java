@@ -1,13 +1,11 @@
 package com.sharkecs;
 
-import java.util.Objects;
-
-import com.sharkecs.annotation.SkipInjection;
+import com.sharkecs.annotation.SkipInject;
 
 /**
  * <p>
  * Represents a transmutation operation, changing an entity of a given archetype
- * to another.
+ * to another one.
  * 
  * <p>
  * Stores the {@link Subscription}s and {@link ComponentMapper}s associated with
@@ -17,7 +15,7 @@ import com.sharkecs.annotation.SkipInjection;
  * @author Joannick Gardize
  *
  */
-@SkipInjection
+@SkipInject
 public class Transmutation {
 
 	private Archetype from;
@@ -81,27 +79,6 @@ public class Transmutation {
 
 	public void setRemoveMappers(ComponentMapper<Object>[] removeMappers) {
 		this.removeMappers = removeMappers;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((from == null) ? 0 : from.hashCode());
-		result = prime * result + ((to == null) ? 0 : to.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		} else if (!(obj instanceof Transmutation)) {
-			return false;
-		} else {
-			Transmutation other = (Transmutation) obj;
-			return Objects.equals(from, other.from) && Objects.equals(to, other.to);
-		}
 	}
 
 	@Override

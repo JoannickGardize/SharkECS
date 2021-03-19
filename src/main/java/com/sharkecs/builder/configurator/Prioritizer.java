@@ -1,10 +1,15 @@
 package com.sharkecs.builder.configurator;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.sharkecs.annotation.BeforeAll;
 import com.sharkecs.builder.EngineBuilder;
@@ -18,15 +23,22 @@ import com.sharkecs.util.GraphCycleException;
  * A configurator able to order elements according to their priority
  * constraints. Internally uses a {@link Digraph} to resolve priority.
  * <p>
- * Priority constraints can be defined by using object instances or by using
- * classes, affecting all objects assignable from this class.
+ * Priority constraint elements passed in {@link #before(Object, Object...)} and
+ * {@link #after(Object, Object...)} could be:
+ * <ul>
+ * <li>the instance of a registered element, or any instance as "marker" in the
+ * priority graph
+ * <li>an object or interface type, all registration objects assignable to this
+ * type will be concerned.
+ * <li>an annotation type, all registration objects declaring this annotation in
+ * their instance type will be concerned.
+ * </ul>
  * <p>
- * {@link Prioritizer#configure(EngineBuilder)} must be called before calling
- * {@link Prioritizer#priorityOf(Object)} or
- * {@link Prioritizer#prioritize(List)}. Once
- * {@link Prioritizer#configure(EngineBuilder)} is called,
- * {@link Prioritizer#after(Object, Object...)} and
- * {@link Prioritizer#before(Object, Object...)} has no effect.
+ * {@link #configure(EngineBuilder)} must be called before calling
+ * {@link #priorityOf(Object)} or {@link #prioritize(List)}. Once
+ * {@link #configure(EngineBuilder)} is called,
+ * {@link #after(Object, Object...)} and {@link #before(Object, Object...)}
+ * throws an error.
  * 
  * @author Joannick Gardize
  *
@@ -34,76 +46,78 @@ import com.sharkecs.util.GraphCycleException;
 @BeforeAll
 public class Prioritizer implements Configurator {
 
-	private static interface ClassPriorityEntry {
-		void configure(RegistrationMap registrations);
+	private static class PriorityEntry {
+
+		Function<RegistrationMap, Collection<Object>> beforeFunction;
+		Function<RegistrationMap, Collection<Object>> afterFunction;
+
+		PriorityEntry(Function<RegistrationMap, Collection<Object>> beforeFunction, Function<RegistrationMap, Collection<Object>> afterFunction) {
+			this.beforeFunction = beforeFunction;
+			this.afterFunction = afterFunction;
+		}
+
+		void apply(Digraph<Object> graph, RegistrationMap registrations) {
+			for (Object before : beforeFunction.apply(registrations)) {
+				for (Object after : afterFunction.apply(registrations)) {
+					if (before != after) {
+						graph.addEdge(before, after);
+					}
+				}
+			}
+		}
 	}
 
-	private Digraph<Object> priorityGraph = new Digraph<>();
 	private Map<Object, Integer> priorityMap;
-	private List<ClassPriorityEntry> classPriorityEntries = new ArrayList<>();
+	private List<PriorityEntry> priorityEntries = new ArrayList<>();
+	private boolean configured = false;
+	private Map<Class<? extends Annotation>, Collection<Object>> annotatedCache = new IdentityHashMap<>();
 
 	/**
-	 * Add a constraint between the {@code before} object / class to be before all
-	 * {@code after} objects / classes.
+	 * Add a constraint between the {@code before} object / class / annotation to be
+	 * before all {@code after} objects / classes.
 	 * 
 	 * @param before
 	 * @param after
 	 */
 	public void before(Object before, Object... after) {
+		checkNotConfigured();
 		checkSelfPriority(before, after);
-		if (before instanceof Class) {
-			for (Object afterElement : after) {
-				classPriorityEntries.add(createClassPriorityEntry(before, afterElement));
-			}
-		} else {
-			for (Object afterElement : after) {
-				if (afterElement instanceof Class) {
-					classPriorityEntries.add(createClassPriorityEntry(before, afterElement));
-				} else {
-					priorityGraph.addEdge(before, afterElement);
-				}
-			}
+		for (Object afterElement : after) {
+			priorityEntries.add(createPriorityEntry(before, afterElement));
 		}
 	}
 
 	/**
-	 * Add a constraint between the {@code after} object / class to be after all
-	 * {@code before} objects / classes.
+	 * Add a constraint between the {@code after} object / class / annotation to be
+	 * after all {@code before} objects / classes.
 	 * 
 	 * @param after
 	 * @param before
 	 */
 	public void after(Object after, Object... before) {
+		checkNotConfigured();
 		checkSelfPriority(after, before);
-		if (after instanceof Class) {
-			for (Object beforeElement : before) {
-				classPriorityEntries.add(createClassPriorityEntry(beforeElement, after));
-			}
-		} else {
-			for (Object beforeElement : before) {
-				if (beforeElement instanceof Class) {
-					classPriorityEntries.add(createClassPriorityEntry(beforeElement, after));
-				} else {
-					priorityGraph.addEdge(beforeElement, after);
-				}
-			}
+		for (Object beforeElement : before) {
+			priorityEntries.add(createPriorityEntry(beforeElement, after));
 		}
 	}
 
 	@Override
 	public void configure(EngineBuilder engineBuilder) {
-		applyClassPriorities(engineBuilder);
-		buildPriorityMap();
+		buildPriorityMap(createPriorityGraph(engineBuilder));
+		configured = true;
 	}
 
 	/**
 	 * Returns the computed priority value of the given object.
+	 * {@link #configure(EngineBuilder)} must be called before calling this
+	 * function.
 	 * 
 	 * @param object
 	 * @return the priority of the given object (lower values has more priority)
 	 */
 	public int priorityOf(Object object) {
-		if (priorityMap == null) {
+		if (!configured) {
 			throw new EngineConfigurationException("Priority not configured yet");
 		}
 		Integer priority = priorityMap.get(object);
@@ -117,6 +131,8 @@ public class Prioritizer implements Configurator {
 
 	/**
 	 * Sort the given list from the most priority object to the lowest.
+	 * {@link #configure(EngineBuilder)} must be called before calling this
+	 * function.
 	 * 
 	 * @param list
 	 */
@@ -124,16 +140,41 @@ public class Prioritizer implements Configurator {
 		list.sort((o1, o2) -> Integer.compare(priorityOf(o1), priorityOf(o2)));
 	}
 
-	private ClassPriorityEntry createClassPriorityEntry(Object before, Object after) {
-		if (before instanceof Class && after instanceof Class) {
-			return registrations -> registrations.forEachAssignableFrom((Class<?>) before,
-			        fromObj -> registrations.forEachAssignableFrom((Class<?>) after, toObj -> beforeIfNotSame(fromObj, toObj)));
-		} else if (before instanceof Class) {
-			return registrations -> registrations.forEachAssignableFrom((Class<?>) before, fromObj -> beforeIfNotSame(fromObj, after));
-		} else if (after instanceof Class) {
-			return registrations -> registrations.forEachAssignableFrom((Class<?>) after, afterObj -> beforeIfNotSame(before, afterObj));
+	private PriorityEntry createPriorityEntry(Object before, Object after) {
+		return new PriorityEntry(createPriorityFunction(before), createPriorityFunction(after));
+	}
+
+	@SuppressWarnings("unchecked")
+	private Function<RegistrationMap, Collection<Object>> createPriorityFunction(Object object) {
+		if (object instanceof Class) {
+			if (((Class<?>) object).isAnnotation()) {
+				return r -> annotatedCache.computeIfAbsent((Class<? extends Annotation>) object,
+						a -> r.all().stream().filter(o -> o.getClass().isAnnotationPresent(a)).collect(Collectors.toList()));
+			} else {
+				return r -> r.getAllAssignableFrom((Class<Object>) object);
+			}
 		} else {
-			throw new IllegalArgumentException();
+			return r -> Collections.singleton(object);
+		}
+	}
+
+	private Digraph<Object> createPriorityGraph(EngineBuilder engineBuilder) {
+		Digraph<Object> priorityGraph = new Digraph<>();
+		for (PriorityEntry entry : priorityEntries) {
+			entry.apply(priorityGraph, engineBuilder.getRegistrations());
+		}
+		return priorityGraph;
+	}
+
+	private void buildPriorityMap(Digraph<Object> graph) {
+		priorityMap = new IdentityHashMap<>();
+		try {
+			List<Object> depths = graph.topologicalSort();
+			for (int i = 0; i < depths.size(); i++) {
+				priorityMap.put(depths.get(i), i);
+			}
+		} catch (GraphCycleException e) {
+			throw new EngineConfigurationException("Error occured during priority computation", e);
 		}
 	}
 
@@ -145,27 +186,9 @@ public class Prioritizer implements Configurator {
 		}
 	}
 
-	private void applyClassPriorities(EngineBuilder engineBuilder) {
-		for (ClassPriorityEntry entry : classPriorityEntries) {
-			entry.configure(engineBuilder.getRegistrations());
-		}
-	}
-
-	private void buildPriorityMap() {
-		priorityMap = new IdentityHashMap<>();
-		try {
-			List<Object> depths = priorityGraph.topologicalSort();
-			for (int i = 0; i < depths.size(); i++) {
-				priorityMap.put(depths.get(i), i);
-			}
-		} catch (GraphCycleException e) {
-			throw new EngineConfigurationException("Error occured during priority computation", e);
-		}
-	}
-
-	private void beforeIfNotSame(Object from, Object to) {
-		if (from != to) {
-			priorityGraph.addEdge(from, to);
+	private void checkNotConfigured() {
+		if (configured) {
+			throw new EngineConfigurationException("Cannot add a priority once configured");
 		}
 	}
 }

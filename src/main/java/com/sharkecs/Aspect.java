@@ -22,9 +22,10 @@ import com.sharkecs.annotation.Without;
  * <li>{@link WithAny}: contains at least one of the given component types.
  * <li>{@link Without}: does not contains any of the given component types.
  * </ul>
- * These three annotations may be mixed. If the given class does not have any of
- * these three annotations, the assumed Aspect will match with all possible
- * composition.
+ * These three annotations may be mixed.
+ * <p>
+ * If the given class does not have any of these annotations, the assumed Aspect
+ * will match with all possible composition.
  * 
  * @author Joannick Gardize
  *

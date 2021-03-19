@@ -1,5 +1,9 @@
 package com.sharkecs.builder.configurator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -13,20 +17,29 @@ import com.sharkecs.builder.EngineBuilder;
 
 class SubscriberConfiguratorTest {
 
+	private List<String> log = new ArrayList<>();
+
 	@WithAll(Integer.class)
-	private static class A extends SubscriberAdapter {
+	private class A extends SubscriberAdapter {
+		@Override
+		public void added(int entityId) {
+			log.add("A");
+		}
 
 	}
 
 	@WithAll(Integer.class)
 	@RequiresEntityTracking(false)
-	private static class B extends SubscriberAdapter {
-
+	private class B extends SubscriberAdapter {
+		@Override
+		public void added(int entityId) {
+			log.add("B");
+		}
 	}
 
 	@WithAll(Long.class)
 	@RequiresEntityTracking(false)
-	private static class C extends SubscriberAdapter {
+	private class C extends SubscriberAdapter {
 
 	}
 
@@ -38,6 +51,11 @@ class SubscriberConfiguratorTest {
 		builder.with(new B());
 		builder.with(new C());
 
+		Prioritizer prioritizer = new Prioritizer();
+		builder.with(prioritizer);
+		builder.before(B.class, A.class);
+		prioritizer.configure(builder);
+
 		new SubscriberConfigurator().configure(builder);
 
 		Assertions.assertEquals(2, builder.getRegistrations().typeCount(Subscription.class));
@@ -48,5 +66,9 @@ class SubscriberConfiguratorTest {
 		Assertions.assertNotNull(s2);
 		Assertions.assertSame(Subscription.class, s2.getClass());
 		Assertions.assertNotSame(s1, s2);
+
+		log.clear();
+		s1.add(0);
+		Assertions.assertEquals(Arrays.asList("B", "A"), log);
 	}
 }

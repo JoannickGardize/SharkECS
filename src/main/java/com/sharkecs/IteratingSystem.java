@@ -20,7 +20,8 @@ public abstract class IteratingSystem extends EntitySystem {
 	}
 
 	/**
-	 * Process the given entity
+	 * Process the given entity. Called for each subscribed entities at each process
+	 * run, in an arbitrary order.
 	 * 
 	 * @param entityId the ID of the entity to process
 	 */

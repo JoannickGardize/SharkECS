@@ -83,14 +83,12 @@ public class Digraph<T> {
 	}
 
 	/**
-	 * Compute the topological order of all nodes of this graph. Compute the "depth"
-	 * of all connected nodes to {@code startingValue}.
+	 * Compute the topological order of all nodes of this graph.
 	 * 
-	 * @return the list containing all node values in their topological order, such
-	 *         that for every directed edge uv from node u to node v, u comes before
-	 *         v in the list
+	 * @return the list containing all node values in any valid topological order,
+	 *         such that for every directed edge uv from node u to node v, u comes
+	 *         before v in the list
 	 * @throws GraphCycleException if there is a cycle anywhere in the graph
-	 *                             connected to {@code startingValue}
 	 */
 	public List<T> topologicalSort() throws GraphCycleException {
 		Map<Node<T>, Boolean> toTreat = new HashMap<>();

@@ -1,13 +1,16 @@
 package com.sharkecs;
 
+import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.util.IntBag;
 
 /**
- * A subscription tracking the actual collection of entities.
+ * A subscription tracking the actual collection of entities. The ordering of
+ * entities is arbitrary and may change other time.
  * 
  * @author Joannick Gardize
  *
  */
+@SkipInject
 public class TrackingSubscription extends Subscription {
 
 	private IntBag entities;

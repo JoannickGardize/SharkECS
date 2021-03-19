@@ -1,6 +1,5 @@
 package com.sharkecs.example;
 
-import com.sharkecs.Engine;
 import com.sharkecs.builder.EngineBuilder;
 import com.sharkecs.example.component.Bullet;
 import com.sharkecs.example.component.Corpse;
@@ -11,18 +10,14 @@ import com.sharkecs.example.singleton.Time;
 import com.sharkecs.example.singleton.Viewport;
 import com.sharkecs.example.system.BulletDamageSystem;
 import com.sharkecs.example.system.BulletLifetimeSystem;
-import com.sharkecs.example.system.ConsoleCleaner;
 import com.sharkecs.example.system.DeathSystem;
-import com.sharkecs.example.system.EntityDrawingSystem;
-import com.sharkecs.example.system.HeaderDrawer;
-import com.sharkecs.example.system.HealthDrawerSystem;
 import com.sharkecs.example.system.PhysicsSystem;
 import com.sharkecs.example.system.ShootSystem;
 import com.sharkecs.example.system.TimeManager;
 
 public class ExampleBuilder {
 
-	public static Engine createEngine(boolean withGraphics, Object... additonalRegistrations) {
+	public static EngineBuilder builder() {
 
 		EngineBuilder builder = EngineBuilder.withDefaults();
 
@@ -48,21 +43,12 @@ public class ExampleBuilder {
 		builder.then(new BulletLifetimeSystem());
 		builder.then(new ShootSystem());
 		builder.then(new DeathSystem());
-		if (withGraphics) {
-			builder.then(new ConsoleCleaner());
-			builder.then(new HeaderDrawer());
-			builder.then(new HealthDrawerSystem());
-			builder.then(new EntityDrawingSystem());
-		}
 
 		// Register miscellaneous stuff
 		builder.with(new Time());
 		builder.with(new Viewport());
 		builder.with(new ExampleScenarioInitializer());
-		for (Object o : additonalRegistrations) {
-			builder.with(o);
-		}
 
-		return builder.build();
+		return builder;
 	}
 }

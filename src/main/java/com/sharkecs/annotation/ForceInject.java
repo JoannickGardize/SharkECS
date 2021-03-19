@@ -10,21 +10,16 @@ import java.lang.annotation.Target;
 import com.sharkecs.builder.configurator.Injector;
 
 /**
- * <p>
- * Annotation for type or field to indicates to the {@link Injector} that
- * injection is required.
- * <p>
- * When annotating a class, it indicates that all fields requires injection,
- * unless they are marked with {@link SkipInject}.
- * <p>
- * the {@link #injectParent()} boolean can be set to true to indicates to check
- * the parent class for injection, with the same rules.
+ * Annotation for field or class to indicates to the {@link Injector} that the
+ * annotated field or class must be injected, even if this is a superclass and
+ * {@link Inject#injectParent()} is missing or not set to true on all
+ * subclasses.
  * 
  * @author Joannick Gardize
  *
  */
 @Retention(RUNTIME)
 @Target({ TYPE, FIELD })
-public @interface Inject {
+public @interface ForceInject {
 	boolean injectParent() default false;
 }
