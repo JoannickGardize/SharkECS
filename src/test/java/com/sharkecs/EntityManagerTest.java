@@ -36,6 +36,8 @@ class EntityManagerTest {
 	private Subscription subscriptionC;
 	private SubscriptionLogger listenerC;
 
+	private Transmutation transmutation;
+
 	private EntityManager manager;
 
 	@BeforeEach
@@ -70,7 +72,7 @@ class EntityManagerTest {
 		archetype2.setSubscriptions(new Subscription[] { subscriptionC });
 		archetype3.setSubscriptions(new Subscription[] { subscriptionB, subscriptionC });
 
-		Transmutation transmutation = new Transmutation(archetype1, archetype3);
+		transmutation = new Transmutation(archetype1, archetype3);
 
 		transmutation.setAddMappers(new ComponentMapper[] { mapperC });
 		transmutation.setRemoveMappers(new ComponentMapper[] { mapperA });
@@ -126,7 +128,7 @@ class EntityManagerTest {
 			}
 
 			@Override
-			public void changed(int entityId) {
+			public void changed(int entityId, Transmutation transmutation) {
 			}
 		});
 
@@ -179,7 +181,7 @@ class EntityManagerTest {
 			}
 
 			@Override
-			public void changed(int entityId) {
+			public void changed(int entityId, Transmutation transmutation) {
 			}
 		});
 
@@ -193,6 +195,8 @@ class EntityManagerTest {
 
 		listenerB.assertAddLog();
 		listenerB.assertChangeLog(0);
+		listenerB.assertTransmutationLog(transmutation);
+
 		listenerB.assertRemoveLog();
 
 		listenerC.assertAddLog(0);
@@ -202,6 +206,7 @@ class EntityManagerTest {
 		Assertions.assertNull(mapperA.get(0));
 		Assertions.assertNotNull(mapperB.get(0));
 		Assertions.assertNotNull(mapperC.get(0));
+		Assertions.assertEquals(archetype3, manager.archetypeOf(0));
 
 		checkEmptyRun();
 
@@ -214,14 +219,17 @@ class EntityManagerTest {
 
 		listenerA.assertAddLog();
 		listenerA.assertChangeLog();
+		listenerA.assertTransmutationLog();
 		listenerA.assertRemoveLog();
 
 		listenerB.assertAddLog();
 		listenerB.assertChangeLog();
+		listenerB.assertTransmutationLog();
 		listenerB.assertRemoveLog();
 
 		listenerC.assertAddLog();
 		listenerC.assertChangeLog();
+		listenerC.assertTransmutationLog();
 		listenerC.assertRemoveLog();
 	}
 

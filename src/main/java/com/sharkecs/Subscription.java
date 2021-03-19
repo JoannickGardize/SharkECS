@@ -56,9 +56,9 @@ public class Subscription {
 	 * 
 	 * @param entityId
 	 */
-	public void notifyChanged(int entityId) {
+	public void notifyChanged(int entityId, Transmutation transmutation) {
 		for (SubscriptionListener listener : listeners) {
-			listener.changed(entityId);
+			listener.changed(entityId, transmutation);
 		}
 	}
 

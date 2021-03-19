@@ -54,7 +54,7 @@ public abstract class SubscriberAdapter implements Subscriber {
 	}
 
 	@Override
-	public void changed(int entityId) {
+	public void changed(int entityId, Transmutation transmutation) {
 		// Nothing by default, not always required.
 	}
 }

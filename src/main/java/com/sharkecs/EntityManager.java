@@ -121,15 +121,6 @@ public class EntityManager implements Processor {
 		}
 	}
 
-	@Override
-	public void process() {
-		clearReferences();
-		insertPending();
-		transmutePending();
-		removePending();
-		nextId = entities.size();
-	}
-
 	/**
 	 * Returns the actual archetype of the given entity.
 	 * 
@@ -140,15 +131,13 @@ public class EntityManager implements Processor {
 		return entities.get(entityId);
 	}
 
-	private void insertPending() {
-		for (int i = 0, size = pendingInsertion.size(); i < size; i++) {
-			InsertionEntry entry = pendingInsertion.get(i);
-			entities.set(entry.id, entry.archetype);
-			for (Subscription subscription : entry.archetype.getSubscriptions()) {
-				subscription.add(entry.id);
-			}
-		}
-		pendingInsertion.clear();
+	@Override
+	public void process() {
+		clearReferences();
+		insertPending();
+		transmutePending();
+		removePending();
+		nextId = entities.size();
 	}
 
 	private void clearReferences() {
@@ -162,22 +151,15 @@ public class EntityManager implements Processor {
 		}
 	}
 
-	private void removePending() {
-		for (int i = 0, size = pendingRemoval.size(); i < size; i++) {
-			int entityId = pendingRemoval.get(i);
-			Archetype archetype = entities.get(entityId);
-			if (archetype != null) {
-				entities.unsafeSet(entityId, null);
-				recycleBin.add(entityId);
-				for (Subscription subscription : archetype.getSubscriptions()) {
-					subscription.remove(entityId);
-				}
-				for (ComponentMapper<Object> mapper : archetype.getComponentMappers()) {
-					mapper.remove(entityId);
-				}
+	private void insertPending() {
+		for (int i = 0, size = pendingInsertion.size(); i < size; i++) {
+			InsertionEntry entry = pendingInsertion.get(i);
+			entities.set(entry.id, entry.archetype);
+			for (Subscription subscription : entry.archetype.getSubscriptions()) {
+				subscription.add(entry.id);
 			}
 		}
-		pendingRemoval.clear();
+		pendingInsertion.clear();
 	}
 
 	private void transmutePending() {
@@ -185,11 +167,12 @@ public class EntityManager implements Processor {
 			TransmutationEntry entry = pendingTransmutation.get(i);
 			int id = entry.id;
 			Transmutation transmutation = entry.transmutation;
+			entities.unsafeSet(id, transmutation.getTo());
 			for (Subscription subscription : transmutation.getAddSubscriptions()) {
 				subscription.add(id);
 			}
 			for (Subscription subscription : transmutation.getChangeSubscriptions()) {
-				subscription.notifyChanged(id);
+				subscription.notifyChanged(id, transmutation);
 			}
 			for (Subscription subscription : transmutation.getRemoveSubscriptions()) {
 				subscription.remove(id);
@@ -199,5 +182,23 @@ public class EntityManager implements Processor {
 			}
 		}
 		pendingTransmutation.clear();
+	}
+
+	private void removePending() {
+		for (int i = 0, size = pendingRemoval.size(); i < size; i++) {
+			int entityId = pendingRemoval.get(i);
+			Archetype archetype = entities.get(entityId);
+			if (archetype != null) {
+				recycleBin.add(entityId);
+				for (Subscription subscription : archetype.getSubscriptions()) {
+					subscription.remove(entityId);
+				}
+				for (ComponentMapper<Object> mapper : archetype.getComponentMappers()) {
+					mapper.remove(entityId);
+				}
+				entities.unsafeSet(entityId, null);
+			}
+		}
+		pendingRemoval.clear();
 	}
 }

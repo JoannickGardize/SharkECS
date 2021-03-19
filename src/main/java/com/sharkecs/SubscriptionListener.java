@@ -23,10 +23,12 @@ public interface SubscriptionListener {
 	void removed(int entityId);
 
 	/**
-	 * Called when an entity transmuted, and as a result the entity is still
+	 * Called when an entity has transmuted, and as a result the entity is still
 	 * subscribed to the subscription.
 	 * 
-	 * @param entityId the entity for which the component composition has changed
+	 * @param entityId      the entity for which the component composition has
+	 *                      changed
+	 * @param transmutation the transmutation that occurred to the entity
 	 */
-	void changed(int entityId);
+	void changed(int entityId, Transmutation transmutation);
 }
