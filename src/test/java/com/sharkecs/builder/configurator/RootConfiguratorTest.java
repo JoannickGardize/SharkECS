@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.sharkecs.annotation.BeforeAll;
 import com.sharkecs.builder.EngineBuilder;
 
-public class RootConfiguratorTest {
+class RootConfiguratorTest {
 
 	private static List<Object> logList = new ArrayList<>();
 
