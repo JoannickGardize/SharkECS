@@ -51,8 +51,8 @@ public class Archetype {
 
 	private String name;
 	private int id;
-	private Set<Class<?>> componentTypesSet;
-	private Map<Class<?>, ComponentCreationPolicy> componentTypes;
+	private Set<Class<?>> compositionSet;
+	private Map<Class<?>, ComponentCreationPolicy> composition;
 
 	private Subscription[] subscriptions;
 	private ComponentMapper<Object>[] componentMappers;
@@ -62,11 +62,11 @@ public class Archetype {
 	public Archetype(String name, int id, Class<?>... componentTypes) {
 		this.name = name;
 		this.id = id;
-		this.componentTypes = new IdentityHashMap<>();
+		this.composition = new IdentityHashMap<>();
 		for (Class<?> componentType : componentTypes) {
-			this.componentTypes.put(componentType, null);
+			this.composition.put(componentType, null);
 		}
-		componentTypesSet = Collections.unmodifiableSet(this.componentTypes.keySet());
+		compositionSet = Collections.unmodifiableSet(this.composition.keySet());
 	}
 
 	/**
@@ -84,10 +84,10 @@ public class Archetype {
 	 */
 	public void setComponentCreationPolicy(ComponentCreationPolicy componentCreationPolicy, Class<?>... componentTypes) {
 		for (Class<?> componentType : componentTypes) {
-			if (!this.componentTypes.containsKey(componentType)) {
+			if (!this.composition.containsKey(componentType)) {
 				throw new EngineConfigurationException("the component type " + componentType.getClass() + " is not present for the archetype " + this);
 			}
-			this.componentTypes.put(componentType, componentCreationPolicy);
+			this.composition.put(componentType, componentCreationPolicy);
 		}
 	}
 
@@ -99,7 +99,7 @@ public class Archetype {
 	 *                                to all component types of this archetype
 	 */
 	public void setComponentCreationPolicy(ComponentCreationPolicy componentCreationPolicy) {
-		for (Entry<Class<?>, ComponentCreationPolicy> entry : componentTypes.entrySet()) {
+		for (Entry<Class<?>, ComponentCreationPolicy> entry : composition.entrySet()) {
 			entry.setValue(componentCreationPolicy);
 		}
 	}
@@ -120,7 +120,7 @@ public class Archetype {
 	 * @return
 	 */
 	public ComponentCreationPolicy getComponentCreationPolicy(Class<?> componentType, ComponentCreationPolicy defaultValue) {
-		ComponentCreationPolicy archetypeValue = componentTypes.get(componentType);
+		ComponentCreationPolicy archetypeValue = composition.get(componentType);
 		if (archetypeValue != null) {
 			return archetypeValue;
 		} else {
@@ -141,8 +141,11 @@ public class Archetype {
 		return id;
 	}
 
-	public Set<Class<?>> getComponentTypes() {
-		return componentTypesSet;
+	/**
+	 * @return the component composition of the archetype
+	 */
+	public Set<Class<?>> getComposition() {
+		return compositionSet;
 	}
 
 	public Subscription[] getSubscriptions() {
@@ -179,6 +182,6 @@ public class Archetype {
 
 	@Override
 	public String toString() {
-		return "Archetype " + name + componentTypesSet.stream().map(t -> t.getClass().getSimpleName()).collect(Collectors.joining(", ", " (", ")"));
+		return "Archetype " + name + compositionSet.stream().map(t -> t.getClass().getSimpleName()).collect(Collectors.joining(", ", " (", ")"));
 	}
 }

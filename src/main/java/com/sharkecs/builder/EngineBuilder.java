@@ -2,6 +2,7 @@ package com.sharkecs.builder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import com.sharkecs.Archetype;
@@ -49,9 +50,10 @@ import com.sharkecs.builder.configurator.TransmutationConfigurator;
  * <p>
  * Typically, systems, managers, and singletons are registered via
  * {@link #with(Object)}. Multiple instances of the same type is allowed but a
- * different name must be given via {@link #with(String, Object)}. Components,
- * {@link Archetype}s and {@link Transmutation}s have their dedicated
- * convenience methods.
+ * different name must be given via {@link #with(String, Object)} (or any other
+ * key type, see overloads of {@code with(...)} and {@link RegistrationMap}).
+ * Components, {@link Archetype}s and {@link Transmutation}s have their
+ * dedicated convenience methods.
  * <p>
  * Once all elements are registered, {@link #build()} is called to create the
  * {@link Engine}. One instance of {@link EngineBuilder} can only create one
@@ -158,8 +160,9 @@ public class EngineBuilder {
 	 * 
 	 * @param object the object to register
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void with(Object object) {
-		with(null, object);
+		with((Class) object.getClass(), null, object);
 	}
 
 	/**
@@ -170,10 +173,40 @@ public class EngineBuilder {
 	 *               {@link #with(Object)}
 	 * @param object the object to register
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void with(String name, Object object) {
-		checkConfiguring();
-		registrations.put(name, object);
-		previousObject = object;
+		with((Class) object.getClass(), name, object);
+	}
+
+	/**
+	 * <p>
+	 * Register the given object. Injection will be done by field of type
+	 * {@code registrationType}.
+	 * <p>
+	 * This method should not be confused with {@link #withGeneric(Class, Object)}.
+	 * 
+	 * @param <T>              the registered object type
+	 * @param registrationType the registration type, used for field type matching
+	 *                         at injection
+	 * @param object           the object to register
+	 */
+	public <T> void with(Class<? super T> registrationType, T object) {
+		with(registrationType, null, object);
+	}
+
+	/**
+	 * Register the given object. Injection will be done by field type and generic
+	 * type parameter. Does not supports multiple generic type parameters, only the
+	 * first raw type parameter is considered.
+	 * <p>
+	 * This method should not be confused with {@link #with(Class, Object)}.
+	 * 
+	 * @param genericType
+	 * @param object
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void withGeneric(Class<?> genericType, Object object) {
+		with((Class) object.getClass(), genericType, object);
 	}
 
 	/**
@@ -301,6 +334,19 @@ public class EngineBuilder {
 	}
 
 	/**
+	 * Convenience method that calls {@link #before(Object, Object...)} successively
+	 * for each pair of object in parameter.
+	 * 
+	 * @param chain the chain of object to prioritize
+	 */
+	public void priorityChain(Object... chain) {
+		int end = chain.length - 1;
+		for (int i = 0; i < end; i++) {
+			before(chain[i], chain[i + 1]);
+		}
+	}
+
+	/**
 	 * Convenience method to change the default component creation policy of the
 	 * {@link ArchetypeConfigurator}. The default value
 	 * {@link ComponentCreationPolicy#MANUAL}, so the user intended to manually add
@@ -422,6 +468,36 @@ public class EngineBuilder {
 		return registrations;
 	}
 
+	/**
+	 * Convenience method to call {@link ArchetypeConfigurator#of(Set)}. the
+	 * ArchetypeConfigurator must be configured before calling this method.
+	 * 
+	 * @param composition the component composition of the archetype to return
+	 * @return the archetype of the given composition, or null if no archetype
+	 *         matches the given composition
+	 * @throws EngineConfigurationException if the configuration of the
+	 *                                      ArchetypeConfigurator hasn't been done
+	 *                                      yet
+	 */
+	public Archetype getArchetype(Set<Class<?>> composition) {
+		return registrations.getOrFail(ArchetypeConfigurator.class).of(composition);
+	}
+
+	/**
+	 * Convenience method to call {@link ArchetypeConfigurator#of(Class...)}. the
+	 * ArchetypeConfigurator must be configured before calling this method.
+	 * 
+	 * @param composition the component composition of the archetype to return
+	 * @return the archetype of the given composition, or null if no archetype
+	 *         matches the given composition
+	 * @throws EngineConfigurationException if the configuration of the
+	 *                                      ArchetypeConfigurator hasn't been done
+	 *                                      yet
+	 */
+	public Archetype getArchetype(Class<?>... composition) {
+		return registrations.getOrFail(ArchetypeConfigurator.class).of(composition);
+	}
+
 	private void checkConfiguring() {
 		if (!configuring) {
 			throw new EngineConfigurationException("Cannot configure or re-call build() once build began");
@@ -432,5 +508,21 @@ public class EngineBuilder {
 		if (configuring) {
 			throw new EngineConfigurationException("Configuration must be done");
 		}
+	}
+
+	/**
+	 * Private to avoid ambiguity, {@link #getRegistrations()} should be used to get
+	 * full access of registration type and keys
+	 * 
+	 * @param <T>
+	 * @param registrationType
+	 * @param key
+	 * @param object
+	 */
+	private <T> void with(Class<? super T> registrationType, Object key, T object) {
+		checkConfiguring();
+		registrations.put(registrationType, key, object);
+		previousObject = object;
+
 	}
 }

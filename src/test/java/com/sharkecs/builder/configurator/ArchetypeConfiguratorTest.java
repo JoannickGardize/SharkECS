@@ -11,6 +11,7 @@ import com.sharkecs.FlatArrayComponentMapper;
 import com.sharkecs.Subscription;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.builder.EngineBuilder;
+import com.sharkecs.builder.EngineConfigurationException;
 import com.sharkecs.testutil.ArrayTestUtils;
 
 class ArchetypeConfiguratorTest {
@@ -54,11 +55,19 @@ class ArchetypeConfiguratorTest {
 
 		ArchetypeConfigurator configurator = new ArchetypeConfigurator();
 		configurator.setDefaultComponentCreationPolicy(ComponentCreationPolicy.AUTOMATIC);
+
+		Assertions.assertThrows(EngineConfigurationException.class, () -> configurator.of(Short.class));
+
 		configurator.configure(a, builder);
+		configurator.endConfiguration(builder);
 
 		ArrayTestUtils.assertEqualsAnyOrder(a.getComponentMappers(), shortMapper, intMapper, longMapper);
 		ArrayTestUtils.assertEqualsAnyOrder(a.getAutoCreateComponentMappers(), intMapper, longMapper);
 		ArrayTestUtils.assertEqualsAnyOrder(a.getSubscriptions(), sA, sB);
 		Assertions.assertEquals(2, a.getTransmutations().length);
+
+		Assertions.assertEquals(a, configurator.of(Short.class, Integer.class, Long.class));
+		Assertions.assertNull(configurator.of(Long.class));
 	}
+
 }
