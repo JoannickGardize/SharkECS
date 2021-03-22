@@ -20,7 +20,7 @@ class ArchetypeTest {
 	@Test
 	void getComponentCreationPolicySTest() {
 
-		Archetype archetype = new Archetype("test", 0, A.class, B.class);
+		Archetype archetype = new Archetype("test", A.class, B.class);
 
 		Assertions.assertEquals(ComponentCreationPolicy.MANUAL, archetype.getComponentCreationPolicy(A.class, ComponentCreationPolicy.MANUAL));
 		Assertions.assertEquals(ComponentCreationPolicy.MANUAL, archetype.getComponentCreationPolicy(B.class, ComponentCreationPolicy.AUTOMATIC));

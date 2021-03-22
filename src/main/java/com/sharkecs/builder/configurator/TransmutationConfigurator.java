@@ -57,6 +57,8 @@ public class TransmutationConfigurator extends TypeConfigurator<Transmutation> {
 
 		transmutation.setAddMappers(notContains(ComponentMapper.class, to.autoCreateComponentMappers, from.componentMappers));
 		transmutation.setRemoveMappers(notContains(ComponentMapper.class, from.componentMappers, to.componentMappers));
+
+		transmutation.markConfigured();
 	}
 
 	private <T> T[] notContains(Class<T> elementType, Set<T> compared, Set<T> comparing) {

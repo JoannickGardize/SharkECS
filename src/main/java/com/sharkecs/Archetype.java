@@ -15,9 +15,8 @@ import com.sharkecs.builder.EngineConfigurationException;
  * <p>
  * Represents the component composition of an entity.
  * <p>
- * Stores the {@link Subscription}s, {@link ComponentMapper}s and
- * {@link Transmutation}s associated with this archetype, these arrays must not
- * be manually modified, or unexpected behaviors may occurs.
+ * Stores the computed {@link Subscription}s, {@link ComponentMapper}s and
+ * {@link Transmutation}s associated with this archetype.
  * 
  * @author Joannick Gardize
  *
@@ -49,40 +48,42 @@ public class Archetype {
 		MANUAL;
 	}
 
+	// Construction attributes
 	private String name;
-	private int id;
 	private Set<Class<?>> compositionSet;
 	private Map<Class<?>, ComponentCreationPolicy> composition;
 
+	// Computed attributes
+	private int id;
 	private Subscription[] subscriptions;
 	private ComponentMapper<Object>[] componentMappers;
 	private ComponentMapper<Object>[] autoCreateComponentMappers;
 	private Transmutation[] transmutations;
+	private boolean configured;
 
-	public Archetype(String name, int id, Class<?>... componentTypes) {
+	public Archetype(String name, Class<?>... componentTypes) {
 		this.name = name;
-		this.id = id;
 		this.composition = new IdentityHashMap<>();
 		for (Class<?> componentType : componentTypes) {
 			this.composition.put(componentType, null);
 		}
 		compositionSet = Collections.unmodifiableSet(this.composition.keySet());
+		configured = false;
 	}
 
 	/**
-	 * <p>
 	 * Configure the {@link ComponentCreationPolicy} for the given component types.
 	 * This configuration overrides the default setting and the component's type
 	 * annotation setting.
-	 * <p>
-	 * Calling this method after the engine building has no effect.
 	 * 
 	 * @param componentCreationPolicy the {@link ComponentCreationPolicy} to apply
 	 *                                to the given component types
 	 * @param componentTypes          the component types to set the
 	 *                                {@link ComponentCreationPolicy} setting
+	 * @throws IllegalStateException if this archetype configuration is already done
 	 */
 	public void setComponentCreationPolicy(ComponentCreationPolicy componentCreationPolicy, Class<?>... componentTypes) {
+		checkConfigured();
 		for (Class<?> componentType : componentTypes) {
 			if (!this.composition.containsKey(componentType)) {
 				throw new EngineConfigurationException("the component type " + componentType.getClass() + " is not present for the archetype " + this);
@@ -97,8 +98,10 @@ public class Archetype {
 	 * 
 	 * @param componentCreationPolicy the {@link ComponentCreationPolicy} to apply
 	 *                                to all component types of this archetype
+	 * @throws IllegalStateException if this archetype configuration is already done
 	 */
 	public void setComponentCreationPolicy(ComponentCreationPolicy componentCreationPolicy) {
+		checkConfigured();
 		for (Entry<Class<?>, ComponentCreationPolicy> entry : composition.entrySet()) {
 			entry.setValue(componentCreationPolicy);
 		}
@@ -133,12 +136,11 @@ public class Archetype {
 		}
 	}
 
+	/**
+	 * @return the name of the archetype
+	 */
 	public String getName() {
 		return name;
-	}
-
-	public int getId() {
-		return id;
 	}
 
 	/**
@@ -148,11 +150,29 @@ public class Archetype {
 		return compositionSet;
 	}
 
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id
+	 * @throws IllegalStateException if this archetype configuration is already done
+	 */
+	public void setId(int id) {
+		checkConfigured();
+		this.id = id;
+	}
+
 	public Subscription[] getSubscriptions() {
 		return subscriptions;
 	}
 
+	/**
+	 * @param subscriptions
+	 * @throws IllegalStateException if this archetype configuration is already done
+	 */
 	public void setSubscriptions(Subscription[] subscriptions) {
+		checkConfigured();
 		this.subscriptions = subscriptions;
 	}
 
@@ -160,7 +180,12 @@ public class Archetype {
 		return componentMappers;
 	}
 
+	/**
+	 * @param componentMappers
+	 * @throws IllegalStateException if this archetype configuration is already done
+	 */
 	public void setComponentMappers(ComponentMapper<Object>[] componentMappers) {
+		checkConfigured();
 		this.componentMappers = componentMappers;
 	}
 
@@ -168,20 +193,40 @@ public class Archetype {
 		return autoCreateComponentMappers;
 	}
 
+	/**
+	 * @param autoCreateComponentMappers
+	 * @throws IllegalStateException if this archetype configuration is already done
+	 */
 	public void setAutoCreateComponentMappers(ComponentMapper<Object>[] autoCreateComponentMappers) {
+		checkConfigured();
 		this.autoCreateComponentMappers = autoCreateComponentMappers;
-	}
-
-	public void setTransmutations(Transmutation[] transmutations) {
-		this.transmutations = transmutations;
 	}
 
 	public Transmutation[] getTransmutations() {
 		return transmutations;
 	}
 
+	/**
+	 * @param transmutations
+	 * @throws IllegalStateException if this archetype configuration is already done
+	 */
+	public void setTransmutations(Transmutation[] transmutations) {
+		checkConfigured();
+		this.transmutations = transmutations;
+	}
+
 	@Override
 	public String toString() {
 		return "Archetype " + name + compositionSet.stream().map(t -> t.getClass().getSimpleName()).collect(Collectors.joining(", ", " (", ")"));
+	}
+
+	public void markConfigured() {
+		configured = true;
+	}
+
+	private void checkConfigured() {
+		if (configured) {
+			throw new IllegalStateException("the archetype is already configured");
+		}
 	}
 }

@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.annotation.WithAny;
@@ -57,33 +60,11 @@ public class Aspect {
 	 * @return true if this aspect matches with the given set, false otherwise.
 	 */
 	public boolean matches(Set<Class<?>> componentTypes) {
-		if (withAll != null) {
-			for (Class<?> type : withAll) {
-				if (!componentTypes.contains(type)) {
-					return false;
-				}
-			}
-		}
-		if (without != null) {
-			for (Class<?> type : without) {
-				if (componentTypes.contains(type)) {
-					return false;
-				}
-			}
-		}
-		if (withAny != null) {
-			return anyMatches(componentTypes);
-		}
-		return true;
+		return isNullOr(withAll, componentTypes, Stream::allMatch) && isNullOr(withAny, componentTypes, Stream::anyMatch) && isNullOr(without, componentTypes, Stream::noneMatch);
 	}
 
-	private boolean anyMatches(Set<Class<?>> componentTypes) {
-		for (Class<?> type : withAny) {
-			if (componentTypes.contains(type)) {
-				return true;
-			}
-		}
-		return false;
+	private boolean isNullOr(Set<Class<?>> filterSet, Set<Class<?>> toTestSet, BiPredicate<Stream<Class<?>>, Predicate<Class<?>>> filter) {
+		return filterSet == null || filter.test(filterSet.stream(), toTestSet::contains);
 	}
 
 	@Override

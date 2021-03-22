@@ -43,9 +43,12 @@ class EntityManagerTest {
 	@BeforeEach
 	@SuppressWarnings("unchecked")
 	public void initialize() {
-		archetype1 = new Archetype("archetype1", 0, A.class, B.class);
-		archetype2 = new Archetype("archetype2", 1, C.class);
-		archetype3 = new Archetype("archetype3", 2, B.class, C.class);
+		archetype1 = new Archetype("archetype1", A.class, B.class);
+		archetype1.setId(0);
+		archetype2 = new Archetype("archetype2", C.class);
+		archetype2.setId(1);
+		archetype3 = new Archetype("archetype3", B.class, C.class);
+		archetype3.setId(2);
 
 		mapperA = new FlatArrayComponentMapper<>(1, A::new);
 		mapperB = new FlatArrayComponentMapper<>(1, B::new);

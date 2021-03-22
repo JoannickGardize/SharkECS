@@ -273,7 +273,7 @@ public class EngineBuilder {
 	 */
 	public Archetype archetype(String name, Class<?>... componentTypes) {
 		checkConfiguring();
-		Archetype archetype = new Archetype(name, registrations.typeCount(Archetype.class), componentTypes);
+		Archetype archetype = new Archetype(name, componentTypes);
 		registrations.put(name, archetype);
 		return archetype;
 	}
@@ -402,8 +402,7 @@ public class EngineBuilder {
 	 */
 	public void configurator(Configurator configurator) {
 		with(configurator);
-		after(configurator, Injector.class);
-		before(configurator, InitializableConfigurator.class);
+		priorityChain(Injector.class, configurator, InitializableConfigurator.class);
 	}
 
 	/**
@@ -413,7 +412,7 @@ public class EngineBuilder {
 	 */
 	public void configuratorBeforeInjection(Configurator configurator) {
 		with(configurator);
-		before(configurator, Injector.class);
+		priorityChain(ProcessorConfigurator.class, configurator, Injector.class);
 	}
 
 	/**

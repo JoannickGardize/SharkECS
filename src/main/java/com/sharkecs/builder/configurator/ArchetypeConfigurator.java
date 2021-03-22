@@ -30,21 +30,30 @@ public class ArchetypeConfigurator extends TypeConfigurator<Archetype> {
 
 	private ComponentCreationPolicy defaultComponentCreationPolicy = ComponentCreationPolicy.MANUAL;
 
+	private int nextId;
+
 	public ArchetypeConfigurator() {
 		super(Archetype.class);
+	}
+
+	@Override
+	protected void beginConfiguration(EngineBuilder engineBuilder) {
+		nextId = 0;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void configure(Archetype archetype, EngineBuilder engineBuilder) {
 		RegistrationMap registrations = engineBuilder.getRegistrations();
+		archetype.setId(nextId++);
 		archetype.setSubscriptions(registrations.entrySet(Subscription.class).stream().filter(e -> ((Aspect) e.getKey()).matches(archetype.getComposition())).map(Entry::getValue)
-		        .toArray(Subscription[]::new));
+				.toArray(Subscription[]::new));
 		archetype.setComponentMappers(archetype.getComposition().stream().map(t -> registrations.getOrFail(ComponentMapper.class, t)).toArray(ComponentMapper[]::new));
 		archetype.setAutoCreateComponentMappers(
-		        archetype.getComposition().stream().filter(t -> archetype.getComponentCreationPolicy(t, defaultComponentCreationPolicy) == ComponentCreationPolicy.AUTOMATIC)
-		                .map(t -> registrations.getOrFail(ComponentMapper.class, t)).toArray(ComponentMapper[]::new));
+				archetype.getComposition().stream().filter(t -> archetype.getComponentCreationPolicy(t, defaultComponentCreationPolicy) == ComponentCreationPolicy.AUTOMATIC)
+						.map(t -> registrations.getOrFail(ComponentMapper.class, t)).toArray(ComponentMapper[]::new));
 		archetype.setTransmutations(new Transmutation[registrations.typeCount(Archetype.class)]);
+		archetype.markConfigured();
 	}
 
 	@Override

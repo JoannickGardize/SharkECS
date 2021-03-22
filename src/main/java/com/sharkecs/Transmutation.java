@@ -18,19 +18,22 @@ import com.sharkecs.annotation.SkipInject;
 @SkipInject
 public class Transmutation {
 
+	// Construction attributes
 	private Archetype from;
 	private Archetype to;
 
+	// Computed attributes
 	private Subscription[] addSubscriptions;
 	private Subscription[] changeSubscriptions;
 	private Subscription[] removeSubscriptions;
-
 	private ComponentMapper<Object>[] addMappers;
 	private ComponentMapper<Object>[] removeMappers;
+	private boolean configured;
 
 	public Transmutation(Archetype from, Archetype to) {
 		this.from = from;
 		this.to = to;
+		configured = false;
 	}
 
 	public Archetype getFrom() {
@@ -46,6 +49,7 @@ public class Transmutation {
 	}
 
 	public void setAddSubscriptions(Subscription[] addSubscriptions) {
+		checkConfigured();
 		this.addSubscriptions = addSubscriptions;
 	}
 
@@ -54,6 +58,7 @@ public class Transmutation {
 	}
 
 	public void setChangeSubscriptions(Subscription[] changeSubscriptions) {
+		checkConfigured();
 		this.changeSubscriptions = changeSubscriptions;
 	}
 
@@ -62,6 +67,7 @@ public class Transmutation {
 	}
 
 	public void setRemoveSubscriptions(Subscription[] removeSubscriptions) {
+		checkConfigured();
 		this.removeSubscriptions = removeSubscriptions;
 	}
 
@@ -70,6 +76,7 @@ public class Transmutation {
 	}
 
 	public void setAddMappers(ComponentMapper<Object>[] addMappers) {
+		checkConfigured();
 		this.addMappers = addMappers;
 	}
 
@@ -78,11 +85,22 @@ public class Transmutation {
 	}
 
 	public void setRemoveMappers(ComponentMapper<Object>[] removeMappers) {
+		checkConfigured();
 		this.removeMappers = removeMappers;
 	}
 
 	@Override
 	public String toString() {
 		return "Transmutation (" + from.getName() + " -> " + to.getName() + ")";
+	}
+
+	public void markConfigured() {
+		configured = true;
+	}
+
+	private void checkConfigured() {
+		if (configured) {
+			throw new IllegalStateException("the transmutation is already configured");
+		}
 	}
 }

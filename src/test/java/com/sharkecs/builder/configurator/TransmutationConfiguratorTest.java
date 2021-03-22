@@ -24,13 +24,15 @@ class TransmutationConfiguratorTest {
 		Subscription s2 = new Subscription();
 		Subscription s3 = new Subscription();
 
-		Archetype a = new Archetype("a", 0);
+		Archetype a = new Archetype("a");
+		a.setId(0);
 		a.setAutoCreateComponentMappers(new ComponentMapper[] { m1, m2 });
 		a.setComponentMappers(new ComponentMapper[] { m1, m2 });
 		a.setSubscriptions(new Subscription[] { s1, s2 });
 		a.setTransmutations(new Transmutation[2]);
 
-		Archetype b = new Archetype("b", 1);
+		Archetype b = new Archetype("b");
+		b.setId(1);
 		b.setAutoCreateComponentMappers(new ComponentMapper[] { m2, m3 });
 		b.setComponentMappers(new ComponentMapper[] { m2, m3, m4 });
 		b.setSubscriptions(new Subscription[] { s2, s3 });
@@ -45,5 +47,11 @@ class TransmutationConfiguratorTest {
 		Assertions.assertArrayEquals(transmutation.getRemoveMappers(), new ComponentMapper[] { m1 });
 		Assertions.assertEquals(transmutation, a.getTransmutations()[1]);
 		Assertions.assertNull(a.getTransmutations()[0]);
+
+		Assertions.assertThrows(IllegalStateException.class, () -> transmutation.setAddMappers(null));
+		Assertions.assertThrows(IllegalStateException.class, () -> transmutation.setAddSubscriptions(null));
+		Assertions.assertThrows(IllegalStateException.class, () -> transmutation.setChangeSubscriptions(null));
+		Assertions.assertThrows(IllegalStateException.class, () -> transmutation.setRemoveMappers(null));
+		Assertions.assertThrows(IllegalStateException.class, () -> transmutation.setRemoveSubscriptions(null));
 	}
 }

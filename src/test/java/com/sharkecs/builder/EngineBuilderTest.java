@@ -20,6 +20,7 @@ import com.sharkecs.annotation.CreationPolicy;
 import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.annotation.WithAny;
+import com.sharkecs.builder.configurator.Prioritizer;
 import com.sharkecs.testutil.ArrayTestUtils;
 
 // TODO reduce this class to the minimum test cases and make assembly test of the default configuration in the package com.sharkecs.example
@@ -275,6 +276,26 @@ class EngineBuilderTest {
 		Assertions.assertFalse(a1.reference.exists());
 		Assertions.assertEquals(-1, a3.reference.get());
 		a3.reference.ifExists(i -> Assertions.fail("should not be executed"));
+	}
 
+	@Test
+	void priorityChainTest() {
+		EngineBuilder builder = new EngineBuilder();
+		Prioritizer prioritizer = new Prioritizer();
+
+		builder.with(prioritizer);
+
+		Object o1 = new Object();
+		Object o3 = new Object();
+		Object o2 = new Object();
+
+		builder.priorityChain(o1, o2, o3);
+		prioritizer.configure(builder);
+
+		List<Object> list = new ArrayList<>(Arrays.asList(o3, o2, o1));
+
+		prioritizer.prioritize(list);
+
+		Assertions.assertArrayEquals(new Object[] { o1, o2, o3 }, list.toArray());
 	}
 }

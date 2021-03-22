@@ -68,6 +68,14 @@ class ArchetypeConfiguratorTest {
 
 		Assertions.assertEquals(a, configurator.of(Short.class, Integer.class, Long.class));
 		Assertions.assertNull(configurator.of(Long.class));
+
+		Assertions.assertThrows(IllegalStateException.class, () -> a.setId(0));
+		Assertions.assertThrows(IllegalStateException.class, () -> a.setComponentCreationPolicy(null, Integer.class));
+		Assertions.assertThrows(IllegalStateException.class, () -> a.setComponentCreationPolicy(null));
+		Assertions.assertThrows(IllegalStateException.class, () -> a.setAutoCreateComponentMappers(null));
+		Assertions.assertThrows(IllegalStateException.class, () -> a.setComponentMappers(null));
+		Assertions.assertThrows(IllegalStateException.class, () -> a.setSubscriptions(null));
+		Assertions.assertThrows(IllegalStateException.class, () -> a.setTransmutations(null));
 	}
 
 }
