@@ -20,7 +20,7 @@ The specificity of SharkECS regarding to other ECS frameworks is that all possib
 
 ## Getting started
 
-Let's take a simple, fictitious example of an engine made of player(s) and bullets that could damage them.
+Let's take an example of an engine made of player(s) and bullets that could damage them.
 
 ### System example
 
@@ -60,6 +60,8 @@ public class BulletDamageSystem extends IteratingSystem {
 	}
 }
 ```
+
+According to the @WithAll annotation, this system will process all entities with a Physics and a Bullet class. The system will apply the bullet's damage once it hit a damageable (with a Health component) entity, and then remove it.
 
 The attributes of the system will be automatically injected during the engine building. Note the presence of setter methods: they are required and used for injection, because SharkECS is respectful of the encapsulation principle. If you feel uncomfortable with this boilerplate code, Take a look at the [Project Lombok](https://projectlombok.org/).
 
