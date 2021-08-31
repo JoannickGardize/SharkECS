@@ -63,6 +63,8 @@ public class BulletDamageSystem extends IteratingSystem {
 
 The attributes of the system will be automatically injected during the engine building. Note the presence of setter methods: they are required and used for injection, because SharkECS is respectful of the encapsulation principle. If you feel uncomfortable with this boilerplate code, Take a look at the [Project Lombok](https://projectlombok.org/).
 
+You can find the full running example [here](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/java/com/sharkecs/example).
+
 ### EngineBuilder
 
 [EngineBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/EngineBuilder.java) is used to configure and create the Engine:
