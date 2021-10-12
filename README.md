@@ -140,7 +140,7 @@ This kind of component usage is unusual in a naive way for this framework, due t
 
 This is where [ArchetypeVariantsBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/ArchetypeVariantsBuilder.java) can be used at the engine building step to declare all required archetypes and transmutations. See [ArchetypeVariantsBuilderTest](https://github.com/JoannickGardize/SharkECS/blob/main/src/test/java/com/sharkecs/builder/ArchetypeVariantsBuilderTest.java) for an example code.
 
-In addition to this, archetypes with one component of difference are treated specifically, allowing the use of `Engine#addComponent(...)` and `Engine#removeComponent(...)` to achieve the transmutations.
+In addition to this, archetypes with one component of difference are treated specifically, allowing the use of `EntityManager#addComponent(...)` and `EntityManager#removeComponent(...)` to achieve the transmutations.
 
 
 
