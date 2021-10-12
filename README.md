@@ -138,7 +138,7 @@ This is common in an ECS architecture to make use of "volatile" components, to p
 
 This kind of component usage is unusual in a naive way for this framework, due to the declaration requirement, and lead to an exponential amount of archetype and transmutation declaration requirement at the engine building step.
 
-This is where [ArchetypeVariantsBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/ArchetypeVariantsBuilder.java) can be used at the engine building step to declare all required archetypes and transmutations. See [ArchetypeVariantsBuilderTest](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/java/com/sharkecs/builder/ArchetypeVariantsBuilderTest) for an example code.
+This is where [ArchetypeVariantsBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/ArchetypeVariantsBuilder.java) can be used at the engine building step to declare all required archetypes and transmutations. See [ArchetypeVariantsBuilderTest](https://github.com/JoannickGardize/SharkECS/blob/main/src/test/java/com/sharkecs/builder/ArchetypeVariantsBuilderTest.java) for an example code.
 
 In addition to this, archetypes with one component of difference are treated specifically, allowing the use of `Engine#addComponent(...)` and `Engine#removeComponent(...)` to achieve the transmutations.
 
