@@ -1,13 +1,15 @@
 # SharkECS
 
-Entity Component System implementation focused on performance, ease of use, and flexibility, inspired by the popular [artemis-odb](https://github.com/junkdog/artemis-odb) framework.
+*Prototype state, may drastically change other time.*
+
+SharkECS is an Entity-Component-System implementation focused on performance, ease of use, and flexibility.
 
 The specificity of SharkECS regarding to other ECS frameworks is that all possible entity composition and mutation must be declared first. In this way, performance is easily optimized.
 
 ## Terminology
 
 - **Entity**: an entity is something made of components. Entities by themselves are just an integer identifier. Entity creation, deletion, and mutation operations are made via the [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityManager.java). Note that entity IDs are not unique other time.
-- **Component**: Components are data holders representing something some entities are made of (position, body, health, AI, sprite...). Components are accessed via [ComponentMappers](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/ComponentMapper.java).
+- **Component**: components are data holders representing something some entities are made of (position, body, health, AI, sprite...). Components are accessed via [ComponentMappers](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/ComponentMapper.java).
 - **Archetype**: an [Archetype](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Archetype.java) is a declaration of component composition used to create entities at runtime.
 - **Transmutation**: a [Transmutation](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Transmutation.java) is the declaration of a possible mutation operation from an Archetype to another one at runtime.
 - **Aspect:** [Aspects](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Aspect.java) represents a group of possible entity composition (of component), Aspect declaration is made via annotation on classes implementing [Subscriber](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Subscriber.java).
@@ -129,6 +131,18 @@ In SharkECS, you specify priorities in the form of before / after constraints. T
   - any non-registered instance as a "marker" in the priority graph
 
 For instance, the EngineBuilder's default configuration calls `builder.before(entityManager, Processor.class);` to put the EntityManager before any other Processor.
+
+## Add and remove single components
+
+This is common in an ECS architecture to make use of "volatile" components, to plug and unplug on the fly temporary behaviors to entities.
+
+This kind of component usage is unusual in a naive way for this framework, due to the declaration requirement, and lead to an exponential amount of archetype and transmutation declaration requirement at the engine building step.
+
+This is where [ArchetypeVariantsBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/ArchetypeVariantsBuilder.java) can be used at the engine building step to declare all required archetypes and transmutations. See [ArchetypeVariantsBuilderTest](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/java/com/sharkecs/builder/ArchetypeVariantsBuilderTest) for an example code.
+
+In addition to this, archetypes with one component of difference are treated specifically, allowing the use of `Engine#addComponent(...)` and `Engine#removeComponent(...)` to achieve the transmutations.
+
+
 
 ## Transmutation, injection by generic types, custom engine configurator...
 

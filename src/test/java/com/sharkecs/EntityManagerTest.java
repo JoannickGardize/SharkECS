@@ -8,237 +8,336 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.sharkecs.Archetype.ComponentCreationPolicy;
+import com.sharkecs.annotation.WithAll;
+import com.sharkecs.builder.EngineBuilder;
+import com.sharkecs.builder.RegistrationMap;
 import com.sharkecs.testutil.SubscriptionLogger;
 
 class EntityManagerTest {
 
-	static class A {
-	}
+    static class A {
+    }
 
-	static class B {
-	}
+    static class B {
+    }
 
-	static class C {
-	}
+    static class C {
+    }
 
-	private Archetype archetype1;
-	private Archetype archetype2;
-	private Archetype archetype3;
+    private Archetype archetype1;
+    private Archetype archetype2;
+    private Archetype archetype3;
 
-	private ComponentMapper<A> mapperA;
-	private ComponentMapper<B> mapperB;
-	private ComponentMapper<C> mapperC;
+    private ComponentMapper<A> mapperA;
+    private ComponentMapper<B> mapperB;
+    private ComponentMapper<C> mapperC;
 
-	private Subscription subscriptionA;
-	private SubscriptionLogger listenerA;
-	private Subscription subscriptionB;
-	private SubscriptionLogger listenerB;
-	private Subscription subscriptionC;
-	private SubscriptionLogger listenerC;
+    private Subscription subscriptionA;
+    private SubscriptionLogger listenerA;
+    private Subscription subscriptionB;
+    private SubscriptionLogger listenerB;
+    private Subscription subscriptionC;
+    private SubscriptionLogger listenerC;
 
-	private Transmutation transmutation;
+    private Transmutation transmutation;
+    private Transmutation transmutation2;
+    private Transmutation transmutation3;
 
-	private EntityManager manager;
+    private EntityManager manager;
 
-	@BeforeEach
-	@SuppressWarnings("unchecked")
-	public void initialize() {
-		archetype1 = new Archetype("archetype1", A.class, B.class);
-		archetype1.setId(0);
-		archetype2 = new Archetype("archetype2", C.class);
-		archetype2.setId(1);
-		archetype3 = new Archetype("archetype3", B.class, C.class);
-		archetype3.setId(2);
+    @WithAll(A.class)
+    private static class SubscriberA extends SubscriberAdapter {
 
-		mapperA = new FlatArrayComponentMapper<>(1, A::new);
-		mapperB = new FlatArrayComponentMapper<>(1, B::new);
-		mapperC = new FlatArrayComponentMapper<>(1, C::new);
+    }
 
-		subscriptionA = new TrackingSubscription(1);
-		listenerA = new SubscriptionLogger();
-		subscriptionA.addListener(listenerA);
-		subscriptionB = new TrackingSubscription(1);
-		listenerB = new SubscriptionLogger();
-		subscriptionB.addListener(listenerB);
-		subscriptionC = new TrackingSubscription(1);
-		listenerC = new SubscriptionLogger();
-		subscriptionC.addListener(listenerC);
+    @WithAll(B.class)
+    private static class SubscriberB extends SubscriberAdapter {
 
-		archetype1.setComponentMappers(new ComponentMapper[] { mapperA, mapperB });
-		archetype1.setAutoCreateComponentMappers(new ComponentMapper[] { mapperA, mapperB });
-		archetype2.setComponentMappers(new ComponentMapper[] { mapperC });
-		archetype2.setAutoCreateComponentMappers(new ComponentMapper[] { mapperC });
-		archetype3.setComponentMappers(new ComponentMapper[] { mapperB, mapperC });
-		archetype3.setAutoCreateComponentMappers(new ComponentMapper[] { mapperB, mapperC });
+    }
 
-		archetype1.setSubscriptions(new Subscription[] { subscriptionA, subscriptionB });
-		archetype2.setSubscriptions(new Subscription[] { subscriptionC });
-		archetype3.setSubscriptions(new Subscription[] { subscriptionB, subscriptionC });
+    @WithAll(C.class)
+    private static class SubscriberC extends SubscriberAdapter {
 
-		transmutation = new Transmutation(archetype1, archetype3);
+    }
 
-		transmutation.setAddMappers(new ComponentMapper[] { mapperC });
-		transmutation.setRemoveMappers(new ComponentMapper[] { mapperA });
+    @BeforeEach
+    @SuppressWarnings("unchecked")
+    public void initialize() {
 
-		transmutation.setAddSubscriptions(new Subscription[] { subscriptionC });
-		transmutation.setChangeSubscriptions(new Subscription[] { subscriptionB });
-		transmutation.setRemoveSubscriptions(new Subscription[] { subscriptionA });
+        EngineBuilder builder = EngineBuilder.withDefaults(10);
 
-		archetype1.setTransmutations(new Transmutation[] { null, null, transmutation });
+        builder.defaultComponentCreationPolicy(ComponentCreationPolicy.AUTOMATIC);
 
-		manager = new EntityManager(10);
-	}
+        builder.component(A.class, A::new);
+        builder.component(B.class, B::new);
+        builder.component(C.class, C::new);
 
-	@Test
-	void createAndRemoveTest() {
+        archetype1 = builder.archetype("archetype1", A.class, B.class);
+        archetype2 = builder.archetype("archetype2", C.class);
+        archetype3 = builder.archetype("archetype3", B.class, C.class);
 
-		// Creation test
+        SubscriberA subscriberA = new SubscriberA();
+        SubscriberB subscriberB = new SubscriberB();
+        SubscriberC subscriberC = new SubscriberC();
 
-		List<Integer> managerIdLog = new ArrayList<>();
-		managerIdLog.add(manager.create(archetype1));
-		managerIdLog.add(manager.create(archetype1));
-		managerIdLog.add(manager.create(archetype2));
+        builder.with(subscriberA);
+        builder.with(subscriberB);
+        builder.with(subscriberC);
 
-		Assertions.assertEquals(Arrays.asList(0, 1, 2), managerIdLog);
-		Assertions.assertNotNull(mapperA.get(0));
-		Assertions.assertNotNull(mapperB.get(0));
-		Assertions.assertNull(mapperC.get(0));
+        transmutation = builder.transmutation(archetype1, archetype3);
+        transmutation2 = builder.transmutation(archetype2, archetype3);
+        transmutation3 = builder.transmutation(archetype3, archetype2);
 
-		manager.process();
+        builder.build();
 
-		Assertions.assertEquals(archetype1, manager.archetypeOf(0));
-		Assertions.assertEquals(archetype1, manager.archetypeOf(1));
-		Assertions.assertEquals(archetype2, manager.archetypeOf(2));
-		listenerA.assertAddLog(0, 1);
-		listenerA.assertRemoveLog();
-		listenerC.assertAddLog(2);
-		listenerC.assertRemoveLog();
+        RegistrationMap registrationMap = builder.getRegistrations();
 
-		clearListeners();
+        mapperA = registrationMap.get(ComponentMapper.class, A.class);
+        mapperB = registrationMap.get(ComponentMapper.class, B.class);
+        mapperC = registrationMap.get(ComponentMapper.class, C.class);
 
-		// Remove & insertion test
+        subscriptionA = subscriberA.getSubscription();
+        listenerA = new SubscriptionLogger();
+        subscriptionA.addListener(listenerA);
+        subscriptionB = subscriberB.getSubscription();
+        listenerB = new SubscriptionLogger();
+        subscriptionB.addListener(listenerB);
+        subscriptionC = subscriberC.getSubscription();
+        listenerC = new SubscriptionLogger();
+        subscriptionC.addListener(listenerC);
 
-		subscriptionA.addListener(new SubscriptionListener() {
+        manager = registrationMap.get(EntityManager.class);
+    }
 
-			@Override
-			public void removed(int entityId) {
-				Assertions.assertNotNull(mapperA.get(entityId));
-				Assertions.assertNotNull(mapperB.get(entityId));
-			}
+    @Test
+    void createAndRemoveTest() {
 
-			@Override
-			public void added(int entityId) {
-			}
+        // Creation test
 
-			@Override
-			public void changed(int entityId, Transmutation transmutation) {
-			}
-		});
+        List<Integer> managerIdLog = new ArrayList<>();
+        managerIdLog.add(manager.create(archetype1));
+        managerIdLog.add(manager.create(archetype1));
+        managerIdLog.add(manager.create(archetype2));
 
-		manager.remove(1);
-		manager.remove(0);
-		manager.create(archetype2);
-		manager.create(archetype2);
+        Assertions.assertEquals(Arrays.asList(0, 1, 2), managerIdLog);
+        Assertions.assertNotNull(mapperA.get(0));
+        Assertions.assertNotNull(mapperB.get(0));
+        Assertions.assertNull(mapperC.get(0));
 
-		manager.process();
+        manager.process();
 
-		listenerA.assertAddLog();
-		listenerA.assertRemoveLog(1, 0);
-		listenerC.assertAddLog(3, 4);
-		listenerC.assertRemoveLog();
+        Assertions.assertEquals(archetype1, manager.archetypeOf(0));
+        Assertions.assertEquals(archetype1, manager.archetypeOf(1));
+        Assertions.assertEquals(archetype2, manager.archetypeOf(2));
+        listenerA.assertAddLog(0, 1);
+        listenerA.assertRemoveLog();
+        listenerC.assertAddLog(2);
+        listenerC.assertRemoveLog();
 
-		Assertions.assertNull(mapperA.get(0));
-		Assertions.assertNull(mapperB.get(0));
-		Assertions.assertNotNull(mapperC.get(3));
+        clearListeners();
 
-		// Insertion with recycling test
+        // Remove & insertion test
 
-		Assertions.assertEquals(0, manager.create(archetype1));
-		Assertions.assertEquals(1, manager.create(archetype1));
-		Assertions.assertEquals(5, manager.create(archetype1));
+        subscriptionA.addListener(new SubscriptionListener() {
 
-		manager.process();
+            @Override
+            public void removed(int entityId) {
+                Assertions.assertNotNull(mapperA.get(entityId));
+                Assertions.assertNotNull(mapperB.get(entityId));
+            }
 
-		listenerA.assertAddLog(0, 1, 5);
+            @Override
+            public void added(int entityId) {
+            }
 
-		checkEmptyRun();
-	}
+            @Override
+            public void changed(int entityId, Transmutation transmutation) {
+            }
+        });
 
-	@Test
-	void transmuteTest() {
-		int id = manager.create(archetype1);
+        manager.remove(1);
+        manager.remove(0);
+        manager.create(archetype2);
+        manager.create(archetype2);
 
-		manager.process();
+        manager.process();
 
-		clearListeners();
+        listenerA.assertAddLog();
+        listenerA.assertRemoveLog(1, 0);
+        listenerC.assertAddLog(3, 4);
+        listenerC.assertRemoveLog();
 
-		subscriptionA.addListener(new SubscriptionListener() {
+        Assertions.assertNull(mapperA.get(0));
+        Assertions.assertNull(mapperB.get(0));
+        Assertions.assertNotNull(mapperC.get(3));
 
-			@Override
-			public void removed(int entityId) {
-				Assertions.assertNotNull(mapperA.get(entityId));
-			}
+        // Insertion with recycling test
 
-			@Override
-			public void added(int entityId) {
-			}
+        Assertions.assertEquals(0, manager.create(archetype1));
+        Assertions.assertEquals(1, manager.create(archetype1));
+        Assertions.assertEquals(5, manager.create(archetype1));
 
-			@Override
-			public void changed(int entityId, Transmutation transmutation) {
-			}
-		});
+        manager.process();
 
-		manager.transmute(id, archetype3);
+        listenerA.assertAddLog(0, 1, 5);
 
-		manager.process();
+        checkEmptyRun();
+    }
 
-		listenerA.assertAddLog();
-		listenerA.assertChangeLog();
-		listenerA.assertRemoveLog(0);
+    @Test
+    void transmuteTest() {
+        int id = manager.create(archetype1);
 
-		listenerB.assertAddLog();
-		listenerB.assertChangeLog(0);
-		listenerB.assertTransmutationLog(transmutation);
+        manager.process();
 
-		listenerB.assertRemoveLog();
+        clearListeners();
 
-		listenerC.assertAddLog(0);
-		listenerC.assertChangeLog();
-		listenerC.assertRemoveLog();
+        subscriptionA.addListener(new SubscriptionListener() {
 
-		Assertions.assertNull(mapperA.get(0));
-		Assertions.assertNotNull(mapperB.get(0));
-		Assertions.assertNotNull(mapperC.get(0));
-		Assertions.assertEquals(archetype3, manager.archetypeOf(0));
+            @Override
+            public void removed(int entityId) {
+                Assertions.assertNotNull(mapperA.get(entityId));
+            }
 
-		checkEmptyRun();
+            @Override
+            public void added(int entityId) {
+            }
 
-	}
+            @Override
+            public void changed(int entityId, Transmutation transmutation) {
+            }
+        });
 
-	private void checkEmptyRun() {
-		clearListeners();
+        manager.transmute(id, archetype3);
 
-		manager.process();
+        manager.process();
 
-		listenerA.assertAddLog();
-		listenerA.assertChangeLog();
-		listenerA.assertTransmutationLog();
-		listenerA.assertRemoveLog();
+        listenerA.assertAddLog();
+        listenerA.assertChangeLog();
+        listenerA.assertRemoveLog(0);
 
-		listenerB.assertAddLog();
-		listenerB.assertChangeLog();
-		listenerB.assertTransmutationLog();
-		listenerB.assertRemoveLog();
+        listenerB.assertAddLog();
+        listenerB.assertChangeLog(0);
+        listenerB.assertTransmutationLog(transmutation);
 
-		listenerC.assertAddLog();
-		listenerC.assertChangeLog();
-		listenerC.assertTransmutationLog();
-		listenerC.assertRemoveLog();
-	}
+        listenerB.assertRemoveLog();
 
-	private void clearListeners() {
-		listenerA.clear();
-		listenerB.clear();
-		listenerC.clear();
-	}
+        listenerC.assertAddLog(0);
+        listenerC.assertChangeLog();
+        listenerC.assertRemoveLog();
+
+        Assertions.assertNull(mapperA.get(0));
+        Assertions.assertNotNull(mapperB.get(0));
+        Assertions.assertNotNull(mapperC.get(0));
+        Assertions.assertEquals(archetype3, manager.archetypeOf(0));
+
+        checkEmptyRun();
+
+    }
+
+    @Test
+    void addComponentTest() {
+        int id = manager.create(archetype2);
+
+        manager.process();
+
+        clearListeners();
+
+        manager.addComponent(id, B.class);
+
+        manager.process();
+
+        listenerB.assertAddLog(id);
+
+        Assertions.assertNull(mapperA.get(id));
+        Assertions.assertNotNull(mapperB.get(id));
+        Assertions.assertNotNull(mapperC.get(id));
+        Assertions.assertEquals(archetype3, manager.archetypeOf(id));
+
+        checkEmptyRun();
+
+    }
+
+    @Test
+    void removeComponentTest() {
+        int id = manager.create(archetype3);
+
+        manager.process();
+
+        clearListeners();
+
+        manager.removeComponent(id, B.class);
+
+        manager.process();
+
+        listenerB.assertRemoveLog(id);
+
+        Assertions.assertNull(mapperA.get(id));
+        Assertions.assertNull(mapperB.get(id));
+        Assertions.assertNotNull(mapperC.get(id));
+        Assertions.assertEquals(archetype2, manager.archetypeOf(id));
+
+        checkEmptyRun();
+
+    }
+
+    @Test
+    void addThenRemoveComponentTest() {
+        int id = manager.create(archetype2);
+
+        manager.process();
+
+        clearListeners();
+
+        manager.addComponent(id, B.class);
+        manager.removeComponent(id, B.class);
+
+        manager.process();
+
+        listenerB.assertAddLog(id);
+        listenerB.assertRemoveLog(id);
+        listenerB.assertTransmutationLog();
+        listenerA.assertAddLog();
+        listenerA.assertRemoveLog();
+        listenerA.assertTransmutationLog();
+        listenerC.assertAddLog();
+        listenerC.assertRemoveLog();
+        listenerC.assertTransmutationLog(transmutation2, transmutation3);
+
+        Assertions.assertNull(mapperA.get(id));
+        Assertions.assertNull(mapperB.get(id));
+        Assertions.assertNotNull(mapperC.get(id));
+        Assertions.assertEquals(archetype2, manager.archetypeOf(id));
+
+        checkEmptyRun();
+
+    }
+
+    private void checkEmptyRun() {
+        clearListeners();
+
+        manager.process();
+
+        listenerA.assertAddLog();
+        listenerA.assertChangeLog();
+        listenerA.assertTransmutationLog();
+        listenerA.assertRemoveLog();
+
+        listenerB.assertAddLog();
+        listenerB.assertChangeLog();
+        listenerB.assertTransmutationLog();
+        listenerB.assertRemoveLog();
+
+        listenerC.assertAddLog();
+        listenerC.assertChangeLog();
+        listenerC.assertTransmutationLog();
+        listenerC.assertRemoveLog();
+    }
+
+    private void clearListeners() {
+        listenerA.clear();
+        listenerB.clear();
+        listenerC.clear();
+    }
 }

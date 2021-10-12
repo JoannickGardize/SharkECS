@@ -90,7 +90,7 @@ public class EntityManager implements Processor {
      * Other changes will be effective for the next process cycle:
      * <ul>
      * <li>Remove lost components.
-     * <li>Add, remove, and notify changes to {@link Subscription}s.
+     * <li>Add, remove, and notify {@link Subscription}s accordingly.
      * </ul>
      * 
      * @param entityId
@@ -98,7 +98,38 @@ public class EntityManager implements Processor {
      */
     public void transmute(int entityId, Archetype toArchetype) {
         Archetype archetype = entities.get(entityId);
-        Transmutation transmutation = archetype.getTransmutations()[toArchetype.getId()];
+        transmute(entityId, archetype.getTransmutations()[toArchetype.getId()]);
+    }
+
+    /**
+     * Transmutes the given entity the same way as
+     * {@link #transmute(int, Archetype)}, but look for the transmutation that
+     * exactly adds the given component type.
+     * 
+     * @param entityId
+     * @param componentType
+     * @throws NullPointerException if such a transmutation does not exists
+     */
+    public void addComponent(int entityId, Class<?> componentType) {
+        Archetype archetype = entities.get(entityId);
+        transmute(entityId, archetype.getAdditiveTransmutations().get(componentType));
+    }
+
+    /**
+     * Transmutes the given entity the same way as
+     * {@link #transmute(int, Archetype)}, but look for the transmutation that
+     * exactly removes the given component type.
+     * 
+     * @param entityId
+     * @param componentType
+     * @throws NullPointerException if such a transmutation does not exists
+     */
+    public void removeComponent(int entityId, Class<?> componentType) {
+        Archetype archetype = entities.get(entityId);
+        transmute(entityId, archetype.getSuppressiveTransmutations().get(componentType));
+    }
+
+    private void transmute(int entityId, Transmutation transmutation) {
         entities.unsafeSet(entityId, transmutation.getTo());
         for (ComponentMapper<Object> mapper : transmutation.getAddMappers()) {
             mapper.create(entityId);

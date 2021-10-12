@@ -23,54 +23,96 @@ import com.sharkecs.builder.EngineBuilder;
  */
 public class TransmutationConfigurator extends TypeConfigurator<Transmutation> {
 
-	private static class ArchetypeSets {
-		Set<Subscription> subscriptions;
-		@SuppressWarnings("rawtypes")
-		Set<ComponentMapper> autoCreateComponentMappers;
-		@SuppressWarnings("rawtypes")
-		Set<ComponentMapper> componentMappers;
+    private static class ArchetypeSets {
+        Set<Subscription> subscriptions;
+        @SuppressWarnings("rawtypes")
+        Set<ComponentMapper> autoCreateComponentMappers;
+        @SuppressWarnings("rawtypes")
+        Set<ComponentMapper> componentMappers;
 
-		public ArchetypeSets(Archetype archetype) {
-			subscriptions = new HashSet<>(Arrays.asList(archetype.getSubscriptions()));
-			autoCreateComponentMappers = new HashSet<>(Arrays.asList(archetype.getAutoCreateComponentMappers()));
-			componentMappers = new HashSet<>(Arrays.asList(archetype.getComponentMappers()));
-		}
-	}
+        public ArchetypeSets(Archetype archetype) {
+            subscriptions = new HashSet<>(Arrays.asList(archetype.getSubscriptions()));
+            autoCreateComponentMappers = new HashSet<>(Arrays.asList(archetype.getAutoCreateComponentMappers()));
+            componentMappers = new HashSet<>(Arrays.asList(archetype.getComponentMappers()));
+        }
+    }
 
-	private Map<Archetype, ArchetypeSets> archetypeSets = new HashMap<>();
+    private Map<Archetype, ArchetypeSets> archetypeSets = new HashMap<>();
 
-	public TransmutationConfigurator() {
-		super(Transmutation.class);
-	}
+    public TransmutationConfigurator() {
+        super(Transmutation.class);
+    }
 
-	@Override
-	@SuppressWarnings("unchecked")
-	protected void configure(Transmutation transmutation, EngineBuilder engineBuilder) {
-		ArchetypeSets from = archetypeSets.computeIfAbsent(transmutation.getFrom(), ArchetypeSets::new);
-		ArchetypeSets to = archetypeSets.computeIfAbsent(transmutation.getTo(), ArchetypeSets::new);
+    @Override
+    @SuppressWarnings("unchecked")
+    protected void configure(Transmutation transmutation, EngineBuilder engineBuilder) {
+        ArchetypeSets from = archetypeSets.computeIfAbsent(transmutation.getFrom(), ArchetypeSets::new);
+        ArchetypeSets to = archetypeSets.computeIfAbsent(transmutation.getTo(), ArchetypeSets::new);
 
-		transmutation.getFrom().getTransmutations()[transmutation.getTo().getId()] = transmutation;
+        transmutation.getFrom().getTransmutations()[transmutation.getTo().getId()] = transmutation;
 
-		transmutation.setAddSubscriptions(notContains(Subscription.class, to.subscriptions, from.subscriptions));
-		transmutation.setRemoveSubscriptions(notContains(Subscription.class, from.subscriptions, to.subscriptions));
-		transmutation.setChangeSubscriptions(contains(Subscription.class, from.subscriptions, to.subscriptions));
+        transmutation.setAddSubscriptions(notContains(Subscription.class, to.subscriptions, from.subscriptions));
+        transmutation.setRemoveSubscriptions(notContains(Subscription.class, from.subscriptions, to.subscriptions));
+        transmutation.setChangeSubscriptions(contains(Subscription.class, from.subscriptions, to.subscriptions));
 
-		transmutation.setAddMappers(notContains(ComponentMapper.class, to.autoCreateComponentMappers, from.componentMappers));
-		transmutation.setRemoveMappers(notContains(ComponentMapper.class, from.componentMappers, to.componentMappers));
+        transmutation.setAddMappers(
+                notContains(ComponentMapper.class, to.autoCreateComponentMappers, from.componentMappers));
+        transmutation.setRemoveMappers(notContains(ComponentMapper.class, from.componentMappers, to.componentMappers));
 
-		transmutation.markConfigured();
-	}
+        addVariantAccessor(transmutation);
 
-	private <T> T[] notContains(Class<T> elementType, Set<T> compared, Set<T> comparing) {
-		return filterToArray(elementType, compared, e -> !comparing.contains(e));
-	}
+        transmutation.markConfigured();
+    }
 
-	private <T> T[] contains(Class<T> elementType, Set<T> compared, Set<T> comparing) {
-		return filterToArray(elementType, compared, comparing::contains);
-	}
+    private <T> T[] notContains(Class<T> elementType, Set<T> compared, Set<T> comparing) {
+        return filterToArray(elementType, compared, e -> !comparing.contains(e));
+    }
 
-	@SuppressWarnings("unchecked")
-	private <T> T[] filterToArray(Class<T> elementType, Set<T> initial, Predicate<T> matcher) {
-		return initial.stream().filter(matcher).toArray(size -> (T[]) Array.newInstance(elementType, size));
-	}
+    private <T> T[] contains(Class<T> elementType, Set<T> compared, Set<T> comparing) {
+        return filterToArray(elementType, compared, comparing::contains);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T[] filterToArray(Class<T> elementType, Set<T> initial, Predicate<T> matcher) {
+        return initial.stream().filter(matcher).toArray(size -> (T[]) Array.newInstance(elementType, size));
+    }
+
+    private void addVariantAccessor(Transmutation transmutation) {
+        Set<Class<?>> fromComposition = transmutation.getFrom().getComposition();
+        Set<Class<?>> toComposition = transmutation.getTo().getComposition();
+        if (fromComposition.size() + 1 == toComposition.size()) {
+            Class<?> extra = equalsAndGetExtra(fromComposition, toComposition);
+            if (extra != null) {
+                transmutation.getFrom().getAdditiveTransmutations().put(extra, transmutation);
+            }
+        } else if (fromComposition.size() - 1 == toComposition.size()) {
+            Class<?> extra = equalsAndGetExtra(toComposition, fromComposition);
+            if (extra != null) {
+                transmutation.getFrom().getSuppressiveTransmutations().put(extra, transmutation);
+            }
+        }
+    }
+
+    /**
+     * {@code setWithExtra} should extractly have a size of {@code set.size() + 1}
+     * 
+     * @param <T>
+     * @param set
+     * @param setWithExtra
+     * @return the extra element of setWithExtra compared to set, or null if any
+     *         other element is different
+     */
+    private <T> T equalsAndGetExtra(Set<T> set, Set<T> setWithExtra) {
+        T extra = null;
+        for (T e : setWithExtra) {
+            if (!set.contains(e)) {
+                if (extra == null) {
+                    extra = e;
+                } else {
+                    return null;
+                }
+            }
+        }
+        return extra;
+    }
 }
