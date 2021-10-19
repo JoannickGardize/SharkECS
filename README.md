@@ -113,7 +113,7 @@ The full and runnable code of this example can be found [here](https://github.co
 
 ## Entity references
 
-`EntityManager#reference(int)` allows to creates safe references of entities, properly cleared when the referenced entity is removed.
+Since entity IDs are not unique over time, this is not possible to refererence an entity by using a simple integer. Instead, `EntityManager#reference(int)` provides an [EntityReference](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityReference.java) instance, properly cleared when the referenced entity is removed.
 
 ## Priority management
 
