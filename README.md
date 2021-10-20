@@ -65,7 +65,7 @@ public class BulletDamageSystem extends IteratingSystem {
 
 According to the @WithAll annotation, this system will process all entities with at least a Physics and a Bullet component. The system will apply the bullet's damage once it hit a damageable (with a Health component) entity, and then remove the bullet entity.
 
-The attributes of the system will be automatically injected during the engine building. Note the presence of setter methods: they are required and used for injection, because SharkECS is respectful of the encapsulation principle. If you feel uncomfortable with this boilerplate code, Take a look at the [Project Lombok](https://projectlombok.org/).
+The attributes of the system will be automatically injected during the engine building. Note the presence of setter methods: they are required and used for injection. If you feel uncomfortable with this boilerplate code, Take a look at the [Project Lombok](https://projectlombok.org/).
 
 You can find the full running example [here](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/java/com/sharkecs/example).
 
