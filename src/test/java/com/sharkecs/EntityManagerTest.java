@@ -1,18 +1,34 @@
+/*
+ * Copyright 2024 Joannick Gardize
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.sharkecs;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import com.sharkecs.Archetype.ComponentCreationPolicy;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.builder.EngineBuilder;
 import com.sharkecs.builder.RegistrationMap;
 import com.sharkecs.testutil.SubscriptionLogger;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 class EntityManagerTest {
 
@@ -65,29 +81,43 @@ class EntityManagerTest {
     @SuppressWarnings("unchecked")
     public void initialize() {
 
-        EngineBuilder builder = EngineBuilder.withDefaults(10);
-
-        builder.defaultComponentCreationPolicy(ComponentCreationPolicy.AUTOMATIC);
-
-        builder.component(A.class, A::new);
-        builder.component(B.class, B::new);
-        builder.component(C.class, C::new);
-
-        archetype1 = builder.archetype("archetype1", A.class, B.class);
-        archetype2 = builder.archetype("archetype2", C.class);
-        archetype3 = builder.archetype("archetype3", B.class, C.class);
-
         SubscriberA subscriberA = new SubscriberA();
         SubscriberB subscriberB = new SubscriberB();
         SubscriberC subscriberC = new SubscriberC();
 
-        builder.with(subscriberA);
-        builder.with(subscriberB);
-        builder.with(subscriberC);
+        EngineBuilder builder = EngineBuilder.withDefaults(10)
+                .defaultComponentCreationPolicy(ComponentCreationPolicy.AUTOMATIC)
 
-        transmutation = builder.transmutation(archetype1, archetype3);
-        transmutation2 = builder.transmutation(archetype2, archetype3);
-        transmutation3 = builder.transmutation(archetype3, archetype2);
+                .component(A.class, A::new)
+                .component(B.class, B::new)
+                .component(C.class, C::new)
+
+                .archetype("archetype1", A.class, B.class)
+                .archetype("archetype2", C.class)
+                .archetype("archetype3", B.class, C.class)
+
+                .with(subscriberA)
+                .with(subscriberB)
+                .with(subscriberC)
+
+                .transmutation("archetype1", "archetype3")
+                .transmutation("archetype2", "archetype3")
+                .transmutation("archetype3", "archetype2");
+
+        archetype1 = builder.getRegistrations().get(Archetype.class, "archetype1");
+        archetype2 = builder.getRegistrations().get(Archetype.class, "archetype2");
+        archetype3 = builder.getRegistrations().get(Archetype.class, "archetype3");
+
+        for (Map.Entry<Object, Transmutation> set : builder.getRegistrations().entrySet(Transmutation.class)) {
+            Transmutation transmutation = set.getValue();
+            if (transmutation.getFrom() == archetype1) {
+                this.transmutation = transmutation;
+            } else if (transmutation.getFrom() == archetype2) {
+                transmutation2 = transmutation;
+            } else if (transmutation.getFrom() == archetype3) {
+                transmutation3 = transmutation;
+            }
+        }
 
         builder.build();
 

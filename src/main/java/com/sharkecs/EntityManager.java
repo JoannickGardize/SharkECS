@@ -1,3 +1,19 @@
+/*
+ * Copyright 2024 Joannick Gardize
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.sharkecs;
 
 import com.sharkecs.Archetype.ComponentCreationPolicy;
@@ -13,9 +29,8 @@ import com.sharkecs.util.IntBag;
  * <p>
  * {@link #reference(int)} provides a safe way to reference entities between
  * them, by clearing entity id of removed entity.
- * 
- * @author Joannick Gardize
  *
+ * @author Joannick Gardize
  */
 @SkipInject
 public class EntityManager implements Processor {
@@ -53,7 +68,7 @@ public class EntityManager implements Processor {
      * Creates a new entity for the given archetype. All components with a
      * {@link ComponentCreationPolicy#AUTOMATIC} policy are immediately created, but
      * the entity insertion will be effective for the next process cycle.
-     * 
+     *
      * @param archetype the archetype of the new entity, components will be created
      *                  accordingly
      * @return the new entity id
@@ -71,7 +86,7 @@ public class EntityManager implements Processor {
 
     /**
      * Removes the given entity for the next process cycle.
-     * 
+     *
      * @param entityId
      */
     public void remove(int entityId) {
@@ -92,7 +107,7 @@ public class EntityManager implements Processor {
      * <li>Remove lost components.
      * <li>Add, remove, and notify {@link Subscription}s accordingly.
      * </ul>
-     * 
+     *
      * @param entityId
      * @param toArchetype
      */
@@ -105,7 +120,7 @@ public class EntityManager implements Processor {
      * Transmutes the given entity the same way as
      * {@link #transmute(int, Archetype)}, but look for the transmutation that
      * exactly adds the given component type.
-     * 
+     *
      * @param entityId
      * @param componentType
      * @throws NullPointerException if such a transmutation does not exists
@@ -119,7 +134,7 @@ public class EntityManager implements Processor {
      * Transmutes the given entity the same way as
      * {@link #transmute(int, Archetype)}, but look for the transmutation that
      * exactly removes the given component type.
-     * 
+     *
      * @param entityId
      * @param componentType
      * @throws NullPointerException if such a transmutation does not exists
@@ -148,7 +163,7 @@ public class EntityManager implements Processor {
      * to use references during a {@link SubscriptionListener} event call.
      * <p>
      * The behavior of referencing a non-existing entity is undefined.
-     * 
+     *
      * @param entityId the existing entity to reference
      * @return the EntityReference instance referencing the given entity
      */
@@ -157,16 +172,14 @@ public class EntityManager implements Processor {
         if (reference == null) {
             reference = new EntityReference(entityId);
             references.put(entityId, reference);
-            return reference;
-        } else {
-            return reference;
         }
+        return reference;
     }
 
     /**
      * Returns the actual (or future, if a mutation has occurred during this process
      * cycle) archetype of the given entity.
-     * 
+     *
      * @param entityId the entity id
      * @return the actual or future archetype of the given entity
      */

@@ -1,16 +1,31 @@
+/*
+ * Copyright 2024 Joannick Gardize
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.sharkecs.builder;
+
+import com.sharkecs.Archetype;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sharkecs.Archetype;
-
 /**
  * Helps to create an archetype and all its possible variations (volatile style
  * components).
- * 
- * @author Joannick Gardize
  *
+ * @author Joannick Gardize
  */
 public class ArchetypeVariantsBuilder {
 
@@ -31,7 +46,7 @@ public class ArchetypeVariantsBuilder {
     /**
      * Creates an ArchetypeVariantsBuilder with the base archetype described by the
      * parameters
-     * 
+     *
      * @param baseName       the name of the base archetype
      * @param baseComponents the component composition of the base archetype
      */
@@ -41,14 +56,16 @@ public class ArchetypeVariantsBuilder {
 
     /**
      * Adds a variant component.
-     * 
+     *
      * @param suffix    the suffix added to the end of the resulting archetype name.
      *                  For multiple variants, the variant declaration order
      *                  reflects the suffix appending order
      * @param component the component type of the variant
+     * @return this for chaining
      */
-    public void variant(String suffix, Class<?> component) {
+    public ArchetypeVariantsBuilder variant(String suffix, Class<?> component) {
         variants.add(new ArchetypeVariant(suffix, component));
+        return this;
     }
 
     /**
@@ -57,7 +74,7 @@ public class ArchetypeVariantsBuilder {
      * <p>
      * Which means it will create A = 2^N archetypes, where N is the number of
      * variants, and A^2 - A transmutations.
-     * 
+     *
      * @param engineBuilder the engine builder to configure with this archetype and
      *                      all its variants.
      */

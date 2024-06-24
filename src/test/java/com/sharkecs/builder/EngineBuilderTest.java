@@ -1,301 +1,314 @@
+/*
+ * Copyright 2024 Joannick Gardize
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.sharkecs.builder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import com.sharkecs.Archetype;
+import com.sharkecs.*;
 import com.sharkecs.Archetype.ComponentCreationPolicy;
-import com.sharkecs.ComponentMapper;
-import com.sharkecs.Engine;
-import com.sharkecs.EntityManager;
-import com.sharkecs.EntityReference;
-import com.sharkecs.IteratingSystem;
-import com.sharkecs.Subscription;
-import com.sharkecs.Transmutation;
 import com.sharkecs.annotation.CreationPolicy;
 import com.sharkecs.annotation.SkipInject;
 import com.sharkecs.annotation.WithAll;
 import com.sharkecs.annotation.WithAny;
 import com.sharkecs.builder.configurator.Prioritizer;
 import com.sharkecs.testutil.ArrayTestUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 // TODO reduce this class to the minimum test cases and make assembly test of the default configuration in the package com.sharkecs.example
 class EngineBuilderTest {
 
-	@WithAny({ A.class, B.class })
-	public static class FakeSystemA extends IteratingSystem {
+    @WithAny({A.class, B.class})
+    public static class FakeSystemA extends IteratingSystem {
 
-		private Object thing;
-		private Object somethingElse;
+        private Object thing;
+        private Object somethingElse;
 
-		private ComponentMapper<A> mapperA;
-		private ComponentMapper<B> mapperB;
-		private ComponentMapper<C> mapperC;
+        private ComponentMapper<A> mapperA;
+        private ComponentMapper<B> mapperB;
+        private ComponentMapper<C> mapperC;
 
-		private EntityManager entityManager;
+        private EntityManager entityManager;
 
-		@SkipInject
-		private List<Integer> entityLog = new ArrayList<>();
+        @SkipInject
+        private List<Integer> entityLog = new ArrayList<>();
 
-		@Override
-		public void process(int entityId) {
-			entityLog.add(entityId);
-		}
+        @Override
+        public void process(int entityId) {
+            entityLog.add(entityId);
+        }
 
-		public Object getThing() {
-			return thing;
-		}
+        public Object getThing() {
+            return thing;
+        }
 
-		public void setThing(Object thing) {
-			this.thing = thing;
-		}
+        public void setThing(Object thing) {
+            this.thing = thing;
+        }
 
-		public Object getSomethingElse() {
-			return somethingElse;
-		}
+        public Object getSomethingElse() {
+            return somethingElse;
+        }
 
-		public void setSomethingElse(Object somethingElse) {
-			this.somethingElse = somethingElse;
-		}
+        public void setSomethingElse(Object somethingElse) {
+            this.somethingElse = somethingElse;
+        }
 
-		public ComponentMapper<A> getMapperA() {
-			return mapperA;
-		}
+        public ComponentMapper<A> getMapperA() {
+            return mapperA;
+        }
 
-		public void setMapperA(ComponentMapper<A> mapperA) {
-			this.mapperA = mapperA;
-		}
+        public void setMapperA(ComponentMapper<A> mapperA) {
+            this.mapperA = mapperA;
+        }
 
-		public ComponentMapper<B> getMapperB() {
-			return mapperB;
-		}
+        public ComponentMapper<B> getMapperB() {
+            return mapperB;
+        }
 
-		public void setMapperB(ComponentMapper<B> mapperB) {
-			this.mapperB = mapperB;
-		}
+        public void setMapperB(ComponentMapper<B> mapperB) {
+            this.mapperB = mapperB;
+        }
 
-		public ComponentMapper<C> getMapperC() {
-			return mapperC;
-		}
+        public ComponentMapper<C> getMapperC() {
+            return mapperC;
+        }
 
-		public void setMapperC(ComponentMapper<C> mapperC) {
-			this.mapperC = mapperC;
-		}
+        public void setMapperC(ComponentMapper<C> mapperC) {
+            this.mapperC = mapperC;
+        }
 
-		public EntityManager getEntityManager() {
-			return entityManager;
-		}
+        public EntityManager getEntityManager() {
+            return entityManager;
+        }
 
-		@Override
-		public void setEntityManager(EntityManager entityManager) {
-			this.entityManager = entityManager;
-		}
+        @Override
+        public void setEntityManager(EntityManager entityManager) {
+            this.entityManager = entityManager;
+        }
 
-		public List<Integer> getEntityLog() {
-			return entityLog;
-		}
-	}
+        public List<Integer> getEntityLog() {
+            return entityLog;
+        }
+    }
 
-	@WithAll(C.class)
-	public static class FakeSystemB extends IteratingSystem {
+    @WithAll(C.class)
+    public static class FakeSystemB extends IteratingSystem {
 
-		private Archetype archetypeA;
-		private Archetype archetypeB;
+        private Archetype archetypeA;
+        private Archetype archetypeB;
 
-		@Override
-		public void process(int entityId) {
+        @Override
+        public void process(int entityId) {
 
-		}
+        }
 
-		public Archetype getArchetypeA() {
-			return archetypeA;
-		}
+        public Archetype getArchetypeA() {
+            return archetypeA;
+        }
 
-		public void setArchetypeA(Archetype archetypeA) {
-			this.archetypeA = archetypeA;
-		}
+        public void setArchetypeA(Archetype archetypeA) {
+            this.archetypeA = archetypeA;
+        }
 
-		public Archetype getArchetypeB() {
-			return archetypeB;
-		}
+        public Archetype getArchetypeB() {
+            return archetypeB;
+        }
 
-		public void setArchetypeB(Archetype archetypeB) {
-			this.archetypeB = archetypeB;
-		}
-	}
+        public void setArchetypeB(Archetype archetypeB) {
+            this.archetypeB = archetypeB;
+        }
+    }
 
-	static class A {
-		EntityReference reference;
-	}
+    static class A {
+        EntityReference reference;
+    }
 
-	static class B {
+    static class B {
 
-	}
+    }
 
-	@CreationPolicy(ComponentCreationPolicy.MANUAL)
-	static class C {
+    @CreationPolicy(ComponentCreationPolicy.MANUAL)
+    static class C {
 
-	}
+    }
 
-	@Test
-	void failConstructorTest() {
-		Assertions.assertThrows(EngineConfigurationException.class, () -> new EngineBuilder(0));
-	}
+    @Test
+    void failConstructorTest() {
+        Assertions.assertThrows(EngineConfigurationException.class, () -> new EngineBuilder(0));
+    }
 
-	@Test
-	void defaultBuildTest() {
-		EngineBuilder builder = EngineBuilder.withDefaults();
-		builder.defaultComponentCreationPolicy(ComponentCreationPolicy.AUTOMATIC);
+    @Test
+    void defaultBuildTest() {
+        FakeSystemA systemA = new FakeSystemA();
+        FakeSystemB systemB = new FakeSystemB();
+        Object something = new Object();
+        Object somethingElse = new Object();
 
-		builder.component(A.class, A::new);
-		builder.component(B.class, B::new);
-		builder.component(C.class, C::new);
+        EngineBuilder builder = EngineBuilder.withDefaults()
+                .defaultComponentCreationPolicy(ComponentCreationPolicy.AUTOMATIC)
 
-		Archetype archetypeA = builder.archetype("archetypeA", A.class);
-		Archetype archetypeB = builder.archetype("archetypeB", B.class, C.class);
-		Archetype archetypeC = builder.archetype("archetypeC", C.class);
+                .component(A.class, A::new)
+                .component(B.class, B::new)
+                .component(C.class, C::new)
 
-		builder.transmutation("archetypeA", "archetypeB");
+                .archetype("archetypeA", A.class)
+                .archetype("archetypeB", B.class, C.class)
+                .archetype("archetypeC", C.class)
 
-		FakeSystemA systemA = new FakeSystemA();
-		FakeSystemB systemB = new FakeSystemB();
-		builder.with(systemA);
-		builder.then(systemB);
+                .transmutation("archetypeA", "archetypeB")
 
-		Object something = new Object();
-		Object somethingElse = new Object();
-		builder.with(something);
-		builder.with("somethingElse", somethingElse);
+                .with(systemA)
+                .then(systemB)
 
-		Engine engine = builder.build();
+                .with(something)
+                .with("somethingElse", somethingElse);
 
-		// processors assertions
-		Assertions.assertEquals(3, engine.getProcessors().length);
-		Assertions.assertEquals(EntityManager.class, engine.getProcessors()[0].getClass());
-		Assertions.assertSame(systemA, engine.getProcessors()[1]);
-		Assertions.assertSame(systemB, engine.getProcessors()[2]);
+        Engine engine = builder.build();
 
-		// archetypeA assertions
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getSubscriptions(), systemA.getSubscription());
+        Archetype archetypeA = builder.getRegistrations().get(Archetype.class, "archetypeA");
+        Archetype archetypeB = builder.getRegistrations().get(Archetype.class, "archetypeB");
+        Archetype archetypeC = builder.getRegistrations().get(Archetype.class, "archetypeC");
 
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getComponentMappers(), systemA.getMapperA());
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getAutoCreateComponentMappers(), systemA.getMapperA());
+        // processors assertions
+        Assertions.assertEquals(3, engine.getProcessors().length);
+        Assertions.assertEquals(EntityManager.class, engine.getProcessors()[0].getClass());
+        Assertions.assertSame(systemA, engine.getProcessors()[1]);
+        Assertions.assertSame(systemB, engine.getProcessors()[2]);
 
-		Assertions.assertEquals(3, archetypeA.getTransmutations().length);
-		Assertions.assertNull(archetypeA.getTransmutations()[0]);
-		Assertions.assertEquals(archetypeA, archetypeA.getTransmutations()[1].getFrom());
-		Assertions.assertEquals(archetypeB, archetypeA.getTransmutations()[1].getTo());
-		Assertions.assertNull(archetypeA.getTransmutations()[2]);
+        // archetypeA assertions
+        ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getSubscriptions(), systemA.getSubscription());
 
-		// archetypeB assertions
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getSubscriptions(), systemA.getSubscription(), systemB.getSubscription());
+        ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getComponentMappers(), systemA.getMapperA());
+        ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getAutoCreateComponentMappers(), systemA.getMapperA());
 
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getComponentMappers(), systemA.getMapperB(), systemA.getMapperC());
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getAutoCreateComponentMappers(), systemA.getMapperB());
+        Assertions.assertEquals(3, archetypeA.getTransmutations().length);
+        Assertions.assertNull(archetypeA.getTransmutations()[0]);
+        Assertions.assertEquals(archetypeA, archetypeA.getTransmutations()[1].getFrom());
+        Assertions.assertEquals(archetypeB, archetypeA.getTransmutations()[1].getTo());
+        Assertions.assertNull(archetypeA.getTransmutations()[2]);
 
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getTransmutations(), null, null, null);
+        // archetypeB assertions
+        ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getSubscriptions(), systemA.getSubscription(), systemB.getSubscription());
 
-		// transmutation assertions
+        ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getComponentMappers(), systemA.getMapperB(), systemA.getMapperC());
+        ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getAutoCreateComponentMappers(), systemA.getMapperB());
 
-		Transmutation transmutation = archetypeA.getTransmutations()[1];
+        ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getTransmutations(), null, null, null);
 
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getAutoCreateComponentMappers(), (Object[]) transmutation.getAddMappers());
-		ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getComponentMappers(), (Object[]) transmutation.getRemoveMappers());
-		ArrayTestUtils.assertEqualsAnyOrder(new Subscription[] { systemB.getSubscription() }, (Object[]) transmutation.getAddSubscriptions());
-		Assertions.assertEquals(0, transmutation.getRemoveSubscriptions().length);
-		Assertions.assertArrayEquals(new Subscription[] { systemA.getSubscription() }, transmutation.getChangeSubscriptions());
+        // transmutation assertions
 
-		// FakeSystemA assertions
-		Assertions.assertSame(something, systemA.getThing());
-		Assertions.assertSame(somethingElse, systemA.getSomethingElse());
+        Transmutation transmutation = archetypeA.getTransmutations()[1];
 
-		// FakeSystemB assertions
-		Assertions.assertSame(archetypeA, systemB.getArchetypeA());
-		Assertions.assertSame(archetypeB, systemB.getArchetypeB());
+        ArrayTestUtils.assertEqualsAnyOrder(archetypeB.getAutoCreateComponentMappers(), (Object[]) transmutation.getAddMappers());
+        ArrayTestUtils.assertEqualsAnyOrder(archetypeA.getComponentMappers(), (Object[]) transmutation.getRemoveMappers());
+        ArrayTestUtils.assertEqualsAnyOrder(new Subscription[]{systemB.getSubscription()}, (Object[]) transmutation.getAddSubscriptions());
+        Assertions.assertEquals(0, transmutation.getRemoveSubscriptions().length);
+        Assertions.assertArrayEquals(new Subscription[]{systemA.getSubscription()}, transmutation.getChangeSubscriptions());
 
-		// Iteration test
+        // FakeSystemA assertions
+        Assertions.assertSame(something, systemA.getThing());
+        Assertions.assertSame(somethingElse, systemA.getSomethingElse());
 
-		EntityManager entityManager = systemA.getEntityManager();
+        // FakeSystemB assertions
+        Assertions.assertSame(archetypeA, systemB.getArchetypeA());
+        Assertions.assertSame(archetypeB, systemB.getArchetypeB());
 
-		int id = entityManager.create(archetypeC);
-		Assertions.assertNull(systemA.getMapperC().get(id));
-		id = entityManager.create(archetypeA);
-		Assertions.assertNotNull(systemA.getMapperA().get(id));
-		entityManager.create(archetypeA);
+        // Iteration test
 
-		engine.process();
+        EntityManager entityManager = systemA.getEntityManager();
 
-		Assertions.assertEquals(Arrays.asList(1, 2), systemA.getEntityLog());
-	}
+        int id = entityManager.create(archetypeC);
+        Assertions.assertNull(systemA.getMapperC().get(id));
+        id = entityManager.create(archetypeA);
+        Assertions.assertNotNull(systemA.getMapperA().get(id));
+        entityManager.create(archetypeA);
 
-	private int testID;
+        engine.process();
 
-	@Test
-	@SuppressWarnings("unchecked")
-	void referenceTest() {
-		EngineBuilder builder = EngineBuilder.withDefaults();
+        Assertions.assertEquals(Arrays.asList(1, 2), systemA.getEntityLog());
+    }
 
-		builder.component(A.class, A::new);
+    private int testID;
 
-		ComponentMapper<A> mapper = builder.getRegistrations().get(ComponentMapper.class, A.class);
-		EntityManager manager = builder.getRegistrations().get(EntityManager.class);
+    @Test
+    @SuppressWarnings("unchecked")
+    void referenceTest() {
+        EngineBuilder builder = EngineBuilder.withDefaults()
+                .component(A.class, A::new)
+                .archetype("archetypeA", A.class);
 
-		Archetype archetypeA = builder.archetype("archetypeA", A.class);
+        Archetype archetypeA = builder.getRegistrations().get(Archetype.class, "archetypeA");
+        ComponentMapper<A> mapper = builder.getRegistrations().get(ComponentMapper.class, A.class);
+        EntityManager manager = builder.getRegistrations().get(EntityManager.class);
 
-		Engine engine = builder.build();
+        Engine engine = builder.build();
 
-		int id1 = manager.create(archetypeA);
-		int id2 = manager.create(archetypeA);
-		int id3 = manager.create(archetypeA);
 
-		A a1 = mapper.create(id1);
-		a1.reference = manager.reference(id2);
+        int id1 = manager.create(archetypeA);
+        int id2 = manager.create(archetypeA);
+        int id3 = manager.create(archetypeA);
 
-		mapper.create(id2);
+        A a1 = mapper.create(id1);
+        a1.reference = manager.reference(id2);
 
-		engine.process();
+        mapper.create(id2);
 
-		A a3 = mapper.create(id3);
-		a3.reference = manager.reference(id2);
+        engine.process();
 
-		Assertions.assertEquals(id2, a1.reference.get());
-		Assertions.assertTrue(a1.reference.exists());
-		Assertions.assertEquals(id2, a3.reference.get());
-		a3.reference.ifExists(i -> testID = i);
-		Assertions.assertEquals(id2, testID);
+        A a3 = mapper.create(id3);
+        a3.reference = manager.reference(id2);
 
-		manager.remove(id2);
+        Assertions.assertEquals(id2, a1.reference.get());
+        Assertions.assertTrue(a1.reference.exists());
+        Assertions.assertEquals(id2, a3.reference.get());
+        a3.reference.ifExists(i -> testID = i);
+        Assertions.assertEquals(id2, testID);
 
-		engine.process();
+        manager.remove(id2);
 
-		Assertions.assertEquals(-1, a1.reference.get());
-		Assertions.assertFalse(a1.reference.exists());
-		Assertions.assertEquals(-1, a3.reference.get());
-		a3.reference.ifExists(i -> Assertions.fail("should not be executed"));
-	}
+        engine.process();
 
-	@Test
-	void priorityChainTest() {
-		EngineBuilder builder = new EngineBuilder();
-		Prioritizer prioritizer = new Prioritizer();
+        Assertions.assertEquals(-1, a1.reference.get());
+        Assertions.assertFalse(a1.reference.exists());
+        Assertions.assertEquals(-1, a3.reference.get());
+        a3.reference.ifExists(i -> Assertions.fail("should not be executed"));
+    }
 
-		builder.with(prioritizer);
+    @Test
+    void priorityChainTest() {
+        EngineBuilder builder = new EngineBuilder();
+        Prioritizer prioritizer = new Prioritizer();
 
-		Object o1 = new Object();
-		Object o3 = new Object();
-		Object o2 = new Object();
+        builder.with(prioritizer);
 
-		builder.priorityChain(o1, o2, o3);
-		prioritizer.configure(builder);
+        Object o1 = new Object();
+        Object o3 = new Object();
+        Object o2 = new Object();
 
-		List<Object> list = new ArrayList<>(Arrays.asList(o3, o2, o1));
+        builder.priorityChain(o1, o2, o3);
+        prioritizer.configure(builder);
 
-		prioritizer.prioritize(list);
+        List<Object> list = new ArrayList<>(Arrays.asList(o3, o2, o1));
 
-		Assertions.assertArrayEquals(new Object[] { o1, o2, o3 }, list.toArray());
-	}
+        prioritizer.prioritize(list);
+
+        Assertions.assertArrayEquals(new Object[]{o1, o2, o3}, list.toArray());
+    }
 }

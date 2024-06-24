@@ -1,4 +1,26 @@
+/*
+ * Copyright 2024 Joannick Gardize
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.sharkecs.builder.configurator;
+
+import com.sharkecs.*;
+import com.sharkecs.Archetype.ComponentCreationPolicy;
+import com.sharkecs.builder.EngineBuilder;
+import com.sharkecs.builder.EngineConfigurationException;
+import com.sharkecs.builder.RegistrationMap;
 
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -6,23 +28,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.sharkecs.Archetype;
-import com.sharkecs.Archetype.ComponentCreationPolicy;
-import com.sharkecs.Aspect;
-import com.sharkecs.ComponentMapper;
-import com.sharkecs.Subscription;
-import com.sharkecs.Transmutation;
-import com.sharkecs.builder.EngineBuilder;
-import com.sharkecs.builder.EngineConfigurationException;
-import com.sharkecs.builder.RegistrationMap;
-
 /**
  * {@link Configurator} of {@link Archetype}s. Creates the arrays of
  * {@link Subscription}, {@link ComponentMapper} and {@link Transmutation}
  * related to the Archetype.
- * 
- * @author Joannick Gardize
  *
+ * @author Joannick Gardize
  */
 public class ArchetypeConfigurator extends TypeConfigurator<Archetype> {
 
@@ -72,10 +83,10 @@ public class ArchetypeConfigurator extends TypeConfigurator<Archetype> {
     /**
      * Returns the archetype made of the given composition. Configuration of this
      * configurator must be done before calling this method.
-     * 
+     *
      * @param composition the component composition of the archetype to return
      * @return the archetype of the given composition, or null if no archetype
-     *         matches the given composition
+     * matches the given composition
      * @throws EngineConfigurationException if the configuration of this
      *                                      configurator hasn't been done yet
      */
@@ -88,10 +99,10 @@ public class ArchetypeConfigurator extends TypeConfigurator<Archetype> {
 
     /**
      * Convenience method to call {@link #of(Set)} with the given composition array.
-     * 
+     *
      * @param composition the component composition of the archetype to return
      * @return the archetype of the given composition, or null if no archetype
-     *         matches the given composition
+     * matches the given composition
      * @throws EngineConfigurationException if the configuration of this
      *                                      configurator hasn't been done yet
      */
@@ -110,7 +121,7 @@ public class ArchetypeConfigurator extends TypeConfigurator<Archetype> {
     /**
      * Set the default {@link ComponentCreationPolicy}. The default value is
      * {@link ComponentCreationPolicy#MANUAL}.
-     * 
+     *
      * @param defaultComponentCreationPolicy
      */
     public void setDefaultComponentCreationPolicy(ComponentCreationPolicy defaultComponentCreationPolicy) {

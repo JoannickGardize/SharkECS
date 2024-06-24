@@ -1,4 +1,24 @@
+/*
+ * Copyright 2024 Joannick Gardize
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.sharkecs;
+
+import com.sharkecs.annotation.CreationPolicy;
+import com.sharkecs.annotation.SkipInject;
+import com.sharkecs.builder.EngineConfigurationException;
 
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -7,28 +27,22 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.sharkecs.annotation.CreationPolicy;
-import com.sharkecs.annotation.SkipInject;
-import com.sharkecs.builder.EngineConfigurationException;
-
 /**
  * <p>
  * Represents the component composition of an entity.
  * <p>
  * Stores the computed {@link Subscription}s, {@link ComponentMapper}s and
  * {@link Transmutation}s associated with this archetype.
- * 
- * @author Joannick Gardize
  *
+ * @author Joannick Gardize
  */
 @SkipInject
 public class Archetype {
 
     /**
      * The policy to apply to a component when an entity gain a new component
-     * 
-     * @author Joannick Gardize
      *
+     * @author Joannick Gardize
      */
     public enum ComponentCreationPolicy {
         /**
@@ -77,7 +91,7 @@ public class Archetype {
      * Configure the {@link ComponentCreationPolicy} for the given component types.
      * This configuration overrides the default setting and the component's type
      * annotation setting.
-     * 
+     *
      * @param componentCreationPolicy the {@link ComponentCreationPolicy} to apply
      *                                to the given component types
      * @param componentTypes          the component types to set the
@@ -85,7 +99,7 @@ public class Archetype {
      * @throws IllegalStateException if this archetype configuration is already done
      */
     public void setComponentCreationPolicy(ComponentCreationPolicy componentCreationPolicy,
-            Class<?>... componentTypes) {
+                                           Class<?>... componentTypes) {
         checkConfigured();
         for (Class<?> componentType : componentTypes) {
             if (!this.composition.containsKey(componentType)) {
@@ -99,7 +113,7 @@ public class Archetype {
     /**
      * Set the {@link ComponentCreationPolicy} for all component types of this
      * archetype.
-     * 
+     *
      * @param componentCreationPolicy the {@link ComponentCreationPolicy} to apply
      *                                to all component types of this archetype
      * @throws IllegalStateException if this archetype configuration is already done
@@ -121,13 +135,13 @@ public class Archetype {
      * returned. If not, if the component class has defined a {@link CreationPolicy}
      * annotation, its value is returned. If not, the provided default value is
      * returned.
-     * 
+     *
      * @param componentType
      * @param defaultValue
      * @return
      */
     public ComponentCreationPolicy getComponentCreationPolicy(Class<?> componentType,
-            ComponentCreationPolicy defaultValue) {
+                                                              ComponentCreationPolicy defaultValue) {
         ComponentCreationPolicy archetypeValue = composition.get(componentType);
         if (archetypeValue != null) {
             return archetypeValue;
@@ -222,7 +236,7 @@ public class Archetype {
 
     /**
      * @return a map containing all transmutations that exclusively add the
-     *         component type in the key
+     * component type in the key
      */
     public Map<Class<?>, Transmutation> getAdditiveTransmutations() {
         return additiveTransmutations;
@@ -235,7 +249,7 @@ public class Archetype {
 
     /**
      * @return a map containing all transmutations that exclusively remove the
-     *         component type in the key
+     * component type in the key
      */
     public Map<Class<?>, Transmutation> getSuppressiveTransmutations() {
         return suppressiveTransmutations;

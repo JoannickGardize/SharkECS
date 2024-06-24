@@ -1,30 +1,30 @@
+/*
+ * Copyright 2024 Joannick Gardize
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.sharkecs.builder;
+
+import com.sharkecs.*;
+import com.sharkecs.Archetype.ComponentCreationPolicy;
+import com.sharkecs.annotation.Inject;
+import com.sharkecs.builder.configurator.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
-
-import com.sharkecs.Archetype;
-import com.sharkecs.Archetype.ComponentCreationPolicy;
-import com.sharkecs.ComponentMapper;
-import com.sharkecs.Engine;
-import com.sharkecs.EntityManager;
-import com.sharkecs.FlatArrayComponentMapper;
-import com.sharkecs.Initializable;
-import com.sharkecs.Processor;
-import com.sharkecs.Subscriber;
-import com.sharkecs.Transmutation;
-import com.sharkecs.annotation.Inject;
-import com.sharkecs.builder.configurator.ArchetypeConfigurator;
-import com.sharkecs.builder.configurator.Configurator;
-import com.sharkecs.builder.configurator.InitializableConfigurator;
-import com.sharkecs.builder.configurator.Injector;
-import com.sharkecs.builder.configurator.Prioritizer;
-import com.sharkecs.builder.configurator.ProcessorConfigurator;
-import com.sharkecs.builder.configurator.RootConfigurator;
-import com.sharkecs.builder.configurator.SubscriberConfigurator;
-import com.sharkecs.builder.configurator.TransmutationConfigurator;
 
 /**
  * <p>
@@ -62,9 +62,8 @@ import com.sharkecs.builder.configurator.TransmutationConfigurator;
  * {@link RootConfigurator} is used by default as the root configurator, it will
  * run all {@link Configurator}s in their priority order. registering a custom
  * {@link Configurator} allows to extend the build logic.
- * 
- * @author Joannick Gardize
  *
+ * @author Joannick Gardize
  */
 public class EngineBuilder {
 
@@ -90,7 +89,7 @@ public class EngineBuilder {
     /**
      * Creates an empty EngineBuilder with no default configuration, and a
      * {@link RootConfigurator} as root configurator.
-     * 
+     *
      * @param expectedEntityCount the expected maximum number of entity.
      */
     public EngineBuilder(int expectedEntityCount) {
@@ -99,7 +98,7 @@ public class EngineBuilder {
 
     /**
      * Creates an empty EngineBuilder with no default configuration.
-     * 
+     *
      * @param expectedEntityCount the expected maximum number of entity.
      * @param rootConfigurator    the root configurator to use
      */
@@ -118,7 +117,7 @@ public class EngineBuilder {
      * Creates an EngineBuilder with the minimal default configuration as mentioned
      * above, and an expected maximum number of entity of
      * {@link #DEFAULT_EXPECTED_ENTITY_COUNT}.
-     * 
+     *
      * @return an EngineBuilder with default configuration
      */
     public static EngineBuilder withDefaults() {
@@ -128,54 +127,56 @@ public class EngineBuilder {
     /**
      * Creates an EngineBuilder with the minimal default configuration as mentioned
      * above.
-     * 
+     *
      * @param expectedEntityCount the expected maximum number of entity.
      * @return an EngineBuilder with default configuration
      */
     public static EngineBuilder withDefaults(int expectedEntityCount) {
-        EngineBuilder builder = new EngineBuilder(expectedEntityCount);
-
-        builder.with(new Prioritizer());
-
-        builder.with(new SubscriberConfigurator());
-        builder.then(new ArchetypeConfigurator());
-        builder.then(new TransmutationConfigurator());
-        builder.then(new ProcessorConfigurator());
-        builder.then(new Injector());
-        builder.then(new InitializableConfigurator());
-
         EntityManager entityManager = new EntityManager(expectedEntityCount);
-        builder.with(entityManager);
-        builder.before(entityManager, Processor.class);
 
-        builder.autoInjectType(Processor.class);
-        builder.autoInjectType(Subscriber.class);
-        builder.autoInjectType(Initializable.class);
-
-        return builder;
+        return new EngineBuilder(expectedEntityCount)
+                .with(new Prioritizer())
+                // Configurators
+                .with(new SubscriberConfigurator())
+                .then(new ArchetypeConfigurator())
+                .then(new TransmutationConfigurator())
+                .then(new ProcessorConfigurator())
+                .then(new Injector())
+                .then(new InitializableConfigurator())
+                // Entity Manager
+                .with(entityManager)
+                .before(entityManager, Processor.class)
+                // Auto-inject types
+                .autoInjectType(Processor.class)
+                .autoInjectType(Subscriber.class)
+                .autoInjectType(Initializable.class);
     }
 
     /**
      * Register the given object. Injection will be done by field type.
-     * 
+     *
      * @param object the object to register
+     * @return this for chaining
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void with(Object object) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public EngineBuilder with(Object object) {
         with((Class) object.getClass(), null, object);
+        return this;
     }
 
     /**
      * Register the given object. Injection will be done by field type and name.
-     * 
+     *
      * @param name   the name of the registration for field name matching during
      *               injection. Giving a null value is equivalent to
      *               {@link #with(Object)}
      * @param object the object to register
+     * @return this for chaining
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void with(String name, Object object) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public EngineBuilder with(String name, Object object) {
         with((Class) object.getClass(), name, object);
+        return this;
     }
 
     /**
@@ -184,248 +185,312 @@ public class EngineBuilder {
      * {@code registrationType}.
      * <p>
      * This method should not be confused with {@link #withGeneric(Class, Object)}.
-     * 
+     *
      * @param <T>              the registered object type
      * @param registrationType the registration type, used for field type matching
      *                         at injection
      * @param object           the object to register
+     * @return this for chaining
      */
-    public <T> void with(Class<? super T> registrationType, T object) {
+    public <T> EngineBuilder with(Class<? super T> registrationType, T object) {
         with(registrationType, null, object);
+        return this;
     }
 
     /**
      * Register the given object. Injection will be done by field type and generic
-     * type parameter. Does not supports multiple generic type parameters, only the
-     * first raw type parameter is considered.
+     * type parameter of the class. Does not support multiple generic type parameters,
+     * only the first type parameter is considered.
      * <p>
      * This method should not be confused with {@link #with(Class, Object)}.
-     * 
-     * @param genericType
-     * @param object
+     *
+     * @param genericType the generic type as registration key
+     * @param object      the object to register
+     * @return this for chaining
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void withGeneric(Class<?> genericType, Object object) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public EngineBuilder withGeneric(Class<?> genericType, Object object) {
         with((Class) object.getClass(), genericType, object);
+        return this;
     }
 
     /**
      * Register the given object. Injection will be done by field type. Adds a
      * priority rule to be after the previously registered object.
-     * 
+     *
      * @param object the object to register with a priority after the previously
      *               registered object
+     * @return this for chaining
      */
-    public void then(Object object) {
+    public EngineBuilder then(Object object) {
         then(null, object);
+        return this;
     }
 
     /**
      * Register the given object. Injection will be done by field type and name.
      * Adds a priority rule to be after the previously registered object.
-     * 
+     *
      * @param name   the name of the registration for field name matching during
      *               injection. Giving a null value is equivalent to
      *               {@link #then(Object)}
      * @param object the object to register with a priority after the previously
      *               registered object
+     * @return this for chaining
      */
-    public void then(String name, Object object) {
+    public EngineBuilder then(String name, Object object) {
         if (previousObject == null) {
             throw new EngineConfigurationException("No previous object to prioritize");
         }
         before(previousObject, object);
         with(name, object);
+        return this;
     }
 
     /**
      * Register a {@link ComponentMapper} for the given component type.
      * {@link FlatArrayComponentMapper} is used.
-     * 
+     *
      * @param <T>                 the component type
      * @param type                the component type
      * @param newInstanceSupplier a constructor reference for the given {@code type}
+     * @return this for chaining
      */
-    public <T> void component(Class<T> type, Supplier<T> newInstanceSupplier) {
+    public <T> EngineBuilder component(Class<T> type, Supplier<T> newInstanceSupplier) {
         component(type, new FlatArrayComponentMapper<>(expectedEntityCount, newInstanceSupplier));
+        return this;
     }
 
     /**
      * Register the given {@link ComponentMapper} for the given component
      * {@code type}.
-     * 
+     *
      * @param <T>             the component type
      * @param type            the component type
      * @param componentMapper The {@link ComponentMapper} to register for the given
      *                        component {@code type}
+     * @return this for chaining
      */
-    public <T> void component(Class<T> type, ComponentMapper<T> componentMapper) {
+    public <T> EngineBuilder component(Class<T> type, ComponentMapper<T> componentMapper) {
         checkConfiguring();
         registrations.put(ComponentMapper.class, type, componentMapper);
+        return this;
     }
 
     /**
      * Register a new entity {@link Archetype}.
-     * 
+     *
      * @param name           the name of the archetype for field injection
      * @param componentTypes the component types the archetype is made of
-     * @return the newly created Archetype
+     * @return this for chaining
      */
-    public Archetype archetype(String name, Class<?>... componentTypes) {
+    public EngineBuilder archetype(String name, Class<?>... componentTypes) {
         checkConfiguring();
-        Archetype archetype = new Archetype(name, componentTypes);
-        with(name, archetype);
-        return archetype;
+        with(name, new Archetype(name, componentTypes));
+        return this;
+    }
+
+    /**
+     * Calls {@link Archetype#setComponentCreationPolicy(ComponentCreationPolicy, Class[])}
+     * from the previously added archetype.
+     *
+     * @param componentCreationPolicy see {@link Archetype#setComponentCreationPolicy(ComponentCreationPolicy, Class[])}
+     * @param componentTypes          see {@link Archetype#setComponentCreationPolicy(ComponentCreationPolicy, Class[])}
+     * @return this for chaining
+     */
+    public EngineBuilder componentCreationPolicy(ComponentCreationPolicy componentCreationPolicy,
+                                                 Class<?>... componentTypes) {
+        if (!(previousObject instanceof Archetype)) {
+            throw new EngineConfigurationException("The actual object is not an archetype");
+        }
+        ((Archetype) previousObject).setComponentCreationPolicy(componentCreationPolicy, componentTypes);
+        return this;
+    }
+
+    /**
+     * Calls {@link Archetype#setComponentCreationPolicy(ComponentCreationPolicy)}
+     * from the previously added archetype.
+     *
+     * @param componentCreationPolicy see {@link Archetype#setComponentCreationPolicy(ComponentCreationPolicy)}
+     * @return this for chaining
+     */
+    public EngineBuilder componentCreationPolicy(ComponentCreationPolicy componentCreationPolicy) {
+        if (!(previousObject instanceof Archetype)) {
+            throw new EngineConfigurationException("The actual object is not an archetype");
+        }
+        ((Archetype) previousObject).setComponentCreationPolicy(componentCreationPolicy);
+        return this;
     }
 
     /**
      * Register a new entity {@link Transmutation}.
-     * 
+     *
      * @param from the Archetype the transmutation starts from
      * @param to   the resulting Archetype of the transmutation
-     * @return the newly created transmutation
+     * @return this for chaining
      */
-    public Transmutation transmutation(Archetype from, Archetype to) {
+    public EngineBuilder transmutation(Archetype from, Archetype to) {
         checkConfiguring();
         Transmutation transmutation = new Transmutation(from, to);
         registrations.put(transmutation, transmutation);
-        return transmutation;
+        return this;
     }
 
     /**
      * Register a new entity {@link Transmutation}. Uses the archetype name as it
      * was declared in {@link #archetype(String, Class...)}.
-     * 
+     *
      * @param from the Archetype name the transmutation starts from
      * @param to   the resulting Archetype name of the transmutation
+     * @return this for chaining
      */
-    public void transmutation(String from, String to) {
+    public EngineBuilder transmutation(String from, String to) {
         checkConfiguring();
         Archetype fromArchetype = registrations.getOrFail(Archetype.class, from);
         Archetype toArchetype = registrations.getOrFail(Archetype.class, to);
         transmutation(fromArchetype, toArchetype);
+        return this;
     }
 
     /**
      * Calls {@link Prioritizer#before(Object, Object...)}. Adds a priority rule to
      * {@code before} to be before each {@code after}. Parameters can be
-     * registration instances, "marker" instances, registration types, or annotation
-     * types.
-     * 
+     * registration instances, "marker" instances, registration types or supertypes,
+     * or annotation types.
+     *
      * @param before the object / type / annotation to be before each {@code after}
      *               elements
      * @param after  the objects / types / annotations to be after the
      *               {@code before} element
+     * @return this for chaining
      */
-    public void before(Object before, Object... after) {
+    public EngineBuilder before(Object before, Object... after) {
         registrations.getOrFail(Prioritizer.class).before(before, after);
+        return this;
     }
 
     /**
      * Calls {@link Prioritizer#after(Object, Object...)}. Adds a priority rule to
      * {@code after} to be after each {@code before}. Parameters can be registration
      * instances, "marker" instances, registration types, or annotation types.
-     * 
+     *
      * @param after  the object / type / annotation to be after each {@code before}
      *               elements
      * @param before the objects / types / annotations to be before the
      *               {@code after} element
+     * @return this for chaining
      */
-    public void after(Object after, Object... before) {
+    public EngineBuilder after(Object after, Object... before) {
         registrations.getOrFail(Prioritizer.class).after(after, before);
+        return this;
     }
 
     /**
      * Convenience method that calls {@link #before(Object, Object...)} successively
      * for each pair of object in parameter.
-     * 
+     *
      * @param chain the chain of object to prioritize
+     * @return this for chaining
      */
-    public void priorityChain(Object... chain) {
+    public EngineBuilder priorityChain(Object... chain) {
         int end = chain.length - 1;
         for (int i = 0; i < end; i++) {
             before(chain[i], chain[i + 1]);
         }
+        return this;
     }
 
     /**
      * Convenience method to change the default component creation policy of the
-     * {@link ArchetypeConfigurator}. The default value
+     * {@link ArchetypeConfigurator}. The default value is
      * {@link ComponentCreationPolicy#MANUAL}, so the user intended to manually add
      * the components of a created or mutated entity, avoiding a
      * {@link ComponentMapper} access when the component requires some
      * initializations.
-     * 
+     *
      * @param defaultComponentCreationPolicy the new default component creation
      *                                       policy
+     * @return this for chaining
      * @throws EngineConfigurationException if there is no
      *                                      {@link ArchetypeConfigurator} registered
      *                                      in this EngineBuilder
      */
-    public void defaultComponentCreationPolicy(ComponentCreationPolicy defaultComponentCreationPolicy) {
+    public EngineBuilder defaultComponentCreationPolicy(ComponentCreationPolicy defaultComponentCreationPolicy) {
         registrations.getOrFail(ArchetypeConfigurator.class)
                 .setDefaultComponentCreationPolicy(defaultComponentCreationPolicy);
+        return this;
     }
 
     /**
      * Convenience method to call {@link Injector#addAutoInjectType(Class)}. The
      * given class will be automatically injected without the need of marking it
      * with {@link Inject}.
-     * 
-     * @param type
+     *
+     * @param type the type to mark as auto-inject type.
+     * @return this for chaining
      */
-    public void autoInjectType(Class<?> type) {
+    public EngineBuilder autoInjectType(Class<?> type) {
         registrations.getOrFail(Injector.class).addAutoInjectType(type);
+        return this;
     }
 
     /**
      * Convenience method to call {@link Injector#setFailWhenNotFound(boolean)}
-     * 
-     * @param failWhenNotFound
+     *
+     * @param failWhenNotFound see {@link Injector#setFailWhenNotFound(boolean)}
+     * @return this for chaining
      */
-    public void failInjectionWhenNotFound(boolean failWhenNotFound) {
+    public EngineBuilder failInjectionWhenNotFound(boolean failWhenNotFound) {
         registrations.getOrFail(Injector.class).setFailWhenNotFound(failWhenNotFound);
+        return this;
     }
 
     /**
-     * Convenience method to call
-     * {@link Injector#setInjectAnyAssignableType(boolean)}
-     * 
-     * @param injectAnyAssignableType
+     * Convenience method to call {@link Injector#setInjectAnyAssignableType(boolean)}
+     *
+     * @param injectAnyAssignableType see {@link Injector#setInjectAnyAssignableType(boolean)}
+     * @return this for chaining
      */
-    public void injectAnyAssignableType(boolean injectAnyAssignableType) {
+    public EngineBuilder injectAnyAssignableType(boolean injectAnyAssignableType) {
         registrations.getOrFail(Injector.class).setInjectAnyAssignableType(injectAnyAssignableType);
+        return this;
     }
 
     /**
      * Convenience method to register a Configurator, after the {@link Injector} and
      * before the {@link InitializableConfigurator}.
-     * 
+     *
      * @param configurator the configurator to register
+     * @return this for chaining
      */
-    public void configurator(Configurator configurator) {
+    public EngineBuilder configurator(Configurator configurator) {
         with(configurator);
         priorityChain(Injector.class, configurator, InitializableConfigurator.class);
+        return this;
     }
 
     /**
      * Convenience method to register a Configurator, before the {@link Injector}.
-     * 
+     *
      * @param configurator the configurator to register
+     * @return this for chaining
      */
-    public void configuratorBeforeInjection(Configurator configurator) {
+    public EngineBuilder configuratorBeforeInjection(Configurator configurator) {
         with(configurator);
         priorityChain(ProcessorConfigurator.class, configurator, Injector.class);
+        return this;
     }
 
     /**
      * Set the root configurator to use. The default is a {@link RootConfigurator},
      * which calls all registered configurators in their priority orders.
-     * 
+     *
      * @param rootConfigurator the root configurator to use
+     * @return this for chaining
      */
-    public void setRootConfigurator(Configurator rootConfigurator) {
+    public EngineBuilder rootConfigurator(Configurator rootConfigurator) {
         this.rootConfigurator = rootConfigurator;
+        return this;
     }
 
     /**
@@ -435,7 +500,7 @@ public class EngineBuilder {
      * This is a building operation that can only be called during the build (with
      * {@link #build()}). This method should not be called unless for a custom
      * implementation of a Processor {@link Configurator}.
-     * 
+     *
      * @param processor the processor to add to the {@link Engine}
      */
     public void addProcessor(Processor processor) {
@@ -445,8 +510,8 @@ public class EngineBuilder {
 
     /**
      * Build the engine, calling successively all the {@link Configurator}s, and
-     * then injects all fields of all registered objects using the {@link Injector}.
-     * 
+     * then injects all fields of all registered objects using the {@link Injector} (by default).
+     *
      * @return the ready-to-use Engine
      */
     public Engine build() {
@@ -473,10 +538,10 @@ public class EngineBuilder {
     /**
      * Convenience method to call {@link ArchetypeConfigurator#of(Set)}. the
      * ArchetypeConfigurator must be configured before calling this method.
-     * 
+     *
      * @param composition the component composition of the archetype to return
      * @return the archetype of the given composition, or null if no archetype
-     *         matches the given composition
+     * matches the given composition
      * @throws EngineConfigurationException if the configuration of the
      *                                      ArchetypeConfigurator hasn't been done
      *                                      yet
@@ -488,10 +553,10 @@ public class EngineBuilder {
     /**
      * Convenience method to call {@link ArchetypeConfigurator#of(Class...)}. the
      * ArchetypeConfigurator must be configured before calling this method.
-     * 
+     *
      * @param composition the component composition of the archetype to return
      * @return the archetype of the given composition, or null if no archetype
-     *         matches the given composition
+     * matches the given composition
      * @throws EngineConfigurationException if the configuration of the
      *                                      ArchetypeConfigurator hasn't been done
      *                                      yet
@@ -502,7 +567,7 @@ public class EngineBuilder {
 
     private void checkConfiguring() {
         if (!configuring) {
-            throw new EngineConfigurationException("Cannot configure or re-call build() once build began");
+            throw new EngineConfigurationException("Cannot configure or re-call build() once the build began");
         }
     }
 
@@ -515,7 +580,7 @@ public class EngineBuilder {
     /**
      * Private to avoid ambiguity, {@link #getRegistrations()} should be used to get
      * full access of registration type and keys
-     * 
+     *
      * @param <T>
      * @param registrationType
      * @param key

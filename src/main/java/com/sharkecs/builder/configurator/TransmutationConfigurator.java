@@ -1,12 +1,20 @@
-package com.sharkecs.builder.configurator;
+/*
+ * Copyright 2024 Joannick Gardize
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
+package com.sharkecs.builder.configurator;
 
 import com.sharkecs.Archetype;
 import com.sharkecs.ComponentMapper;
@@ -14,11 +22,15 @@ import com.sharkecs.Subscription;
 import com.sharkecs.Transmutation;
 import com.sharkecs.builder.EngineBuilder;
 
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.function.Predicate;
+
 /**
  * {@link Configurator} of {@link Transmutation}s. Computes the difference of
  * {@link Subscription} and {@link ComponentMapper} between the "from" and the
  * "to" {@link Archetype}, for a fast transmutation operation at runtime.
- * 
+ *
  * @author Joannick Gardize
  */
 public class TransmutationConfigurator extends TypeConfigurator<Transmutation> {
@@ -95,12 +107,12 @@ public class TransmutationConfigurator extends TypeConfigurator<Transmutation> {
 
     /**
      * {@code setWithExtra} should extractly have a size of {@code set.size() + 1}
-     * 
+     *
      * @param <T>
      * @param set
      * @param setWithExtra
      * @return the extra element of setWithExtra compared to set, or null if any
-     *         other element is different
+     * other element is different
      */
     private <T> T equalsAndGetExtra(Set<T> set, Set<T> setWithExtra) {
         T extra = null;
