@@ -18,39 +18,42 @@ declared first. It's a bit boring, but in this way, performance is easily optimi
 
 - **Entity**: an entity is something made of components. Entities by themselves are just an integer identifier. Entity
   creation, deletion, and mutation operations are made via
-  the [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityManager.java).
+  the [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/EntityManager.java).
   Note that entity IDs are not unique other time.
 - **Component**: components are data holders representing something some entities are made of (position, body, health,
   AI, sprite...). Components are accessed
-  via [ComponentMappers](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/ComponentMapper.java).
+  via [ComponentMappers](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/ComponentMapper.java).
 - **Archetype**:
-  an [Archetype](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Archetype.java) is a
+  an [Archetype](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/Archetype.java)
+  is a
   declaration of component composition used to create entities at runtime.
 - **Transmutation**:
-  a [Transmutation](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Transmutation.java)
+  a [Transmutation](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/Transmutation.java)
   is the declaration of a possible mutation operation from an Archetype to another one at runtime.
-- **Aspect:** [Aspects](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Aspect.java)
+- **Aspect:
+  ** [Aspects](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/Aspect.java)
   are a kind of filter of entity regarding their component composition. Aspect declaration is made via annotation on
   classes
-  implementing [Subscriber](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Subscriber.java).
+  implementing [Subscriber](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/Subscriber.java).
 - **Subscription**: a maintained collection of entity, generally of a given aspect. A subscription can be listened to
   get notified of insertion, removal, and mutation.
 - **Subscriber**: a class interested to subscribe to a subscription (generally of a given aspect, via its class
   annotation
-  declaration). [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/SubscriberAdapter.java)
+  declaration). [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/SubscriberAdapter.java)
   is a convenient base for this kind of class. Typical systems will subscribe to a subscription and iterate over its
   entities during processing.
 - **Processor**:
-  a [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Processor.java) is
+  a [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/Processor.java)
+  is
   something that will be processed at each engine process call.
 - **System**: systems are processors of a given entity aspect, they implement a part of the game logic related to this
   entity aspect. Systems generally
-  extends [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/SubscriberAdapter.java)
+  extends [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/SubscriberAdapter.java)
   and
-  implements [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/SubscriberAdapter.java). [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/IteratingSystem.java)
+  implements [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/SubscriberAdapter.java). [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/IteratingSystem.java)
 - is the most common base class to use.
 - **Manager**: manager is a general term of something providing shared behaviors / access to systems.
-  The [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityManager.java)
+  The [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/EntityManager.java)
   is the most relevant example.
 - **Engine**: the root class, call `Engine#process()` in your main game loop. It is simply made of an array of
   Processor, since everything is wired during the engine building.
@@ -62,7 +65,7 @@ Let's take an example of an engine made of player(s) and bullets that could dama
 ### System example
 
 Most systems
-extends [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/IteratingSystem.java),
+extends [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/IteratingSystem.java),
 which iterates over all subscribed entity each process cycle (i.e. each frames).
 Let's assume that we have a `PhysicsSystem`, updating a `Physics` component and its list of actually colliding
 other `Physics`. The system responsible for damaging players with the bullets could look like this:
@@ -116,7 +119,7 @@ example [here](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/ja
 
 ### EngineBuilder
 
-[EngineBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/EngineBuilder.java)
+[EngineBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/builder/EngineBuilder.java)
 is used to configure and create the Engine:
 
 ```java
@@ -163,7 +166,7 @@ found [here](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/java
 
 Since entity IDs are not unique over time, this is not possible to reference an entity by using a simple integer.
 Instead, `EntityManager#reference(int)` provides
-an [EntityReference](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityReference.java)
+an [EntityReference](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/EntityReference.java)
 instance, properly cleared when the referenced entity is removed.
 
 ## Add and remove single components
@@ -175,7 +178,7 @@ This kind of component usage is unusual in a naive way for this framework, due t
 to an exponential amount of archetype and transmutation declaration requirement at the engine building step.
 
 This is
-where [ArchetypeVariantsBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/ArchetypeVariantsBuilder.java)
+where [ArchetypeVariantsBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/builder/ArchetypeVariantsBuilder.java)
 can be used at the engine building step to declare all required archetypes and transmutations.
 See [ArchetypeVariantsBuilderTest](https://github.com/JoannickGardize/SharkECS/blob/main/src/test/java/com/sharkecs/builder/ArchetypeVariantsBuilderTest.java)
 for an example code.
