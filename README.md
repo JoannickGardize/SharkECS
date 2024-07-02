@@ -2,10 +2,17 @@
 
 *Development in progress, may drastically change other time.*
 
-SharkECS is a lightweight Entity-Component-System implementation focused on performance, ease of use, and flexibility.
+SharkECS is an Entity-Component-System implementation focused on performance, ease of use, and flexibility.
 
 The specificity of SharkECS regarding other ECS frameworks is that all possible entity composition and mutation must be
-declared first. In this way, performance is easily optimized.
+declared first. It's a bit boring, but in this way, performance is easily optimized.
+
+## Key features
+
+* Deeply customizable engine
+* Spring-bean-like wiring
+* Sorted entity processing
+* Smart priority management
 
 ## Terminology
 
@@ -37,11 +44,11 @@ declared first. In this way, performance is easily optimized.
   a [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/Processor.java) is
   something that will be processed at each engine process call.
 - **System**: systems are processors of a given entity aspect, they implement a part of the game logic related to this
-  entity aspect. In SharkECS, there is no explicit system base class to extends. Systems generally
+  entity aspect. Systems generally
   extends [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/SubscriberAdapter.java)
   and
   implements [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/SubscriberAdapter.java). [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/IteratingSystem.java)
-  is provided for convenience, and is the most common base class to use.
+- is the most common base class to use.
 - **Manager**: manager is a general term of something providing shared behaviors / access to systems.
   The [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityManager.java)
   is the most relevant example.
@@ -70,14 +77,14 @@ public class BulletDamageSystem extends IteratingSystem {
     private ComponentMapper<Health> healthMapper;
 
     @Override
-    public void process(int entityId) {
-        Physics physics = physicsMapper.get(entityId);
+    public void process(int entity) {
+        Physics physics = physicsMapper.get(entity);
         for (EntityReference entityRef : physics.getCollisionGroup()) {
             entityRef.ifExists(collidingId ->
                     healthMapper.ifExists(collidingId, health -> {
-                        Bullet bullet = bulletMapper.get(entityId);
+                        Bullet bullet = bulletMapper.get(entity);
                         health.takeDamage(bullet.getDamage());
-                        entityManager.remove(entityId);
+                        entityManager.remove(entity);
                     }));
         }
     }
@@ -113,19 +120,19 @@ example [here](https://github.com/JoannickGardize/SharkECS/tree/main/src/test/ja
 is used to configure and create the Engine:
 
 ```java
-EngineBuilder builder = EngineBuilder.withDefaults()
+Engine engine = EngineBuilder.withDefaults()
 
         // Register component types
         .component(Physics.class, Physics::new)
         .component(Bullet.class, Bullet::new)
         .component(Health.class, Health::new)
         .component(Shooter.class, Shooter::new)
-        .component(Corpse.class, Corpse::new)
+        .component(Image.class, Image::new)
 
         // Register entity archetypes
-        .archetype("player", Physics.class, Health.class, Shooter.class)
-        .archetype("corpse", Physics.class, Corpse.class)
-        .archetype("bullet", Physics.class, Bullet.class)
+        .archetype("player", Shooter.class, Health.class, Image.class, Physics.class)
+        .archetype("corpse", Image.class, Physics.class)
+        .archetype("bullet", Bullet.class, Image.class, Physics.class)
 
         // Register transmutations
         .transmutation("player", "corpse")
@@ -141,9 +148,10 @@ EngineBuilder builder = EngineBuilder.withDefaults()
         // Register miscellaneous stuff
         .with(new Time())
         .with(new Viewport())
-        .with(new ExampleScenarioInitializer());
+        .with(new ExampleScenarioInitializer())
 
-Engine engine = builder.build();
+        // Build the engine
+        .build();
 ```
 
 Finally, call `engine.process()` in your main game loop.
@@ -157,6 +165,69 @@ Since entity IDs are not unique over time, this is not possible to reference an 
 Instead, `EntityManager#reference(int)` provides
 an [EntityReference](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/EntityReference.java)
 instance, properly cleared when the referenced entity is removed.
+
+## Add and remove single components
+
+This is common in an ECS architecture to make use of "volatile" components, to plug and unplug on the fly temporary
+behaviors to entities.
+
+This kind of component usage is unusual in a naive way for this framework, due to the declaration requirement, and lead
+to an exponential amount of archetype and transmutation declaration requirement at the engine building step.
+
+This is
+where [ArchetypeVariantsBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/ArchetypeVariantsBuilder.java)
+can be used at the engine building step to declare all required archetypes and transmutations.
+See [ArchetypeVariantsBuilderTest](https://github.com/JoannickGardize/SharkECS/blob/main/src/test/java/com/sharkecs/builder/ArchetypeVariantsBuilderTest.java)
+for an example code.
+
+In addition to this, archetypes with one component of difference are treated specifically, allowing the use
+of `EntityManager#addComponent(...)` and `EntityManager#removeComponent(...)` to achieve the transmutations.
+
+## Ordered entity processing
+
+Sometimes, you need to process entities in a specific order, for example, in a 2D top-down game to draw sprites from the
+bottom to the top. This can be achieved by declaring an entity comparator, for example:
+
+```java
+class EntityZOrderComparator implements IntComparator {
+
+    ComponentMapper<Position> positionMapper;
+
+    @Override
+    public int compare(int entity1, int entity2) {
+        return positionMapper.get(entity2).getY() - positionMapper.get(entity1).getY();
+    }
+
+    public void setPositionMapper(ComponentMapper<Position> positionMapper) {
+        this.positionMapper = positionMapper;
+    }
+}
+```
+
+Then, register it with the name you please:
+
+```java
+engineBuilder.entitySort("z-order",new EntityZOrderComparator())
+```
+
+Finally, annotate your Entity System:
+
+```java
+
+@With(Position.class, Sprite.class)
+@SortEntities("z-order")
+class SpriteDrawerSystem extends IteratingSystem {
+    @Override
+    protected void process(int entity) {
+        // Process entities in the right order
+    }
+}
+```
+
+The default sorting algorithm is the best for the case where the sorting condition is smoothly moving between each
+process call, like in this example using entity position. For other use-cases, you can provide your own sorting
+algorithm
+with `EngineBuilder#entitySort(String, SortableEntityListSupplier)`.
 
 ## Priority management
 
@@ -179,23 +250,6 @@ In SharkECS, you specify priorities in the form of before / after constraints. T
 
 For instance, the EngineBuilder's default configuration calls `builder.before(entityManager, Processor.class);` to put
 the EntityManager before any other Processor.
-
-## Add and remove single components
-
-This is common in an ECS architecture to make use of "volatile" components, to plug and unplug on the fly temporary
-behaviors to entities.
-
-This kind of component usage is unusual in a naive way for this framework, due to the declaration requirement, and lead
-to an exponential amount of archetype and transmutation declaration requirement at the engine building step.
-
-This is
-where [ArchetypeVariantsBuilder](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/com/sharkecs/builder/ArchetypeVariantsBuilder.java)
-can be used at the engine building step to declare all required archetypes and transmutations.
-See [ArchetypeVariantsBuilderTest](https://github.com/JoannickGardize/SharkECS/blob/main/src/test/java/com/sharkecs/builder/ArchetypeVariantsBuilderTest.java)
-for an example code.
-
-In addition to this, archetypes with one component of difference are treated specifically, allowing the use
-of `EntityManager#addComponent(...)` and `EntityManager#removeComponent(...)` to achieve the transmutations.
 
 ## Transmutation, injection by generic types, custom engine configurator...
 
