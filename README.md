@@ -34,12 +34,12 @@ declared first. It's a bit boring, but in this way, performance is easily optimi
   ** [Aspects](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/Aspect.java)
   are a kind of filter of entity regarding their component composition. Aspect declaration is made via annotation on
   classes
-  implementing [Subscriber](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/Subscriber.java).
+  implementing [Subscriber](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/subscription/Subscriber.java).
 - **Subscription**: a maintained collection of entity, generally of a given aspect. A subscription can be listened to
   get notified of insertion, removal, and mutation.
 - **Subscriber**: a class interested to subscribe to a subscription (generally of a given aspect, via its class
   annotation
-  declaration). [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/SubscriberAdapter.java)
+  declaration). [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/subscription/SubscriberAdapter.java)
   is a convenient base for this kind of class. Typical systems will subscribe to a subscription and iterate over its
   entities during processing.
 - **Processor**:
@@ -48,9 +48,9 @@ declared first. It's a bit boring, but in this way, performance is easily optimi
   something that will be processed at each engine process call.
 - **System**: systems are processors of a given entity aspect, they implement a part of the game logic related to this
   entity aspect. Systems generally
-  extends [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/SubscriberAdapter.java)
+  extends [SubscriberAdapter](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/subscription/SubscriberAdapter.java)
   and
-  implements [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/SubscriberAdapter.java). [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/IteratingSystem.java)
+  implements [Processor](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/subscription/SubscriberAdapter.java). [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/system/IteratingSystem.java)
 - is the most common base class to use.
 - **Manager**: manager is a general term of something providing shared behaviors / access to systems.
   The [EntityManager](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/EntityManager.java)
@@ -65,7 +65,7 @@ Let's take an example of an engine made of player(s) and bullets that could dama
 ### System example
 
 Most systems
-extends [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/IteratingSystem.java),
+extends [IteratingSystem](https://github.com/JoannickGardize/SharkECS/blob/main/src/main/java/sharkhendrix/sharkecs/system/IteratingSystem.java),
 which iterates over all subscribed entity each process cycle (i.e. each frames).
 Let's assume that we have a `PhysicsSystem`, updating a `Physics` component and its list of actually colliding
 other `Physics`. The system responsible for damaging players with the bullets could look like this:

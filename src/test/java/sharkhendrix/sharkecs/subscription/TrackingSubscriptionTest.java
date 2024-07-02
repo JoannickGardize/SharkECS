@@ -14,14 +14,12 @@
  *    limitations under the License.
  */
 
-package sharkhendrix.sharkecs;
+package sharkhendrix.sharkecs.subscription;
 
-import sharkhendrix.sharkecs.subscription.Subscription;
-import sharkhendrix.sharkecs.subscription.TrackingSubscription;
-import sharkhendrix.sharkecs.testutil.SubscriptionLogger;
-import sharkhendrix.sharkecs.testutil.TestUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import sharkhendrix.sharkecs.testutil.SubscriptionLogger;
+import sharkhendrix.sharkecs.testutil.TestUtil;
 
 class TrackingSubscriptionTest {
 

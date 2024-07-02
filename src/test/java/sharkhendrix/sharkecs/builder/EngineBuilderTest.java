@@ -26,6 +26,7 @@ import sharkhendrix.sharkecs.annotation.With;
 import sharkhendrix.sharkecs.annotation.WithAny;
 import sharkhendrix.sharkecs.builder.configurator.Prioritizer;
 import sharkhendrix.sharkecs.subscription.Subscription;
+import sharkhendrix.sharkecs.system.IteratingSystem;
 import sharkhendrix.sharkecs.testutil.ArrayTestUtils;
 
 import java.util.ArrayList;

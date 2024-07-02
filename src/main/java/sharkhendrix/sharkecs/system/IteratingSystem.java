@@ -14,14 +14,15 @@
  *    limitations under the License.
  */
 
-package sharkhendrix.sharkecs;
+package sharkhendrix.sharkecs.system;
 
+import sharkhendrix.sharkecs.Aspect;
 import sharkhendrix.sharkecs.util.IntIterator;
 
 /**
- * The most common base class for an entity processing system. Subscribe to an
- * entity group via an {@link Aspect}, and process each entity of the
- * subscription one time per {@link #process()}.
+ * The most common base class for an entity processing system that needs to iterate over all subscribed entities.
+ * Subclasses should subscribe to an entity group via an {@link Aspect} annotation.
+ * Process each entity of the subscription one time per {@link #process()}.
  */
 public abstract class IteratingSystem extends EntitySystem {
 

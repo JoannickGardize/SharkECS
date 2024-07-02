@@ -22,6 +22,10 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * Annotation for {@link sharkhendrix.sharkecs.subscription.Subscriber} to sort entities in a given order,
+ * the value is the name reference of the {@link sharkhendrix.sharkecs.util.SortableIntList} to use.
+ */
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface SortEntities {

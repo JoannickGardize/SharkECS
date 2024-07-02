@@ -17,13 +17,13 @@
 package sharkhendrix.sharkecs.example.system;
 
 import sharkhendrix.sharkecs.ComponentMapper;
-import sharkhendrix.sharkecs.IteratingSystem;
 import sharkhendrix.sharkecs.annotation.SortEntities;
 import sharkhendrix.sharkecs.annotation.With;
 import sharkhendrix.sharkecs.example.component.Health;
 import sharkhendrix.sharkecs.example.component.Physics;
 import sharkhendrix.sharkecs.example.misc.Viewport;
 import sharkhendrix.sharkecs.example.system.annotation.DrawingPhase;
+import sharkhendrix.sharkecs.system.IteratingSystem;
 
 @DrawingPhase
 @SortEntities("position")

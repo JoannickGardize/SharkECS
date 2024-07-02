@@ -14,16 +14,16 @@
  *    limitations under the License.
  */
 
-package sharkhendrix.sharkecs;
+package sharkhendrix.sharkecs.system;
 
+import sharkhendrix.sharkecs.EntityManager;
+import sharkhendrix.sharkecs.Initializable;
+import sharkhendrix.sharkecs.Processor;
 import sharkhendrix.sharkecs.annotation.ForceInject;
 import sharkhendrix.sharkecs.subscription.SubscriberAdapter;
 
 /**
- * Convenience class to extends {@link SubscriberAdapter}, implements
- * {@link Processor} and {@link Initializable}, and provides an
- * {@link EntityManager} attribute. Which is the most common base for an entity
- * processing system.
+ * Base class for an entity processing system.
  */
 public abstract class EntitySystem extends SubscriberAdapter implements Processor, Initializable {
 

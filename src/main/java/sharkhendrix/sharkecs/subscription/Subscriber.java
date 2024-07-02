@@ -23,7 +23,7 @@ public interface Subscriber extends SubscriptionListener {
 
     /**
      * Subscribe this subscriber to the given {@link Subscription}. The
-     * implementation is responsible of calling
+     * implementation is responsible for calling
      * {@link Subscription#addListener(SubscriptionListener)} if needed.
      *
      * @param subscription the subscription to subscribe

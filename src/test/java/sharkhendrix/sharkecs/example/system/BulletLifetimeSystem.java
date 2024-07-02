@@ -17,11 +17,11 @@
 package sharkhendrix.sharkecs.example.system;
 
 import sharkhendrix.sharkecs.ComponentMapper;
-import sharkhendrix.sharkecs.IteratingSystem;
 import sharkhendrix.sharkecs.annotation.With;
 import sharkhendrix.sharkecs.example.component.Bullet;
 import sharkhendrix.sharkecs.example.misc.Time;
 import sharkhendrix.sharkecs.example.system.annotation.LogicPhase;
+import sharkhendrix.sharkecs.system.IteratingSystem;
 
 @LogicPhase
 @With(Bullet.class)

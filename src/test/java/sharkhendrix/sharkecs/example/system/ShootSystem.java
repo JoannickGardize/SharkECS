@@ -18,7 +18,6 @@ package sharkhendrix.sharkecs.example.system;
 
 import sharkhendrix.sharkecs.Archetype;
 import sharkhendrix.sharkecs.ComponentMapper;
-import sharkhendrix.sharkecs.IteratingSystem;
 import sharkhendrix.sharkecs.annotation.With;
 import sharkhendrix.sharkecs.example.component.Bullet;
 import sharkhendrix.sharkecs.example.component.Image;
@@ -27,6 +26,7 @@ import sharkhendrix.sharkecs.example.component.Shooter;
 import sharkhendrix.sharkecs.example.misc.Images;
 import sharkhendrix.sharkecs.example.misc.Time;
 import sharkhendrix.sharkecs.example.system.annotation.LogicPhase;
+import sharkhendrix.sharkecs.system.IteratingSystem;
 
 @LogicPhase
 @With({Shooter.class, Physics.class})

@@ -18,12 +18,12 @@ package sharkhendrix.sharkecs.example.system;
 
 import sharkhendrix.sharkecs.ComponentMapper;
 import sharkhendrix.sharkecs.EntityReference;
-import sharkhendrix.sharkecs.IteratingSystem;
 import sharkhendrix.sharkecs.annotation.SkipInject;
 import sharkhendrix.sharkecs.annotation.With;
 import sharkhendrix.sharkecs.example.component.Physics;
 import sharkhendrix.sharkecs.example.misc.Time;
 import sharkhendrix.sharkecs.example.system.annotation.LogicPhase;
+import sharkhendrix.sharkecs.system.IteratingSystem;
 
 import java.util.ArrayList;
 import java.util.HashMap;
