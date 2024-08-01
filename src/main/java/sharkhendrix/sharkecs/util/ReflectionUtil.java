@@ -23,21 +23,21 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.function.Consumer;
 
-public class ReflectionUtils {
+public class ReflectionUtil {
 
-    private ReflectionUtils() {
+    private ReflectionUtil() {
         throw new UnsupportedOperationException();
     }
 
     public static Class<?> getFirstGenericTypeArgument(Type type) {
-        if (type instanceof ParameterizedType) {
-            Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
+        if (type instanceof ParameterizedType pt) {
+            Type[] typeArguments = pt.getActualTypeArguments();
             if (typeArguments.length > 0) {
                 Type typeArgument = typeArguments[0];
-                if (typeArgument instanceof Class) {
-                    return (Class<?>) typeArgument;
-                } else if (typeArgument instanceof ParameterizedType && ((ParameterizedType) typeArgument).getRawType() instanceof Class<?>) {
-                    return (Class<?>) ((ParameterizedType) typeArgument).getRawType();
+                if (typeArgument instanceof Class<?> c) {
+                    return c;
+                } else if (typeArgument instanceof ParameterizedType pt2 && pt2.getRawType() instanceof Class<?>) {
+                    return (Class<?>) pt2.getRawType();
 
                 }
             }
@@ -46,7 +46,8 @@ public class ReflectionUtils {
     }
 
     public static Method getSetter(Field field) throws NoSuchMethodException {
-        return field.getDeclaringClass().getMethod("set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1), field.getType());
+        return field.getDeclaringClass().getMethod(
+                "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1), field.getType());
     }
 
     public static void forEachAssignableTypes(Class<?> type, Consumer<Class<?>> action) {

@@ -104,7 +104,7 @@ public class TransmutationConfigurator extends TypeConfigurator<Transmutation> {
     }
 
     /**
-     * {@code setWithExtra} should extractly have a size of {@code set.size() + 1}
+     * {@code setWithExtra} should exactly have a size of {@code set.size() + 1}
      *
      * @param <T>
      * @param set

@@ -263,6 +263,21 @@ public class EngineBuilder {
     }
 
     /**
+     * Register a {@link ComponentMapper} for the given component type.
+     * {@link ArrayComponentMapper} is used.
+     * Automatic component creation will not be supported.
+     *
+     * @param <T>  the component type
+     * @param type the component type
+     * @return this for chaining
+     */
+    public <T> EngineBuilder component(Class<T> type) {
+        return component(type, new ArrayComponentMapper<>(expectedEntityCount, () -> {
+            throw new UnsupportedOperationException();
+        }));
+    }
+
+    /**
      * Register the given {@link ComponentMapper} for the given component
      * {@code type}.
      *
@@ -550,7 +565,7 @@ public class EngineBuilder {
         checkConfiguring();
         configuring = false;
         rootConfigurator.configure(this);
-        return new Engine(processors.toArray(new Processor[processors.size()]));
+        return new Engine(processors.toArray(new Processor[0]));
     }
 
     /**

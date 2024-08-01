@@ -37,8 +37,8 @@ public class Engine {
      * simulation.
      */
     public void process() {
-        for (int i = 0, size = processors.length; i < size; i++) {
-            processors[i].process();
+        for (Processor processor : processors) {
+            processor.process();
         }
     }
 

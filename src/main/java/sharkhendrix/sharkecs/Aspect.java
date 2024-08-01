@@ -21,8 +21,6 @@ import sharkhendrix.sharkecs.annotation.WithAny;
 import sharkhendrix.sharkecs.annotation.Without;
 import sharkhendrix.sharkecs.subscription.Subscriber;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiPredicate;
@@ -49,7 +47,7 @@ import java.util.stream.Stream;
  */
 public class Aspect {
 
-    private Set<Class<?>> withAll;
+    private Set<Class<?>> with;
     private Set<Class<?>> withAny;
     private Set<Class<?>> without;
 
@@ -60,11 +58,11 @@ public class Aspect {
      */
     public Aspect(Class<?> annotatedType) {
         With withAnnotation = annotatedType.getAnnotation(With.class);
-        withAll = withAnnotation != null ? new HashSet<>(Arrays.asList(withAnnotation.value())) : null;
+        with = withAnnotation != null ? Set.of(withAnnotation.value()) : null;
         WithAny withAnyAnnotation = annotatedType.getAnnotation(WithAny.class);
-        withAny = withAnyAnnotation != null ? new HashSet<>(Arrays.asList(withAnyAnnotation.value())) : null;
+        withAny = withAnyAnnotation != null ? Set.of(withAnyAnnotation.value()) : null;
         Without withoutAnnotation = annotatedType.getAnnotation(Without.class);
-        without = withoutAnnotation != null ? new HashSet<>(Arrays.asList(withoutAnnotation.value())) : null;
+        without = withoutAnnotation != null ? Set.of(withoutAnnotation.value()) : null;
     }
 
     /**
@@ -74,7 +72,9 @@ public class Aspect {
      * @return true if this aspect matches with the given set, false otherwise.
      */
     public boolean matches(Set<Class<?>> componentTypes) {
-        return isNullOr(withAll, componentTypes, Stream::allMatch) && isNullOr(withAny, componentTypes, Stream::anyMatch) && isNullOr(without, componentTypes, Stream::noneMatch);
+        return isNullOr(with, componentTypes, Stream::allMatch)
+                && isNullOr(withAny, componentTypes, Stream::anyMatch)
+                && isNullOr(without, componentTypes, Stream::noneMatch);
     }
 
     private boolean isNullOr(Set<Class<?>> filterSet, Set<Class<?>> toTestSet, BiPredicate<Stream<Class<?>>, Predicate<Class<?>>> filter) {
@@ -85,7 +85,7 @@ public class Aspect {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + Objects.hashCode(withAll);
+        result = prime * result + Objects.hashCode(with);
         result = prime * result + Objects.hashCode(withAny);
         result = prime * result + Objects.hashCode(without);
         return result;
@@ -99,7 +99,7 @@ public class Aspect {
             return false;
         }
         Aspect other = (Aspect) obj;
-        return Objects.equals(withAll, other.withAll) && Objects.equals(withAny, other.withAny) && Objects.equals(without, other.without);
+        return Objects.equals(with, other.with) && Objects.equals(withAny, other.withAny) && Objects.equals(without, other.without);
     }
 
 }

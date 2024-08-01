@@ -2,7 +2,8 @@
 
 *Development in progress, may drastically change other time.*
 
-SharkECS is an Entity-Component-System implementation focused on performance, ease of use, and flexibility.
+SharkECS is a lightweight (zero dependency) Entity-Component-System implementation in Java,
+focused on performance, ease of use, and flexibility.
 
 The specificity of SharkECS regarding other ECS frameworks is that all possible entity composition and mutation must be
 declared first. It's a bit boring, but in this way, performance is easily optimized.

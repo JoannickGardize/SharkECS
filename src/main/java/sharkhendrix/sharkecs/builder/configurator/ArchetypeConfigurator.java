@@ -110,11 +110,7 @@ public class ArchetypeConfigurator extends TypeConfigurator<Archetype> {
      *                                      configurator hasn't been done yet
      */
     public Archetype of(Class<?>... composition) {
-        Map<Class<?>, Class<?>> compositionMap = new IdentityHashMap<>();
-        for (Class<?> type : composition) {
-            compositionMap.put(type, type);
-        }
-        return of(compositionMap.keySet());
+        return of(Set.of(composition));
     }
 
     public Archetype.ComponentCreationPolicy getDefaultComponentCreationPolicy() {

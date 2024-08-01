@@ -16,11 +16,11 @@
 
 package sharkhendrix.sharkecs;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import sharkhendrix.sharkecs.annotation.With;
 import sharkhendrix.sharkecs.annotation.WithAny;
 import sharkhendrix.sharkecs.annotation.Without;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -60,7 +60,7 @@ class AspectTest {
 
     @With(A.class)
     @WithAny({C.class, B.class})
-    @Without({D.class, D.class})
+    @Without({D.class})
     static class AnnotatedWithMixed2 {
     }
 

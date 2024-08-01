@@ -37,6 +37,7 @@ public class ArrayComponentMapper<T> implements ComponentMapper<T> {
         this.newInstanceSupplier = newInstanceSupplier;
     }
 
+
     @Override
     public T create(int entity) {
         T component = newInstanceSupplier.get();

@@ -22,7 +22,7 @@ import sharkhendrix.sharkecs.annotation.SkipInject;
 import sharkhendrix.sharkecs.builder.EngineBuilder;
 import sharkhendrix.sharkecs.builder.EngineConfigurationException;
 import sharkhendrix.sharkecs.builder.RegistrationMap;
-import sharkhendrix.sharkecs.util.ReflectionUtils;
+import sharkhendrix.sharkecs.util.ReflectionUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -157,7 +157,7 @@ public class Injector implements Configurator {
     }
 
     private boolean injectByGenericType(Object object, Field field, RegistrationMap registrations) {
-        Class<?> argumentType = ReflectionUtils.getFirstGenericTypeArgument(field.getGenericType());
+        Class<?> argumentType = ReflectionUtil.getFirstGenericTypeArgument(field.getGenericType());
         if (argumentType != null) {
             return injectByKey(object, field, argumentType, registrations);
         } else {
@@ -176,7 +176,7 @@ public class Injector implements Configurator {
     private boolean inject(Object object, Field field, Object value) {
         if (value != null) {
             try {
-                ReflectionUtils.getSetter(field).invoke(object, value);
+                ReflectionUtil.getSetter(field).invoke(object, value);
                 return true;
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException |
                      NoSuchMethodException e) {
@@ -194,6 +194,7 @@ public class Injector implements Configurator {
 
     private boolean isAutoInjectType(Class<?> type, boolean requiresForce) {
         return type.isAnnotationPresent(ForceInject.class)
-                || !requiresForce && (type.isAnnotationPresent(Inject.class) || autoInjectTypes.stream().anyMatch(t -> t.isAssignableFrom(type)));
+                || !requiresForce && (type.isAnnotationPresent(Inject.class)
+                || autoInjectTypes.stream().anyMatch(t -> t.isAssignableFrom(type)));
     }
 }

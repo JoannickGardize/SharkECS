@@ -16,7 +16,7 @@
 
 package sharkhendrix.sharkecs.builder;
 
-import sharkhendrix.sharkecs.util.ReflectionUtils;
+import sharkhendrix.sharkecs.util.ReflectionUtil;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -72,7 +72,7 @@ public class RegistrationMap {
     }
 
     private <T> void addAssignableTypes(T o) {
-        ReflectionUtils.forEachAssignableTypes(o.getClass(), t -> byAssignableType.computeIfAbsent(t, t2 -> new ArrayList<>()).add(o));
+        ReflectionUtil.forEachAssignableTypes(o.getClass(), t -> byAssignableType.computeIfAbsent(t, t2 -> new ArrayList<>()).add(o));
     }
 
     /**

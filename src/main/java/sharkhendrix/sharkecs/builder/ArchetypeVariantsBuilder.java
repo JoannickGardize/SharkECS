@@ -20,6 +20,7 @@ import sharkhendrix.sharkecs.Archetype;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
  * Helps to create an archetype and all its possible variations (volatile style
@@ -95,16 +96,13 @@ public class ArchetypeVariantsBuilder {
     }
 
     private Archetype buildVariant(long mask) {
-        List<Class<?>> tmpComposition = new ArrayList<>();
-        tmpComposition.addAll(base.getComposition());
+        List<Class<?>> tmpComposition = new ArrayList<>(base.getComposition());
         StringBuilder nameBuilder = new StringBuilder(base.getName());
-        for (int i = 0; i < variants.size(); i++) {
-            if ((mask & 1L << i) != 0) {
-                ArchetypeVariant variant = variants.get(i);
-                tmpComposition.add(variant.component);
-                nameBuilder.append(variant.suffix);
-            }
-        }
-        return new Archetype(nameBuilder.toString(), tmpComposition.toArray(new Class[tmpComposition.size()]));
+        IntStream.range(0, variants.size()).filter(i -> (mask & 1L << i) != 0)
+                .mapToObj(i -> variants.get(i)).forEach(variant -> {
+                    tmpComposition.add(variant.component);
+                    nameBuilder.append(variant.suffix);
+                });
+        return new Archetype(nameBuilder.toString(), tmpComposition.toArray(new Class[0]));
     }
 }

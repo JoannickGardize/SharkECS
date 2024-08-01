@@ -18,8 +18,6 @@ package sharkhendrix.sharkecs.builder;
 
 public class EngineConfigurationException extends RuntimeException {
 
-    private static final long serialVersionUID = 1L;
-
     public EngineConfigurationException(String message) {
         super(message);
     }

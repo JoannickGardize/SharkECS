@@ -28,25 +28,23 @@ import sharkhendrix.sharkecs.subscription.SortedTrackingSubscription;
 import sharkhendrix.sharkecs.subscription.Subscriber;
 import sharkhendrix.sharkecs.subscription.Subscription;
 import sharkhendrix.sharkecs.subscription.TrackingSubscription;
-import sharkhendrix.sharkecs.util.ReflectionUtils;
+import sharkhendrix.sharkecs.util.ReflectionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
- * {@link Configurator} of {@link Subscriber}s, creates and bind
- * {@link Subscription}s via the annotation-declared aspect of the subscriber
- * type.
+ * {@link Configurator} of {@link Subscriber Subscribers}, creates and bind
+ * {@link Subscription Subscriptions} via the annotation-declared aspect of the subscriber type.
  * <p>
  * For the case where multiple subscribers are interested to the same Aspect,
  * it creates as less subscription objects as possible
  * regarding {@link RequiresEntityTracking} and {@link SortEntities} annotations.
  * Also, it will create the less complex Subscription type required in that priority order:
  * {@link Subscription}, {@link  TrackingSubscription}, {@link  SortedTrackingSubscription}.
- * As a consequence, a subscriber that does not request for tracking or sorting may register to a subscription with
- * tracking or sorting, which should not affect it.
+ * As a consequence, a subscriber that does not request for tracking or sorting
+ * may effectively register to a subscription with tracking or sorting, which should not affect it.
  * <p>
  * Uses the {@link Prioritizer} to subscribe and
  * so get notified at runtime in the right order.
@@ -59,7 +57,7 @@ public class SubscriberConfigurator extends TypeConfigurator<Subscriber> {
 
     @Override
     protected void configure(Subscriber subscriber, EngineBuilder engineBuilder) {
-        RequiresEntityTracking tracking = ReflectionUtils.getAnnotationOnSuperclass(subscriber.getClass(), RequiresEntityTracking.class);
+        RequiresEntityTracking tracking = ReflectionUtil.getAnnotationOnSuperclass(subscriber.getClass(), RequiresEntityTracking.class);
         boolean requiresTracking = tracking == null || tracking.value();
         String sortName = getSubscriberSortName(subscriber);
         if (sortName != null && !requiresTracking) {
@@ -84,14 +82,14 @@ public class SubscriberConfigurator extends TypeConfigurator<Subscriber> {
     @Override
     protected void endConfiguration(EngineBuilder engineBuilder) {
         RegistrationMap registrations = engineBuilder.getRegistrations();
-        for (Entry<Object, SubscriptionGroup> entry : registrations.entrySet(SubscriptionGroup.class)) {
+        for (var entry : registrations.entrySet(SubscriptionGroup.class)) {
             SubscriptionGroup subscriptionGroup = entry.getValue();
             Map<String, Subscription> map = subscriptionGroup.getSubscriptionsBySort();
             if (map.size() == 1 && map.containsKey(null)) {
                 map.put(null, subscriptionGroup.isRequiresTracking() ? new TrackingSubscription(engineBuilder.getExpectedEntityCount()) : new Subscription());
             } else {
                 Subscription anySubscription = null;
-                for (Entry<String, Subscription> sortEntry : map.entrySet()) {
+                for (var sortEntry : map.entrySet()) {
                     if (sortEntry.getKey() != null) {
                         anySubscription = new SortedTrackingSubscription(
                                 registrations.get(SortableEntityListSupplier.class, sortEntry.getKey()).get());
@@ -111,7 +109,7 @@ public class SubscriberConfigurator extends TypeConfigurator<Subscriber> {
     }
 
     private String getSubscriberSortName(Subscriber subscriber) {
-        SortEntities sort = ReflectionUtils.getAnnotationOnSuperclass(subscriber.getClass(), SortEntities.class);
+        SortEntities sort = ReflectionUtil.getAnnotationOnSuperclass(subscriber.getClass(), SortEntities.class);
         return sort == null ? null : sort.value();
     }
 }

@@ -38,9 +38,11 @@ public interface ComponentMapper<T> {
 
     /**
      * Associates the given component to the given entity.
+     * <p>
+     * If there is already a component of this type associated to the entity, it will be replaced.
      *
-     * @param entity
-     * @param component
+     * @param entity    the entity that will be associated to the component
+     * @param component the component to associate to the entity
      */
     void put(int entity, T component);
 
